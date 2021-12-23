@@ -1,0 +1,60 @@
+docker:
+  version: 0.1.4
+
+postgres:
+  create_crypto: |
+    CREATE TABLE IF NOT EXISTS crypto (
+      id SERIAL PRIMARY KEY,
+      unix INTEGER,
+      datetime DATE,
+      symbol VARCHAR(255),
+      open REAL,
+      high REAL,
+      low REAL,
+      close REAL,
+      volume_original VARCHAR(255),
+      volume_usd VARCHAR(255)
+    )
+  insert_crypto: |
+    INSERT INTO crypto (
+      unix,
+      datetime,
+      symbol,
+      open,
+      high,
+      low,
+      close,
+      volume_original,
+      volume_usd
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+
+  select_crypto: |
+    SELECT
+      *
+    FROM
+      crypto
+    WHERE
+      crypto.symbol = $1
+    AND
+      datetime > $2
+    AND
+      datetime < $3
+    ORDER BY
+      unix
+
+  create_account: |
+    CREATE TABLE IF NOT EXISTS account (
+      id SERIAL PRIMARY KEY,
+      email VARCHAR(255) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL
+    )
+
+  insert_account: |
+    INSERT INTO account (
+      email,
+      password
+    )
+    VALUES ($1,$2) RETURNING id
+
+  select_account: |
+    SELECT * FROM account WHERE account.email = $1

@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vision
+  labels:
+    app: vision
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vision
+  template:
+    metadata:
+      labels:
+        app: vision
+    spec:
+      containers:
+        - name: etl
+          image: registry.gitlab.com/sevenblocks/vision:<VERSION>
+          imagePullPolicy: Always
+          env:
+            - name: POSTGRES_USER
+              value: <POSTGRES_USER>
+
+            - name: POSTGRES_PASSWORD
+              value: <POSTGRES_PASSWORD>
+
+            - name: POSTGRES_HOST
+              value: <POSTGRES_HOST>
+
+            - name: POSTGRES_PORT
+              value: <POSTGRES_PORT>
+
+            - name: POSTGRES_DB
+              value: <POSTGRES_DB>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vision
+spec:
+  selector:
+    app: vision
+  ports:
+    - name: web
+      port: 80
+      targetPort: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vision
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 64m
+spec:
+  ingressClassName: nginx # required
+  rules:
+    - host: api.vnmntn.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vision
+                port:
+                  number: 80
