@@ -5,9 +5,10 @@ stages:
 docker:
   stage: docker
   script:
+    - VERSION=$(cat version)
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build . -t $CI_REGISTRY_IMAGE
-    - docker push $CI_REGISTRY_IMAGE
+    - docker build . -t $CI_REGISTRY_IMAGE:$VERSION
+    - docker push $CI_REGISTRY_IMAGE:$VERSION
   only:
     - main
   tags:
@@ -16,6 +17,7 @@ docker:
 helm:
   stage: helm
   script:
+    - VERSION=$(cat version)
     - cd .ci
     - helm upgrade --install --atomic vision . --namespace redash --create-namespace
       --set POSTGRES_USER=$POSTGRES_USER
@@ -23,6 +25,7 @@ helm:
       --set POSTGRES_HOST=$POSTGRES_HOST
       --set POSTGRES_PORT=$POSTGRES_PORT
       --set POSTGRES_DB=$POSTGRES_DB
+      --set image.tag=$VERSION
   only:
     - main
   tags:
