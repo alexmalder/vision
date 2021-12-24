@@ -1,3 +1,6 @@
+variables:
+  NAMESPACE: data
+
 stages:
   - docker
   - kubernetes
@@ -25,7 +28,7 @@ kubernetes:
     - sed -i "s/<POSTGRES_HOST>/$POSTGRES_HOST/g" deployment.yaml
     - sed -i "s/<POSTGRES_PORT>/$POSTGRES_PORT/g" deployment.yaml
     - sed -i "s/<POSTGRES_DB>/$POSTGRES_DB/g" deployment.yaml
-    - kubectl apply -f deployment.yaml -n redash
+    - kubectl apply -f deployment.yaml --namespace $NAMESPACE
   only:
     - main
   tags:
