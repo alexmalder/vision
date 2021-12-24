@@ -19,17 +19,7 @@ helm:
   image: dtzar/helm-kubectl
   script:
     - VERSION=$(cat version)
-    - cd .ci
-    - helm upgrade 
-      --install vision . 
-      --namespace redash 
-      --create-namespace
-      --set POSTGRES_USER=$POSTGRES_USER
-      --set POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      --set POSTGRES_HOST=$POSTGRES_HOST
-      --set POSTGRES_PORT=$POSTGRES_PORT
-      --set POSTGRES_DB=$POSTGRES_DB
-      --set image.tag=$VERSION
+    - kubectl apply -f ./deployment.yaml -n redash
   only:
     - main
   tags:
