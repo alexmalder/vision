@@ -19,7 +19,10 @@ helm:
   script:
     - VERSION=$(cat version)
     - cd .ci
-    - helm upgrade --install --atomic vision . --namespace redash --create-namespace
+    - helm upgrade 
+      --install vision . 
+      --namespace redash 
+      --create-namespace
       --set POSTGRES_USER=$POSTGRES_USER
       --set POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       --set POSTGRES_HOST=$POSTGRES_HOST
