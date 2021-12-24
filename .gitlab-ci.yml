@@ -1,5 +1,6 @@
 stages:
   - docker
+  - helm
 
 docker:
   stage: docker
@@ -7,6 +8,21 @@ docker:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build . -t $CI_REGISTRY_IMAGE
     - docker push $CI_REGISTRY_IMAGE
+  only:
+    - main
+  tags:
+    - libvision
+
+helm:
+  stage: helm
+  script:
+    - cd .ci
+    - helm upgrade --install --atomic vision . --namespace redash --create-namespace
+      --set POSTGRES_USER=$POSTGRES_USER
+      --set POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      --set POSTGRES_HOST=$POSTGRES_HOST
+      --set POSTGRES_PORT=$POSTGRES_PORT
+      --set POSTGRES_DB=$POSTGRES_DB
   only:
     - main
   tags:
