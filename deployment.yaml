@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: etl
-          image: registry.gitlab.com/sevenblocks/vision:<VERSION>
+          image: registry.gitlab.com/libvision/vision:<VERSION>
           imagePullPolicy: Always
           env:
             - name: POSTGRES_USER
@@ -29,7 +29,7 @@ spec:
               value: <POSTGRES_HOST>
 
             - name: POSTGRES_PORT
-              value: <POSTGRES_PORT>
+              value: "<POSTGRES_PORT>"
 
             - name: POSTGRES_DB
               value: <POSTGRES_DB>

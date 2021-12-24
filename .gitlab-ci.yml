@@ -19,7 +19,13 @@ helm:
   image: dtzar/helm-kubectl
   script:
     - VERSION=$(cat version)
-    - kubectl apply -f ./deployment.yaml -n redash
+    - sed -i "s/<VERSION>/$VERSION/g" deployment.yaml
+    - sed -i "s/<POSTGRES_USER>/$POSTGRES_USER/g" deployment.yaml
+    - sed -i "s/<POSTGRES_PASSWORD>/$POSTGRES_PASSWORD/g" deployment.yaml
+    - sed -i "s/<POSTGRES_HOST>/$POSTGRES_HOST/g" deployment.yaml
+    - sed -i "s/<POSTGRES_PORT>/$POSTGRES_PORT/g" deployment.yaml
+    - sed -i "s/<POSTGRES_DB>/$POSTGRES_DB/g" deployment.yaml
+    - kubectl apply -f deployment.yaml -n redash
   only:
     - main
   tags:
