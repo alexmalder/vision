@@ -1,6 +1,6 @@
 stages:
   - docker
-  - helm
+  - kubernetes
 
 docker:
   stage: docker
@@ -14,8 +14,8 @@ docker:
   tags:
     - libvision
 
-helm:
-  stage: helm
+kubernetes:
+  stage: kubernetes
   image: dtzar/helm-kubectl
   script:
     - VERSION=$(cat version)
