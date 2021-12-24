@@ -16,6 +16,7 @@ docker:
 
 helm:
   stage: helm
+  image: dtzar/helm-kubectl
   script:
     - VERSION=$(cat version)
     - cd .ci
