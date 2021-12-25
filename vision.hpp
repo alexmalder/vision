@@ -15,8 +15,11 @@
 #include <yaml-cpp/yaml.h>
 #include <nlohmann/json.hpp>
 #include <openssl/sha.h>
+#include <httpserver.hpp>
+#include <bcrypt/BCrypt.hpp>
 
 using namespace std;
+using namespace httpserver;
 
 struct CryptoData {
     uint64_t unix;
@@ -83,6 +86,24 @@ public:
 
 private:
     vector<CryptoData> vcd;
+};
+
+class AccountAPI : public http_resource {
+    Repository *rep;
+
+public:
+    AccountAPI(Repository *repository);
+    const std::shared_ptr<http_response> render_GET(const http_request &req);
+    const std::shared_ptr<http_response> render_POST(const http_request &req);
+};
+
+class CryptoAPI : public http_resource {
+    Repository *rep;
+
+public:
+    CryptoAPI(Repository *repository);
+    const std::shared_ptr<http_response> render_GET(const http_request &req);
+    const std::shared_ptr<http_response> render_POST(const http_request &req);
 };
 
 #endif
