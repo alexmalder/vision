@@ -1,5 +1,5 @@
 variables:
-  NAMESPACE: data
+  NAMESPACE: redash
 
 stages:
   - docker
