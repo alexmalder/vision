@@ -18,6 +18,7 @@ public:
         auto data = req_json.parse(req.get_content());
         string email = data["email"].get<string>();
         string password = data["password"].get<string>();
+
         // get account by email
         Account account;
         account.email = email;
@@ -75,7 +76,7 @@ public:
         account.email = email;
         pqxx::result result = rep->select_account(account);
         if (!result.empty()) {
-            nlohmann::json json;
+            nlohmann::json res_json;
             Query query;
             query.symbol = req.get_arg("symbol");
             query.start_date = req.get_arg("start_date");
@@ -92,15 +93,15 @@ public:
                 j["close"] = row["close"].as<double>();
                 j["volume_original"] = row["volume_original"].as<double>();
                 j["volume_usd"] = row["volume_usd"].as<double>();
-                json.push_back(j);
+                res_json.push_back(j);
             }
             return shared_ptr<http_response>(
-                new string_response(json.dump(), 200, "application/json"));
+                new string_response(res_json.dump(), 200, "application/json"));
         } else {
-            nlohmann::json json;
-            json["message"] = "unauthorized";
+            nlohmann::json res_json;
+            res_json["message"] = "unauthorized";
             return shared_ptr<http_response>(
-                new string_response(json.dump(), 401, "application/json"));
+                new string_response(res_json.dump(), 401, "application/json"));
         }
     }
 
@@ -126,15 +127,15 @@ public:
                       item["volume_usd"].get<double>() });
             }
             rep->insert_crypto(vcd);
-            nlohmann::json json_response;
-            json_response["data"] = "You'r data inserted";
+            nlohmann::json res_json;
+            res_json["data"] = "You'r data inserted";
             return shared_ptr<http_response>(new string_response(
-                json_response.dump(), 200, "application/json"));
+                res_json.dump(), 200, "application/json"));
         } else {
-            nlohmann::json json_response;
-            json_response["message"] = "unauthorized";
+            nlohmann::json res_json;
+            res_json["message"] = "unauthorized";
             return shared_ptr<http_response>(new string_response(
-                json_response.dump(), 401, "application/json"));
+                res_json.dump(), 401, "application/json"));
         }
     }
 };
