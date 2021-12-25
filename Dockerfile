@@ -8,11 +8,8 @@ RUN cd libhttpserver && ./bootstrap && mkdir build && cd build && ../configure &
 RUN rm -rf libhttpserver
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
-
 WORKDIR /app
-
 COPY . .
-
 WORKDIR /app/build
 
 RUN cmake ..

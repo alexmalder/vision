@@ -22,13 +22,15 @@ kubernetes:
   image: dtzar/helm-kubectl
   script:
     - VERSION=$(cat version)
-    - sed -i "s/<VERSION>/$VERSION/g" deployment.yaml
-    - sed -i "s/<POSTGRES_USER>/$POSTGRES_USER/g" deployment.yaml
-    - sed -i "s/<POSTGRES_PASSWORD>/$POSTGRES_PASSWORD/g" deployment.yaml
-    - sed -i "s/<POSTGRES_HOST>/$POSTGRES_HOST/g" deployment.yaml
-    - sed -i "s/<POSTGRES_PORT>/$POSTGRES_PORT/g" deployment.yaml
-    - sed -i "s/<POSTGRES_DB>/$POSTGRES_DB/g" deployment.yaml
-    - kubectl apply -f deployment.yaml --namespace $NAMESPACE
+    - sed -i "s/<VERSION>/$VERSION/g" .ci/deployment.yaml
+    - sed -i "s/<POSTGRES_USER>/$POSTGRES_USER/g" .ci/deployment.yaml
+    - sed -i "s/<POSTGRES_PASSWORD>/$POSTGRES_PASSWORD/g" .ci/deployment.yaml
+    - sed -i "s/<POSTGRES_HOST>/$POSTGRES_HOST/g" .ci/deployment.yaml
+    - sed -i "s/<POSTGRES_PORT>/$POSTGRES_PORT/g" .ci/deployment.yaml
+    - sed -i "s/<POSTGRES_DB>/$POSTGRES_DB/g" .ci/deployment.yaml
+    - kubectl apply -f .ci/deployment.yaml --namespace $NAMESPACE
+    - kubectl apply -f .ci/service.yaml --namespace $NAMESPACE
+    - kubectl apply -f .ci/ingress.yaml --namespace $NAMESPACE
   only:
     - main
   tags:
