@@ -1,7 +1,7 @@
 FROM alpine:3.14
 
 RUN apk update
-RUN apk add g++ git make cmake yaml-cpp-dev postgresql13-dev nlohmann-json
+RUN apk add g++ git make cmake yaml-cpp-dev postgresql-dev nlohmann-json
 
 RUN git clone https://github.com/yhirose/cpp-httplib && cp cpp-httplib/httplib.h /usr/local/include && rm -rf cpp-httplib
 
