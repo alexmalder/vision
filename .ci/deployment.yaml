@@ -16,7 +16,7 @@ spec:
         app: vision
     spec:
       containers:
-        - name: etl
+        - name: vision
           image: registry.gitlab.com/libvision/vision:<VERSION>
           imagePullPolicy: Always
           env:
