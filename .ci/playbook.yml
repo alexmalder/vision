@@ -1,0 +1,17 @@
+- hosts: alpine
+  tasks:
+    - name: clone repository
+      git:
+        repo: https://gitlab.com/libvision/vision
+        dest: "{{ ansible_env.HOME }}/vision"
+        force: yes
+        version: build
+
+    - name: build an image and push it to a private repo
+      community.docker.docker_image:
+        build:
+          path: "{{ ansible_env.HOME }}/vision"
+        name: registry.gitlab.com/libvision/vision
+        tag: 0.1.0
+        push: yes
+        source: build

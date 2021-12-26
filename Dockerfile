@@ -1,11 +1,15 @@
-FROM gcc:10
+FROM alpine:3.14
 
 RUN apt update
-RUN apt install git make cmake libyaml-cpp-dev libpqxx-dev nlohmann-json-dev -y
+RUN apt install g++ git make cmake yaml-cpp-dev postgresql13-dev nlohmann-json -y
 
 RUN git clone https://github.com/yhirose/cpp-httplib && cp cpp-httplib/httplib.h /usr/local/include && rm -rf cpp-httplib
 
-RUN git clone https://github.com/trusch/libbcrypt && cd libbcrypt && mkdir build && cd build && cmake .. && make && make install && cd ../ && rm -rf libbcrypt
+ARG REPO=jtv/libpqxx
+RUN git clone https://github.com/$REPO && cd $REPO && mkdir build && cd build && cmake .. && make && make install && cd ../ && rm -rf $REPO
+
+ARG REPO=trusch/libbcrypt
+RUN git clone https://github.com/$REPO && cd $REPO && mkdir build && cd build && cmake .. && make && make install && cd ../ && rm -rf $REPO
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 WORKDIR /app
