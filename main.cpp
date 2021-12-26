@@ -11,21 +11,6 @@ int test_bcrypt()
 
 int main(int argc, char **argv)
 {
-    // init
-    std::string configPath("config.yml");
-    std::cout << "argc: " << argc << std::endl;
-    Config *config = new Config(configPath);
-    Repository *rep = new Repository(config);
-    rep->init();
-    // create service instance
-    webserver ws = create_webserver(5000);
-    SignUpAPI signUpAPI(rep);
-    SignInAPI signInAPI(rep);
-    CryptoAPI cryptoAPI(rep);
-    ws.register_resource("/sign-in", &signInAPI);
-    ws.register_resource("/sign-up", &signUpAPI);
-    ws.register_resource("/crypto", &cryptoAPI);
-    cout << "starting..." << endl;
-    ws.start(true);
-    return 0;
+    int resp = api();
+    return resp;
 }
