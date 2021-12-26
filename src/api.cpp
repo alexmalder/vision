@@ -8,20 +8,20 @@ const std::shared_ptr<http_response>
 AccountAPI::render_GET(const http_request &req)
 {
     // destruct request
-    string email = req.get_arg("email");
+    string username = req.get_arg("username");
     string password = req.get_arg("password");
-    cout << "email: " << email << " password: " << password << endl;
+    cout << "username: " << username << " password: " << password << endl;
 
-    // get account by email
+    // get account by username
     Account account;
-    account.email = email;
+    account.username = username;
     pqxx::result result = rep->select_account(account);
     // destruct result
     nlohmann::json res_json;
     if (!result.empty()) {
         string saved_pwd = result[0]["password"].as<string>();
         if (BCrypt::validatePassword(password, saved_pwd)) {
-            res_json["token"] = account.email;
+            res_json["token"] = account.username;
             return shared_ptr<http_response>(
                 new string_response(res_json.dump(), 200, "application/json"));
         } else {
@@ -41,15 +41,17 @@ AccountAPI::render_POST(const http_request &req)
     nlohmann::json req_json;
     auto data = req_json.parse(req.get_content());
     string email = data["email"].get<string>();
+    string username = data["username"].get<string>();
     string password = data["password"].get<string>();
     // construct response
     Account account;
     account.email = email;
+    account.username = username;
     account.password = BCrypt::generateHash(password);
     pqxx::result result = rep->insert_account(account);
     nlohmann::json res_json;
-    string suid = to_string(result[0]["id"].as<int>());
-    res_json["messge"] = "Account id: " + suid;
+    string uid = to_string(result[0]["id"].as<int>());
+    res_json["messge"] = "Account id: " + uid;
     return shared_ptr<http_response>(
         new string_response(res_json.dump(), 200, "application/json"));
 }
@@ -61,9 +63,9 @@ CryptoAPI::CryptoAPI(Repository *rep)
 const std::shared_ptr<http_response>
 CryptoAPI::render_GET(const http_request &req)
 {
-    string email = req.get_header("authorization");
+    string username = req.get_header("authorization");
     Account account;
-    account.email = email;
+    account.username = username;
     pqxx::result result = rep->select_account(account);
     if (!result.empty()) {
         nlohmann::json res_json;
@@ -98,9 +100,9 @@ CryptoAPI::render_GET(const http_request &req)
 const std::shared_ptr<http_response>
 CryptoAPI::render_POST(const http_request &req)
 {
-    string email = req.get_header("authorization");
+    string username = req.get_header("authorization");
     Account account;
-    account.email = email;
+    account.username = username;
     pqxx::result result = rep->select_account(account);
     if (!result.empty()) {
         nlohmann::json json;

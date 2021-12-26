@@ -1,4 +1,4 @@
-version: 0.1.2
+version: 0.1.3
 
 postgres:
   create_crypto: |
@@ -45,15 +45,17 @@ postgres:
     CREATE TABLE IF NOT EXISTS account (
       id SERIAL PRIMARY KEY,
       email VARCHAR(255) UNIQUE NOT NULL,
+      username VARCHAR(255) UNIQUE NOT NULL,
       password VARCHAR(255) NOT NULL
     )
 
   insert_account: |
     INSERT INTO account (
       email,
+      username,
       password
     )
-    VALUES ($1,$2) RETURNING id
+    VALUES ($1,$2,$3) RETURNING id
 
   select_account: |
-    SELECT * FROM account WHERE account.email = $1
+    SELECT * FROM account WHERE account.username = $1

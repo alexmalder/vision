@@ -46,6 +46,7 @@ struct Config {
 
 struct Account {
     string email;
+    string username;
     string password;
 };
 

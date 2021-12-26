@@ -28,7 +28,7 @@ def main():
                 items.append(item)
 
         headers = {
-            "authorization": "vnmntn@gmail.com"
+            "authorization": "vnmntn"
         }
         resp = requests.post("http://localhost:5000/crypto",
                              json=items, headers=headers)

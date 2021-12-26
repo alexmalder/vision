@@ -47,7 +47,7 @@ pqxx::result Repository::insert_account(Account &data)
 {
     pqxx::work W{ C };
     pqxx::result result =
-        W.exec_prepared("insert_account", data.email, data.password);
+        W.exec_prepared("insert_account", data.email, data.username, data.password);
     W.commit();
     return result;
 }
@@ -55,6 +55,6 @@ pqxx::result Repository::insert_account(Account &data)
 pqxx::result Repository::select_account(Account &data)
 {
     pqxx::work W{ C };
-    pqxx::result result = W.exec_prepared("select_account", data.email);
+    pqxx::result result = W.exec_prepared("select_account", data.username);
     return result;
 }
