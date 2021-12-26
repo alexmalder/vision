@@ -12,5 +12,5 @@ add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 find_package(OpenSSL REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} pq pqxx yaml-cpp httpserver bcrypt)
+target_link_libraries(${PROJECT_NAME} pq pqxx yaml-cpp bcrypt)
 install (TARGETS ${PROJECT_NAME} RUNTIME DESTINATION /usr/local/bin)
