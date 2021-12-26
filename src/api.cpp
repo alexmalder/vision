@@ -10,6 +10,7 @@ AccountAPI::render_GET(const http_request &req)
     // destruct request
     string email = req.get_arg("email");
     string password = req.get_arg("password");
+    cout << "email: " << email << " password: " << password << endl;
 
     // get account by email
     Account account;
