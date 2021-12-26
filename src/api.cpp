@@ -1,15 +1,13 @@
 #include "../vision.hpp"
 
-AccountAPI::AccountAPI(Repository *rep)
-{
-    this->rep = rep;
-}
 const std::shared_ptr<http_response>
-AccountAPI::render_GET(const http_request &req)
+SignInAPI::render_POST(const http_request &req)
 {
     // destruct request
-    string username = req.get_arg("username");
-    string password = req.get_arg("password");
+    nlohmann::json req_json;
+    auto data = req_json.parse(req.get_content());
+    string username = data["username"].get<string>();
+    string password = data["password"].get<string>();
     cout << "username: " << username << " password: " << password << endl;
 
     // get account by username
@@ -35,7 +33,7 @@ AccountAPI::render_GET(const http_request &req)
 }
 
 const std::shared_ptr<http_response>
-AccountAPI::render_POST(const http_request &req)
+SignUpAPI::render_POST(const http_request &req)
 {
     // destruct request
     nlohmann::json req_json;
@@ -56,10 +54,6 @@ AccountAPI::render_POST(const http_request &req)
         new string_response(res_json.dump(), 200, "application/json"));
 }
 
-CryptoAPI::CryptoAPI(Repository *rep)
-{
-    this->rep = rep;
-}
 const std::shared_ptr<http_response>
 CryptoAPI::render_GET(const http_request &req)
 {
@@ -129,4 +123,19 @@ CryptoAPI::render_POST(const http_request &req)
         return shared_ptr<http_response>(
             new string_response(res_json.dump(), 401, "application/json"));
     }
+}
+
+SignInAPI::SignInAPI(Repository *rep)
+{
+    this->rep = rep;
+}
+
+SignUpAPI::SignUpAPI(Repository *rep)
+{
+    this->rep = rep;
+}
+
+CryptoAPI::CryptoAPI(Repository *rep)
+{
+    this->rep = rep;
 }

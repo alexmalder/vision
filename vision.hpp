@@ -89,12 +89,19 @@ private:
     vector<CryptoData> vcd;
 };
 
-class AccountAPI : public http_resource {
+class SignInAPI : public http_resource {
     Repository *rep;
 
 public:
-    AccountAPI(Repository *repository);
-    const std::shared_ptr<http_response> render_GET(const http_request &req);
+    SignInAPI(Repository *repository);
+    const std::shared_ptr<http_response> render_POST(const http_request &req);
+};
+
+class SignUpAPI : public http_resource {
+    Repository *rep;
+
+public:
+    SignUpAPI(Repository *repository);
     const std::shared_ptr<http_response> render_POST(const http_request &req);
 };
 

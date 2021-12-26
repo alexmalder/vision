@@ -30,7 +30,7 @@ def main():
         headers = {
             "authorization": "vnmntn"
         }
-        resp = requests.post("http://localhost:5000/crypto",
+        resp = requests.post("http://api.vnmntn.com/crypto",
                              json=items, headers=headers)
         print(resp.status_code)
         print(resp.text)

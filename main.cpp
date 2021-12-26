@@ -19,9 +19,11 @@ int main(int argc, char **argv)
     rep->init();
     // create service instance
     webserver ws = create_webserver(5000);
-    AccountAPI accountAPI(rep);
+    SignUpAPI signUpAPI(rep);
+    SignInAPI signInAPI(rep);
     CryptoAPI cryptoAPI(rep);
-    ws.register_resource("/account", &accountAPI);
+    ws.register_resource("/sign-in", &signInAPI);
+    ws.register_resource("/sign-up", &signUpAPI);
     ws.register_resource("/crypto", &cryptoAPI);
     cout << "starting..." << endl;
     ws.start(true);
