@@ -88,6 +88,4 @@ private:
     vector<CryptoData> vcd;
 };
 
-int api();
-
 #endif
