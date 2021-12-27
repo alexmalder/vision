@@ -123,6 +123,8 @@ int api()
         }
         res.set_content(res_json.dump(), "application/json");
     });
+    cout << "server listening port 5000" << endl;
+    srv.listen("0.0.0.0", 5000);
 
     return 0;
 }
