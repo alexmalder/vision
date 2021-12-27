@@ -1,22 +1,9 @@
 variables:
-  NAMESPACE: redash
+  NAMESPACE: vision
 
 stages:
-  - docker_compose
   - docker_build
   - kubernetes
-
-docker_compose:
-  stage: docker_compose
-  script:
-    - VERSION=$(cat config.yml | grep version | cut -d ":" -f 2 | tr -d ' ')
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build . -t $CI_REGISTRY_IMAGE:$VERSION
-    - docker push $CI_REGISTRY_IMAGE:$VERSION
-  except:
-    - main
-  tags:
-    - libvision
 
 docker_build:
   stage: docker_build
