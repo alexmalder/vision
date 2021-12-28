@@ -1,4 +1,4 @@
-- hosts: alpine
+- hosts: worker
   tasks:
     - name: clone repository
       git:
