@@ -1,17 +1,106 @@
 - hosts: worker
+  vars:
+    git_uri: http://git.vnmntn.com/vnmntn
+    tag: 0.1.1
   tasks:
+    - name: debug
+      debug:
+        msg: "postgresql://{{pg_user}}:***@{{pg_host}}:{{pg_port}}/{{pg_db}}"
+
     - name: clone repository
       git:
-        repo: https://gitlab.com/libvision/vision
+        repo: "{{ git_uri }}/vision"
         dest: "{{ ansible_env.HOME }}/vision"
         force: yes
-        version: build
+        version: main
 
     - name: build an image and push it to a private repo
       community.docker.docker_image:
         build:
           path: "{{ ansible_env.HOME }}/vision"
-        name: registry.gitlab.com/libvision/vision
-        tag: 0.1.0
+        name: vnmntn/vision
+        tag: "{{tag}}"
         push: yes
         source: build
+
+    - name: delete content & directory
+      file:
+        state: absent
+        path: "{{ ansible_env.HOME }}/vision"
+
+    - name: create service
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: vision
+            namespace: vision
+          spec:
+            selector:
+              app: vision
+            ports:
+              - name: web
+                port: 80
+                targetPort: 5000
+
+    - name: create deployment
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: vision
+            namespace: vision
+            labels:
+              app: vision
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: vision
+            template:
+              metadata:
+                labels:
+                  app: vision
+              spec:
+                containers:
+                  - name: vision
+                    image: "vnmntn/vision:{{tag}}"
+                    imagePullPolicy: Always
+                    env:
+                      - name: POSTGRES_CONN
+                        value: postgresql://{{pg_user}}:{{pg_pass}}@{{pg_host}}:{{pg_port}}/{{pg_db}}
+
+    - name: create ingress
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: vision
+            namespace: vision
+            annotations:
+              nginx.ingress.kubernetes.io/proxy-body-size: 64m
+              nginx.ingress.kubernetes.io/configuration-snippet: |
+                more_set_headers "Access-Control-Allow-Origin: $http_origin";
+              nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+              nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST,
+                OPTIONS, DELETE, PATCH
+              nginx.ingress.kubernetes.io/enable-cors: "true"
+          spec:
+            ingressClassName: nginx
+            rules:
+              - host: api.vnmntn.com
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: vision
+                          port:
+                            number: 80
