@@ -2,12 +2,14 @@ import os
 import csv
 import requests
 import json
+import sys
 
 
-def main():
+def loader():
     items = []
     directory = "data"
     filenames = os.listdir(directory)
+    host = sys.argv[1]
 
     for filename in filenames:
         # print(filename.split(".")[-2])
@@ -30,10 +32,9 @@ def main():
         headers = {
             "authorization": "vnmntn"
         }
-        resp = requests.post("http://api.vnmntn.com/crypto",
-                             json=items, headers=headers)
+        resp = requests.post(host, json=items, headers=headers)
         print(resp.status_code)
         print(resp.text)
 
 
-main()
+loader()

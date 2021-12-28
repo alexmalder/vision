@@ -69,14 +69,7 @@ public:
     pqxx::result select_account(Account_t &data);
 
 private:
-    string pg_user = getenv("POSTGRES_USER");
-    string pg_pass = getenv("POSTGRES_PASSWORD");
-    string pg_host = getenv("POSTGRES_HOST");
-    string pg_port = getenv("POSTGRES_PORT");
-    string pg_db = getenv("POSTGRES_DB");
-    string pg_conn = "postgresql://" + pg_user + ":" + pg_pass + "@" + pg_host +
-                     ":" + pg_port + "/" + pg_db;
-    pqxx::connection C{ pg_conn };
+    pqxx::connection C{ getenv("POSTGRES_CONN") };
     Config *config;
 };
 
