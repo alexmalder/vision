@@ -4,12 +4,12 @@ import requests
 import json
 import sys
 
+host = sys.argv[1]
 
 def loader():
     items = []
     directory = "data"
     filenames = os.listdir(directory)
-    host = sys.argv[1]
 
     for filename in filenames:
         # print(filename.split(".")[-2])
@@ -37,4 +37,16 @@ def loader():
         print(resp.text)
 
 
-loader()
+def mocks():
+    headers={"authorization": "vnmntn"}
+    params = {
+        "symbol": "BTC/USD",
+        "start_date": "2020-01-01",
+        "end_date": "2021-01-01"
+    }
+    for v in range(1024):
+        resp = requests.get(host, params=params, headers=headers)
+        print(resp.text, v)
+
+mocks()
+# loader()
