@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iterator>
 #include <fstream>
+#include <utility>
 #include <vector>
 #include <iomanip>
 #include <iostream>
@@ -34,25 +35,27 @@ struct CryptoData {
 
 struct Config {
     Config(string configPath);
-    string create_crypto;
-    string insert_crypto;
-    string select_crypto;
-    string create_account;
-    string insert_account;
-    string select_account;
+    vector<pair<string, string> > prepared;
+    vector<string> create;
     string pg_conn;
 };
 
-struct Account {
-    string email;
-    string username;
-    string password;
+struct Response_t {
+    int status;
+    string body;
 };
 
 struct Query {
     string symbol;
     string start_date;
     string end_date;
+    Query(string sym, string start, string end);
+};
+
+struct Account_t {
+    string email;
+    string username;
+    string password;
 };
 
 class Repository {
@@ -62,8 +65,8 @@ public:
     void init();
     void insert_crypto(vector<CryptoData> &data);
     pqxx::result select_crypto(Query &data);
-    pqxx::result insert_account(Account &data);
-    pqxx::result select_account(Account &data);
+    pqxx::result insert_account(Account_t &data);
+    pqxx::result select_account(Account_t &data);
 
 private:
     string pg_user = getenv("POSTGRES_USER");
@@ -75,6 +78,26 @@ private:
                      ":" + pg_port + "/" + pg_db;
     pqxx::connection C{ pg_conn };
     Config *config;
+};
+
+class Account {
+public:
+    Account(Repository *rep);
+    Response_t sign_in(string body);
+    Response_t sign_up(string body);
+
+private:
+    Repository *rep;
+};
+
+class Crypto {
+public:
+    Crypto(Repository *rep);
+    Response_t get(string token, Query query);
+    Response_t post(string token, string body);
+
+private:
+    Repository *rep;
 };
 
 class Visioner {

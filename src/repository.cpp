@@ -1,4 +1,4 @@
-#include "../vision.hpp"
+#include "vision.hpp"
 
 Repository::Repository()
 {
@@ -13,14 +13,14 @@ void Repository::init()
 {
     // create tables
     pqxx::work W{ C };
-    W.exec(this->config->create_account);
-    W.exec(this->config->create_crypto);
+    for (auto create_table : this->config->create) {
+        W.exec(create_table);
+    }
     W.commit();
-    // prepare statements
-    C.prepare("select_account", this->config->select_account);
-    C.prepare("select_crypto", this->config->select_crypto);
-    C.prepare("insert_account", this->config->insert_account);
-    C.prepare("insert_crypto", this->config->insert_crypto);
+    // prepared statements
+    for (auto prepared : this->config->prepared) {
+        C.prepare(prepared.first, prepared.second);
+    }
 }
 
 void Repository::insert_crypto(vector<CryptoData> &data)
@@ -43,16 +43,16 @@ pqxx::result Repository::select_crypto(Query &data)
     return result;
 }
 
-pqxx::result Repository::insert_account(Account &data)
+pqxx::result Repository::insert_account(Account_t &data)
 {
     pqxx::work W{ C };
-    pqxx::result result =
-        W.exec_prepared("insert_account", data.email, data.username, data.password);
+    pqxx::result result = W.exec_prepared("insert_account", data.email,
+                                          data.username, data.password);
     W.commit();
     return result;
 }
 
-pqxx::result Repository::select_account(Account &data)
+pqxx::result Repository::select_account(Account_t &data)
 {
     pqxx::work W{ C };
     pqxx::result result = W.exec_prepared("select_account", data.username);
