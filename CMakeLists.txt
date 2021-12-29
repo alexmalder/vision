@@ -8,7 +8,7 @@ set(PROJECT_SOURCE_DIR "src")
 
 include_directories(${PROJECT_SOURCE_DIR})
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/*.c)
-add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
+add_executable(${PROJECT_NAME} main.c ${SRC_FILES})
 
 find_package(OpenSSL REQUIRED)
 
