@@ -27,13 +27,13 @@ tags:
 schemes:
   - "http"
 paths:
-  /sign-up:
+  /user/sign-up:
     post:
       tags:
         - "user"
-      summary: "Create user"
+      summary: "Create User"
       description: "Create new user"
-      operationId: "createUser"
+      operationId: "signUpUser"
       produces:
         - "application/json"
       parameters:
@@ -53,12 +53,12 @@ paths:
         "404":
           description: "User not found"
 
-  /sign-in:
+  /user/sign-in:
     post:
       tags:
         - "user"
-      summary: "Auth user"
-      description: "This can only be done by the logged in user."
+      summary: "Auth User"
+      description: "This can only be done by the created in user"
       operationId: "signInUser"
       produces:
         - "application/json"
@@ -83,7 +83,7 @@ paths:
     post:
       tags:
         - crypto
-      summary: "Upload crypto data"
+      summary: "Upload Crypto"
       description: ""
       operationId: "postCrypto"
       consumes:
@@ -98,6 +98,9 @@ paths:
           schema:
             type: "array"
             $ref: "#/definitions/CryptoRequest"
+        - in: "header"
+          name: "authorization"
+          description: "fake authorization: pass you'r username"
       responses:
         "405":
           description: "Invalid input"
@@ -105,7 +108,7 @@ paths:
     get:
       tags:
         - crypto
-      summary: "Search Crypto by query"
+      summary: "Search Crypto"
       description: "All params is required"
       operationId: "getCrypto"
       produces:
@@ -129,6 +132,10 @@ paths:
           required: true
           type: "string"
           example: "2021-01-01"
+        - in: "header"
+          name: "authorization"
+          description: "fake authorization: pass you'r username"
+          required: true
       responses:
         "200":
           description: "successful operation"
@@ -139,32 +146,15 @@ paths:
         "400":
           description: "Invalid status value"
 
-  /fields:
-    get:
-      tags:
-        - crypto
-      summary: "Get crypto fields with type double"
-      description: "All params is required"
-      operationId: "getFields"
-      produces:
-        - "application/json"
-      responses:
-        "200":
-          description: "successful operation"
-          schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/WorkflowResponse"
-        "400":
-          description: "Invalid status value"
-
   /workflow:
     get:
       tags:
-        - crypto
-      summary: "Search similarity"
-      description: "All params is required"
-      operationId: ""
+        - workflow
+      summary: "Search Similarity"
+      description: |
+        Search similarity vectors by query parameters.
+        All fields is required.
+      operationId: "getSimilarity"
       produces:
         - "application/json"
       parameters:
@@ -188,10 +178,40 @@ paths:
           example: "2021-01-01"
         - name: "field_name"
           in: "query"
-          description: "target field for search similarity"
+          description: |
+            Target field for search similarity.
+            Check /fields endpoint for details
           required: true
           type: "string"
           example: "open"
+        - in: "header"
+          name: "authorization"
+          description: "fake authorization: pass you'r username"
+          required: true
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/WorkflowResponse"
+        "400":
+          description: "Invalid status value"
+
+  /workflow/fields:
+    get:
+      tags:
+        - workflow
+      summary: "Get Crypto fields"
+      description: "Get fields with type <double>"
+      operationId: "getFields"
+      parameters:
+        - in: "header"
+          name: "authorization"
+          description: "fake authorization: pass you'r username"
+          required: true
+      produces:
+        - "application/json"
       responses:
         "200":
           description: "successful operation"

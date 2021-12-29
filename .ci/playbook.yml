@@ -3,39 +3,23 @@
   vars:
     git_uri: http://git.vnmntn.com/vnmntn
     repository: vision
-    tag: 0.1.4
+    namespace: vision
+    tag: 0.1.5
   tasks:
-    - name: print postgresql connection string
-      debug:
-        msg: "postgresql://{{pg_user}}:***@{{pg_host}}:{{pg_port}}/{{pg_db}}"
-
     - name: clone repository
       git:
-        repo: "{{ git_uri }}/{{repository}}"
-        dest: "{{ ansible_env.HOME }}/{{repository}}"
+        repo: "{{ git_uri }}/{{ repository }}"
+        dest: "{{ ansible_env.HOME }}/{{ repository }}"
         force: yes
         version: main
 
     - name: deploy application
-      include_tasks: k8s.yml
-      vars:
-        workdir: "{{repository}}"
-        app_name: "{{repository}}"
-        namespace: vision
-        host: api.vnmntn.com
+      include: playbooks/application.yml
 
     - name: deploy swagger
-      include_tasks: k8s.yml
-      vars:
-        workdir: "{{repository}}/swagger"
-        app_name: swagger
-        namespace: vision
-        host: swagger.vnmntn.com
-        pg_pass: "empty"
-
+      include: playbooks/swagger.yml
 
     - name: delete content & directory
       file:
         state: absent
-        path: "{{ ansible_env.HOME }}/{{repository}}"
-
+        path: "{{ ansible_env.HOME }}/{{ repository }}"

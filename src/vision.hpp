@@ -107,6 +107,7 @@ class Workflow {
 public:
     Workflow(Repository *rep);
     Response_t search(WorkflowQuery &query);
+    Response_t getFields();
     vector<WorkflowResponse> extractVector(WorkflowQuery &query);
     double cosineSimilarity(vector<WorkflowResponse> &a,
                             vector<WorkflowResponse> &b, unsigned int length);

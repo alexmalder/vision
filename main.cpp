@@ -13,7 +13,7 @@ int main(int argc, char **argv)
         res.set_content("ok", "text/plain");
     });
 
-    srv.Post("/v1/sign-in", [&rep](const Request &req, Response &res) {
+    srv.Post("/v1/user/sign-in", [&rep](const Request &req, Response &res) {
         Account *acc = new Account(rep);
         Response_t r = acc->sign_in(req.body);
         delete acc;
@@ -21,27 +21,10 @@ int main(int argc, char **argv)
         res.set_content(r.body, "application/json");
     });
 
-    srv.Post("/v1/sign-up", [&rep](const Request &req, Response &res) {
+    srv.Post("/v1/user/sign-up", [&rep](const Request &req, Response &res) {
         Account *acc = new Account(rep);
         Response_t r = acc->sign_up(req.body);
         delete acc;
-        res.status = r.status;
-        res.set_content(r.body, "application/json");
-    });
-
-    srv.Get("/v1/fields", [&rep](const Request &req, Response &res) {
-        Response_t r;
-        nlohmann::json res_json;
-        pqxx::result result = rep->select_fields();
-        for (auto row : result) {
-            nlohmann::json j;
-            j["table_name"] = row["table_name"].as<string>();
-            j["column_name"] = row["column_name"].as<string>();
-            j["data_type"] = row["data_type"].as<string>();
-            res_json.push_back(j);
-        }
-        r.body = res_json.dump();
-        r.status = 200;
         res.status = r.status;
         res.set_content(r.body, "application/json");
     });
@@ -82,6 +65,15 @@ int main(int argc, char **argv)
         res.status = response.status;
         res.set_content(response.body, "application/json");
     });
+
+    srv.Get("/v1/workflow/fields", [&rep](const Request &req, Response &res) {
+        Workflow *workflow = new Workflow(rep);
+        Response_t response = workflow->getFields();
+        delete workflow;
+        res.status = response.status;
+        res.set_content(response.body, "application/json");
+    });
+
     cout << "server listening port 5000" << endl;
     srv.listen("0.0.0.0", 5000);
 

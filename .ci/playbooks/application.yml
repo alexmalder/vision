@@ -1,68 +1,68 @@
 ---
-- name: build an image and push it to a private repo
+- name: "build {{ repository }} and push it to a private repo"
   community.docker.docker_image:
     build:
-      path: "{{ ansible_env.HOME }}/{{workdir}}"
-    name: "vnmntn/{{app_name}}"
-    tag: "{{tag}}"
+      path: "{{ ansible_env.HOME }}/{{ repository }}"
+    name: "vnmntn/{{ repository }}"
+    tag: "{{ tag }}"
     push: yes
     source: build
 
-- name: create service
+- name: create application service
   kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
       kind: Service
       metadata:
-        name: "{{app_name}}"
+        name: "{{repository}}"
         namespace: "{{namespace}}"
       spec:
         selector:
-          app: "{{app_name}}"
+          app: "{{repository}}"
         ports:
           - name: web
             port: 80
             targetPort: 5000
 
-- name: create deployment
+- name: create application deployment
   kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: "{{app_name}}"
-        namespace: "{{namespace}}"
+        name: "{{ repository }}"
+        namespace: "{{ namespace }}"
         labels:
-          app: "{{app_name}}"
+          app: "{{ repository }}"
       spec:
         replicas: 1
         selector:
           matchLabels:
-            app: "{{app_name}}"
+            app: "{{ repository }}"
         template:
           metadata:
             labels:
-              app: "{{app_name}}"
+              app: "{{ repository }}"
           spec:
             containers:
-              - name: "{{app_name}}"
-                image: "vnmntn/{{app_name}}:{{tag}}"
-                imagePullPolicy: Always
+              - name: "{{ repository }}"
+                image: "vnmntn/{{ repository }}:{{ tag }}"
+                imagePullPolicy: IfNotPresent
                 env:
                   - name: POSTGRES_CONN
-                    value: postgresql://{{pg_user}}:{{pg_pass}}@{{pg_host}}:{{pg_port}}/{{pg_db}}
+                    value: "{{ pg_conn }}"
 
-- name: create ingress
+- name: create application ingress
   kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
-        name: "{{app_name}}"
-        namespace: "{{namespace}}"
+        name: "{{ repository }}"
+        namespace: "{{ namespace }}"
         annotations:
           nginx.ingress.kubernetes.io/proxy-body-size: 64m
           nginx.ingress.kubernetes.io/configuration-snippet: |
@@ -74,13 +74,13 @@
       spec:
         ingressClassName: nginx
         rules:
-          - host: "{{host}}"
+          - host: "api.vnmntn.com"
             http:
               paths:
                 - path: /
                   pathType: Prefix
                   backend:
                     service:
-                      name: "{{app_name}}"
+                      name: "{{ repository }}"
                       port:
                         number: 80

@@ -80,6 +80,24 @@ Response_t Workflow::search(WorkflowQuery &query)
     response.status = 200;
     return response;
 }
+
+Response_t Workflow::getFields()
+{
+    Response_t response;
+    nlohmann::json res_json;
+    pqxx::result result = rep->select_fields();
+    for (auto row : result) {
+        nlohmann::json j;
+        j["table_name"] = row["table_name"].as<string>();
+        j["column_name"] = row["column_name"].as<string>();
+        j["data_type"] = row["data_type"].as<string>();
+        res_json.push_back(j);
+    }
+    response.body = res_json.dump();
+    response.status = 200;
+    return response;
+}
+
 /*
     X : iterate by small step
     Y :
