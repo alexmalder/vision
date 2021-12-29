@@ -11,7 +11,7 @@
         repo: "{{ git_uri }}/{{ repository }}"
         dest: "{{ ansible_env.HOME }}/{{ repository }}"
         force: yes
-        version: main
+        version: c-main
 
     - name: "build {{ repository }} and push it to a private repo"
       community.docker.docker_image:
