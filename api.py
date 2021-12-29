@@ -32,7 +32,7 @@ def upload(host):
         headers = {
             "authorization": "vnmntn"
         }
-        resp = requests.post(host + "/crypto", json=items, headers=headers)
+        resp = requests.post(host + "/v1/crypto", json=items, headers=headers)
         print(resp.status_code)
         print(resp.text)
 
@@ -44,10 +44,10 @@ def mocks(host):
         "start_date": "2021-01-01",
         "end_date": "2021-01-03"
     }
-    resp = requests.get(host + "/crypto", params=params, headers=headers)
+    resp = requests.get(host + "/v1/crypto", params=params, headers=headers)
     print(resp.text)
 
-    resp = requests.get(host + "/fields", headers=headers)
+    resp = requests.get(host + "/v1/fields", headers=headers)
     print(resp.text)
 
 def main():
@@ -71,6 +71,6 @@ def main():
     elif stage == "mocks":
         mocks(host)
     else:
-        print("python3 api.py loader -h <host> -s <stage>")
+        print("python3 api.py -h <host> -s <stage>")
 
 main()
