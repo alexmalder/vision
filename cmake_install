@@ -1,0 +1,6 @@
+#!/bin/bash
+set -eo pipefail
+
+git clone -b $2 https://github.com/$1 $1
+cd $1 && mkdir -p build && cd build && cmake .. && make -j4 && sudo make install
+rm -rf $1

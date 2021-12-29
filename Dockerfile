@@ -2,6 +2,9 @@ FROM alpine:3.14 as builder
 
 RUN apk update
 RUN apk add g++ git make cmake json-c-dev openssl-dev
+COPY ./cmake_install /usr/bin/cmake_install
+RUN /usr/bin/cmake_install rtsisyk/msgpuck master
+RUN /usr/bin/cmake_install tarantool/tarantool-c master
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 WORKDIR /app

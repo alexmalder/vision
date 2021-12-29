@@ -1,10 +1,17 @@
 apps:
   - name: vision
-    script: gcc -ljson-c main.c && ./a.out
+    script: |
+      set -eo pipefail
+      mkdir -p build
+      cd build
+      cmake ..
+      make -j4
+      make install
+      cd ../
+      vision
     max_memory_restart: 64M
     watch: true
     watch_delay: 4000
     ignore_watch:
       - ./build
       - ./swagger
-      - ./a.out
