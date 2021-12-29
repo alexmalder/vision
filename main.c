@@ -4,8 +4,16 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <json-c/json.h>
 
 #define RESPONSE "VNMNTN"
+
+struct query_t {
+    const char *start_date;
+    const char *end_date;
+    const char *symbol;
+    const char *field_name;
+};
 
 int request_target_is(struct http_request_s *request, char const *target)
 {
@@ -23,6 +31,39 @@ void handle_request(struct http_request_s *request)
         http_string_t body = http_request_body(request);
         http_response_header(response, "Content-Type", "application/json");
         http_response_body(response, body.buf, body.len);
+    } else if (request_target_is(request, "/query")) {
+        http_string_t body = http_request_body(request);
+        struct query_t *query = malloc(sizeof(struct query_t));
+
+        struct json_object *parsed_json;
+        struct json_object *start_date;
+        struct json_object *end_date;
+        struct json_object *symbol;
+        struct json_object *field_name;
+
+        parsed_json = json_tokener_parse(body.buf);
+        json_object_object_get_ex(parsed_json, "start_date", &start_date);
+        json_object_object_get_ex(parsed_json, "end_date", &end_date);
+        json_object_object_get_ex(parsed_json, "symbol", &symbol);
+        json_object_object_get_ex(parsed_json, "field_name", &field_name);
+
+        query->start_date = json_object_get_string(start_date);
+        query->end_date = json_object_get_string(end_date);
+        query->symbol = json_object_get_string(symbol);
+        query->field_name = json_object_get_string(field_name);
+
+        printf("%s %s %s %s\n", query->start_date, query->end_date,
+               query->symbol, query->field_name);
+        fflush(stdout);
+
+        http_response_header(response, "Content-Type", "application/json");
+        http_response_body(response, RESPONSE, sizeof(RESPONSE) - 1);
+        free(query);
+        json_object_put(parsed_json);
+        json_object_put(start_date);
+        json_object_put(end_date);
+        json_object_put(symbol);
+        json_object_put(field_name);
     } else {
         http_response_header(response, "Content-Type", "application/json");
         http_response_body(response, RESPONSE, sizeof(RESPONSE) - 1);
@@ -42,6 +83,8 @@ void handle_sigterm(int signum)
 int main()
 {
     signal(SIGTERM, handle_sigterm);
-    server = http_server_init(8080, handle_request);
+    server = http_server_init(5000, handle_request);
+    printf("httpserver listening on port 5000...\n");
+    fflush(stdout);
     http_server_listen(server);
 }

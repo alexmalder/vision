@@ -1,0 +1,9 @@
+apps:
+  - name: "HTTP-API"
+    script: gcc -ljson-c main.c && ./a.out
+    max_memory_restart: 64M
+    watch: true
+    ignore_watch:
+      - ./build
+      - ./swagger
+      - ./a.out
