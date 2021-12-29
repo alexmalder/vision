@@ -1,12 +1,11 @@
 - hosts: worker
   vars:
     git_uri: http://git.vnmntn.com/vnmntn
-    tag: 0.1.1
     namespace: vision
     repository: vision
     host: api.vnmntn.com
   tasks:
-    - name: debug
+    - name: print postgresql connection string
       debug:
         msg: "postgresql://{{pg_user}}:***@{{pg_host}}:{{pg_port}}/{{pg_db}}"
 
