@@ -48,10 +48,10 @@ int main(int argc, char **argv)
 
     srv.Get("/crypto", [&rep](const Request &req, Response &res) {
         string token = req.get_header_value("authorization");
-        string symbol = req.get_param_value("symbol");
-        string start_date = req.get_param_value("start_date");
-        string end_date = req.get_param_value("end_date");
-        Query query(symbol, start_date, end_date);
+        Query query;
+        query.symbol = req.get_param_value("symbol");
+        query.start_date = req.get_param_value("start_date");
+        query.end_date = req.get_param_value("end_date");
 
         Crypto *crypto = new Crypto(rep);
         Response_t r = crypto->get(token, query);
@@ -70,11 +70,12 @@ int main(int argc, char **argv)
 
     srv.Get("/workflow", [&rep](const Request &req, Response &res) {
         //string token = req.get_header_value("authorization");
-        string symbol = req.get_param_value("symbol");
-        string start_date = req.get_param_value("start_date");
-        string end_date = req.get_param_value("end_date");
+        WorkflowQuery query;
+        query.symbol = req.get_param_value("symbol");
+        query.start_date = req.get_param_value("start_date");
+        query.end_date = req.get_param_value("end_date");
+        query.field_name = req.get_param_value("field_name");
 
-        Query query(symbol, start_date, end_date);
         Workflow *workflow = new Workflow(rep);
         Response_t response = workflow->search(query);
         delete workflow;

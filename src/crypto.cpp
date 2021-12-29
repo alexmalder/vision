@@ -64,13 +64,6 @@ Response_t Crypto::post(string token, string body)
     return response;
 }
 
-Query::Query(string sym, string start, string end)
-{
-    this->symbol = sym;
-    this->start_date = start;
-    this->end_date = end;
-}
-
 Crypto::Crypto(Repository *rep)
 {
     this->rep = rep;

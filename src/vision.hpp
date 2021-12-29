@@ -49,7 +49,15 @@ struct Query {
     string symbol;
     string start_date;
     string end_date;
-    Query(string sym, string start, string end);
+};
+
+struct WorkflowQuery : Query {
+    string field_name;
+};
+
+struct WorkflowResponse {
+    string datetime;
+    double target;
 };
 
 struct Account_t {
@@ -98,10 +106,10 @@ private:
 class Workflow {
 public:
     Workflow(Repository *rep);
-    Response_t search(Query &query);
-    vector<double> extractVector(Query &query);
-    double cosineSimilarity(vector<double> &a, vector<double> &b,
-                            unsigned int length);
+    Response_t search(WorkflowQuery &query);
+    vector<WorkflowResponse> extractVector(WorkflowQuery &query);
+    double cosineSimilarity(vector<WorkflowResponse> &a,
+                            vector<WorkflowResponse> &b, unsigned int length);
 
 private:
     Repository *rep;

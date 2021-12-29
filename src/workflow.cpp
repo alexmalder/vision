@@ -1,37 +1,55 @@
 #include "vision.hpp"
 
-vector<double> Workflow::extractVector(Query &query)
+vector<WorkflowResponse> Workflow::extractVector(WorkflowQuery &query)
 {
     pqxx::result result = rep->select_crypto(query);
-    vector<double> data;
+    vector<WorkflowResponse> data;
     for (unsigned int i = 0; i < result.size(); i++) {
+        string datetime = result[i]["datetime"].as<string>();
         double target = result[i]["close"].as<double>();
-        data.push_back(target);
+        data.push_back({ datetime, target });
     }
     return data;
 }
 
-double Workflow::cosineSimilarity(vector<double> &a, vector<double> &b,
+nlohmann::json extractCompare(vector<WorkflowResponse> compareData)
+{
+    nlohmann::json json;
+    for (WorkflowResponse wr : compareData) {
+        nlohmann::json j;
+        j["datetime"] = wr.datetime;
+        j["target"] = wr.target;
+        json.push_back(j);
+    }
+    return json;
+}
+
+double Workflow::cosineSimilarity(vector<WorkflowResponse> &a,
+                                  vector<WorkflowResponse> &b,
                                   unsigned int length)
 {
     double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
     for (unsigned int i = 0u; i < length; i++) {
-        dot += a[i] * b[i];
-        denom_a += a[i] * a[i];
-        denom_b += b[i] * b[i];
+        dot += a[i].target * b[i].target;
+        denom_a += a[i].target * a[i].target;
+        denom_b += b[i].target * b[i].target;
     }
     return dot / (sqrt(denom_a) * sqrt(denom_b));
 }
 
-Response_t Workflow::search(Query &query)
+Response_t Workflow::search(WorkflowQuery &query)
 {
     Response_t response;
-    Query vision(query.symbol, "2011-01-01", "2021-01-01");
+    WorkflowQuery vision;
+    vision.symbol = query.symbol;
+    vision.start_date = "2012-01-01";
+    vision.end_date = "2022-01-01";
+    vision.field_name = query.field_name;
 
-    vector<double> vData = extractVector(vision);
-    vector<double> sData = extractVector(query);
-    uint64_t vSize = vData.size();
-    uint64_t sSize = sData.size();
+    vector<WorkflowResponse> visionedData = extractVector(vision);
+    vector<WorkflowResponse> searchData = extractVector(query);
+    uint64_t vSize = visionedData.size();
+    uint64_t sSize = searchData.size();
 
     unsigned int start = 0;
     unsigned int stop = vSize;
@@ -40,23 +58,26 @@ Response_t Workflow::search(Query &query)
     cout << "vSize: " << vSize << endl;
     cout << "sSize: " << sSize << endl;
 
-    vector<double> cData;
+    nlohmann::json res_json;
+    vector<WorkflowResponse> compareData;
     for (unsigned int x = start; x < stop; x++) {
-        cData.push_back(vData[x]);
+        compareData.push_back(visionedData[x]);
         if (x % sSize == 0) {
             //cout << "x: " << x << endl;
-            double result = cosineSimilarity(sData, cData, sSize);
+            double result = cosineSimilarity(searchData, compareData, sSize);
             double thresh = 0.99;
             if (result > thresh) {
                 std::cout << result << std::endl;
+                nlohmann::json j = extractCompare(compareData);
+                res_json.push_back(j);
             }
             //start += step;
             //vSize += step;
-            cData.clear();
+            compareData.clear();
         }
     }
-    response.body = "ok";
-    response.status = 201;
+    response.body = res_json.dump();
+    response.status = 200;
     return response;
 }
 /*
