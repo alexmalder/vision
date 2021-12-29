@@ -31,10 +31,11 @@ int main(int argc, char **argv)
 
     srv.Get("/v1/crypto", [&rep](const Request &req, Response &res) {
         string token = req.get_header_value("authorization");
-        Query query;
+        WorkflowQuery query;
         query.symbol = req.get_param_value("symbol");
         query.start_date = req.get_param_value("start_date");
         query.end_date = req.get_param_value("end_date");
+        query.field_name = req.get_param_value("field_name");
 
         Crypto *crypto = new Crypto(rep);
         Response_t r = crypto->get(token, query);

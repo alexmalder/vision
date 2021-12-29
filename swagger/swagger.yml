@@ -132,6 +132,14 @@ paths:
           required: true
           type: "string"
           example: "2021-01-01"
+        - name: "field_name"
+          in: "query"
+          description: |
+            Target field for search similarity.
+            Check /fields endpoint for details
+          required: true
+          type: "string"
+          example: "open"
         - in: "header"
           name: "authorization"
           description: "fake authorization: pass you'r username"

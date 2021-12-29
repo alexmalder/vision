@@ -1,7 +1,7 @@
 #include "vision.hpp"
 #include <regex>
 
-Response_t Crypto::get(string token, Query query)
+Response_t Crypto::get(string token, WorkflowQuery query)
 {
     Response_t response;
     Account_t account;
@@ -12,15 +12,8 @@ Response_t Crypto::get(string token, Query query)
         pqxx::result rows = rep->select_crypto(query);
         for (auto row : rows) {
             nlohmann::json j;
-            //j["unix"] = row["unix"].as<uint64_t>();
             j["datetime"] = row["datetime"].as<string>();
-            //j["symbol"] = row["symbol"].as<string>();
-            j["open"] = row["open"].as<double>();
-            j["high"] = row["high"].as<double>();
-            j["low"] = row["low"].as<double>();
-            j["close"] = row["close"].as<double>();
-            //j["volume_original"] = row["volume_original"].as<double>();
-            //j["volume_usd"] = row["volume_usd"].as<double>();
+            j[query.field_name] = row[query.field_name].as<double>();
             res_json.push_back(j);
         }
         response.status = 200;

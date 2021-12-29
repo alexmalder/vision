@@ -70,7 +70,7 @@ public:
     Repository(Config *config);
     void init();
     void insert_crypto(vector<CryptoData> &data);
-    pqxx::result select_crypto(Query &data);
+    pqxx::result select_crypto(WorkflowQuery &data);
     pqxx::result select_fields();
     pqxx::result insert_account(Account_t &data);
     pqxx::result select_account(Account_t &data);
@@ -93,7 +93,7 @@ private:
 class Crypto {
 public:
     Crypto(Repository *rep);
-    Response_t get(string token, Query query);
+    Response_t get(string token, WorkflowQuery query);
     Response_t post(string token, string body);
 
 private:

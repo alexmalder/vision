@@ -12,7 +12,7 @@ void Repository::insert_crypto(vector<CryptoData> &data)
     W.commit();
 }
 
-pqxx::result Repository::select_crypto(Query &data)
+pqxx::result Repository::select_crypto(WorkflowQuery &data)
 {
     pqxx::work W{ C };
     pqxx::result result = W.exec_prepared("select_crypto", data.symbol,
