@@ -38,17 +38,30 @@ def upload(host):
 
 
 def mocks(host):
-    headers={"authorization": "vnmntn"}
-    params = {
-        "symbol": "BTC/USD",
-        "start_date": "2021-01-01",
-        "end_date": "2021-01-03"
-    }
-    resp = requests.get(host + "/v1/crypto", params=params, headers=headers)
-    print(resp.text)
+    headers = {"authorization": "vnmntn"}
+    routes = ["crypto", "workflow"]
+    resp = requests.get(host + "/v1/workflow/fields", headers=headers)
+    if resp.status_code == 200:
+        print(resp.text)
+        resp_json = resp.json()
+        for field_name in resp_json:
+            params = {
+                "symbol": "BTC/USD",
+                "start_date": "2021-01-01",
+                "end_date": "2021-03-01",
+                "field_name": field_name["column_name"]
+            }
+            for route in routes:
+                endpoint = host + '/v1/' + route
+                resp = requests.get(endpoint, params=params, headers=headers)
+                if resp.status_code != 200:
+                    print(resp.status_code)
+                    sys.exit(1)
+                print(resp.text)
+    else:
+        print("bad status code", resp.status_code, resp.text)
+        sys.exit(1)
 
-    resp = requests.get(host + "/v1/fields", headers=headers)
-    print(resp.text)
 
 def main():
     try:
@@ -72,5 +85,6 @@ def main():
         mocks(host)
     else:
         print("python3 api.py -h <host> -s <stage>")
+
 
 main()
