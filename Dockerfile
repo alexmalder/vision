@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3.14 as builder
 
 RUN apk update
 RUN apk add g++ git make cmake json-c-dev openssl-dev
@@ -12,6 +12,10 @@ RUN cmake ..
 RUN make
 RUN make install
 
-WORKDIR /app
+FROM alpine:3.14
+
+RUN apk update
+RUN apk add json-c openssl
+COPY --from=builder /usr/local/bin/vision /usr/local/bin/vision
 
 CMD ["/usr/local/bin/vision"]
