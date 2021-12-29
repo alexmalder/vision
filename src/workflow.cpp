@@ -6,7 +6,7 @@ vector<WorkflowResponse> Workflow::extractVector(WorkflowQuery &query)
     vector<WorkflowResponse> data;
     for (unsigned int i = 0; i < result.size(); i++) {
         string datetime = result[i]["datetime"].as<string>();
-        double target = result[i]["close"].as<double>();
+        double target = result[i][query.field_name].as<double>();
         data.push_back({ datetime, target });
     }
     return data;

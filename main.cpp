@@ -8,12 +8,12 @@ int main(int argc, char **argv)
 
     Server srv;
 
-    srv.Post("/integrate", [&rep](const Request &req, Response &res) {
+    srv.Post("/v1/integrate", [&rep](const Request &req, Response &res) {
         cout << req.body << endl;
         res.set_content("ok", "text/plain");
     });
 
-    srv.Post("/sign-in", [&rep](const Request &req, Response &res) {
+    srv.Post("/v1/sign-in", [&rep](const Request &req, Response &res) {
         Account *acc = new Account(rep);
         Response_t r = acc->sign_in(req.body);
         delete acc;
@@ -21,7 +21,7 @@ int main(int argc, char **argv)
         res.set_content(r.body, "application/json");
     });
 
-    srv.Post("/sign-up", [&rep](const Request &req, Response &res) {
+    srv.Post("/v1/sign-up", [&rep](const Request &req, Response &res) {
         Account *acc = new Account(rep);
         Response_t r = acc->sign_up(req.body);
         delete acc;
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
         res.set_content(r.body, "application/json");
     });
 
-    srv.Get("/fields", [&rep](const Request &req, Response &res) {
+    srv.Get("/v1/fields", [&rep](const Request &req, Response &res) {
         Response_t r;
         nlohmann::json res_json;
         pqxx::result result = rep->select_fields();
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
         res.set_content(r.body, "application/json");
     });
 
-    srv.Get("/crypto", [&rep](const Request &req, Response &res) {
+    srv.Get("/v1/crypto", [&rep](const Request &req, Response &res) {
         string token = req.get_header_value("authorization");
         Query query;
         query.symbol = req.get_param_value("symbol");
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
         res.set_content(r.body, "application/json");
     });
 
-    srv.Post("/crypto", [&rep](const Request &req, Response &res) {
+    srv.Post("/v1/crypto", [&rep](const Request &req, Response &res) {
         string token = req.get_header_value("authorization");
         Crypto *crypto = new Crypto(rep);
         Response_t r = crypto->post(token, req.body);
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
         res.set_content(r.body, "application/json");
     });
 
-    srv.Get("/workflow", [&rep](const Request &req, Response &res) {
+    srv.Get("/v1/workflow", [&rep](const Request &req, Response &res) {
         //string token = req.get_header_value("authorization");
         WorkflowQuery query;
         query.symbol = req.get_param_value("symbol");
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
         Response_t response = workflow->search(query);
         delete workflow;
         res.status = response.status;
-        res.set_content(response.body, "text/plain");
+        res.set_content(response.body, "application/json");
     });
     cout << "server listening port 5000" << endl;
     srv.listen("0.0.0.0", 5000);

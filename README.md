@@ -1,6 +1,6 @@
 # VISION
 
-## Workflow
+## Todo
 
 - [x] User sign-in
 - [x] Daily filtered data visualization
