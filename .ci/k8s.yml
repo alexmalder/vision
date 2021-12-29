@@ -1,0 +1,86 @@
+---
+- name: build an image and push it to a private repo
+  community.docker.docker_image:
+    build:
+      path: "{{ ansible_env.HOME }}/{{workdir}}"
+    name: "vnmntn/{{app_name}}"
+    tag: "{{tag}}"
+    push: yes
+    source: build
+
+- name: create service
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{app_name}}"
+        namespace: "{{namespace}}"
+      spec:
+        selector:
+          app: "{{app_name}}"
+        ports:
+          - name: web
+            port: 80
+            targetPort: 5000
+
+- name: create deployment
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{app_name}}"
+        namespace: "{{namespace}}"
+        labels:
+          app: "{{app_name}}"
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: "{{app_name}}"
+        template:
+          metadata:
+            labels:
+              app: "{{app_name}}"
+          spec:
+            containers:
+              - name: "{{app_name}}"
+                image: "vnmntn/{{app_name}}:{{tag}}"
+                imagePullPolicy: Always
+                env:
+                  - name: POSTGRES_CONN
+                    value: postgresql://{{pg_user}}:{{pg_pass}}@{{pg_host}}:{{pg_port}}/{{pg_db}}
+
+- name: create ingress
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: "{{app_name}}"
+        namespace: "{{namespace}}"
+        annotations:
+          nginx.ingress.kubernetes.io/proxy-body-size: 64m
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            more_set_headers "Access-Control-Allow-Origin: $http_origin";
+          nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+          nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST,
+            OPTIONS, DELETE, PATCH
+          nginx.ingress.kubernetes.io/enable-cors: "true"
+      spec:
+        ingressClassName: nginx
+        rules:
+          - host: "{{host}}"
+            http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: "{{app_name}}"
+                      port:
+                        number: 80

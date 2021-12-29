@@ -1,9 +1,9 @@
+---
 - hosts: worker
   vars:
     git_uri: http://git.vnmntn.com/vnmntn
-    namespace: vision
     repository: vision
-    host: api.vnmntn.com
+    tag: 0.1.4
   tasks:
     - name: print postgresql connection string
       debug:
@@ -16,93 +16,26 @@
         force: yes
         version: main
 
-    - name: build an image and push it to a private repo
-      community.docker.docker_image:
-        build:
-          path: "{{ ansible_env.HOME }}/{{repository}}"
-        name: "vnmntn/{{repository}}"
-        tag: "{{tag}}"
-        push: yes
-        source: build
+    - name: deploy application
+      include_tasks: k8s.yml
+      vars:
+        workdir: "{{repository}}"
+        app_name: "{{repository}}"
+        namespace: vision
+        host: api.vnmntn.com
+
+    - name: deploy swagger
+      include_tasks: k8s.yml
+      vars:
+        workdir: "{{repository}}/swagger"
+        app_name: swagger
+        namespace: vision
+        host: swagger.vnmntn.com
+        pg_pass: "empty"
+
 
     - name: delete content & directory
       file:
         state: absent
         path: "{{ ansible_env.HOME }}/{{repository}}"
 
-    - name: create service
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: "{{repository}}"
-            namespace: "{{namespace}}"
-          spec:
-            selector:
-              app: "{{repository}}"
-            ports:
-              - name: web
-                port: 80
-                targetPort: 5000
-
-    - name: create deployment
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: "{{repository}}"
-            namespace: "{{namespace}}"
-            labels:
-              app: "{{repository}}"
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: "{{repository}}"
-            template:
-              metadata:
-                labels:
-                  app: "{{repository}}"
-              spec:
-                containers:
-                  - name: "{{repository}}"
-                    image: "vnmntn/{{repository}}:{{tag}}"
-                    imagePullPolicy: Always
-                    env:
-                      - name: POSTGRES_CONN
-                        value: postgresql://{{pg_user}}:{{pg_pass}}@{{pg_host}}:{{pg_port}}/{{pg_db}}
-
-    - name: create ingress
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: networking.k8s.io/v1
-          kind: Ingress
-          metadata:
-            name: "{{repository}}"
-            namespace: "{{namespace}}"
-            annotations:
-              nginx.ingress.kubernetes.io/proxy-body-size: 64m
-              nginx.ingress.kubernetes.io/configuration-snippet: |
-                more_set_headers "Access-Control-Allow-Origin: $http_origin";
-              nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
-              nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST,
-                OPTIONS, DELETE, PATCH
-              nginx.ingress.kubernetes.io/enable-cors: "true"
-          spec:
-            ingressClassName: nginx
-            rules:
-              - host: "{{host}}"
-                http:
-                  paths:
-                    - path: /
-                      pathType: Prefix
-                      backend:
-                        service:
-                          name: "{{repository}}"
-                          port:
-                            number: 80
