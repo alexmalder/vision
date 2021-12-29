@@ -1,6 +1,8 @@
 #include "src/vision.hpp"
+#include <httpserver.h>
+#include <stdlib.h>
 
-int main(int argc, char **argv)
+int c_plus_plus_version(int argc, char **argv)
 {
     using namespace httplib;
     Repository *rep = new Repository(new Config("config.yml"));
@@ -79,5 +81,23 @@ int main(int argc, char **argv)
     cout << "server listening port 5000" << endl;
     srv.listen("0.0.0.0", 5000);
 
+    return 0;
+}
+
+void handle_request(struct http_request_s *request)
+{
+    struct http_response_s *response = http_response_init();
+    http_response_status(response, 200);
+    http_response_header(response, "Content-Type", "application/json");
+    char response_body[] = "{\"status\":\"ok\"}";
+    http_response_body(response, response_body, sizeof(response_body) - 1);
+    http_respond(request, response);
+}
+
+int main(int argc, char **argv)
+{
+    struct http_server_s *server = http_server_init(5000, handle_request);
+    printf("%s\n", "server listening on port 5000");
+    http_server_listen(server);
     return 0;
 }
