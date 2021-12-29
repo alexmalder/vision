@@ -1,28 +1,5 @@
 #include "vision.hpp"
 
-Repository::Repository()
-{
-}
-
-Repository::Repository(Config *conf)
-{
-    this->config = conf;
-}
-
-void Repository::init()
-{
-    // create tables
-    pqxx::work W{ C };
-    for (auto create_table : this->config->create) {
-        W.exec(create_table);
-    }
-    W.commit();
-    // prepared statements
-    for (auto prepared : this->config->prepared) {
-        C.prepare(prepared.first, prepared.second);
-    }
-}
-
 void Repository::insert_crypto(vector<CryptoData> &data)
 {
     pqxx::work W{ C };
@@ -57,4 +34,34 @@ pqxx::result Repository::select_account(Account_t &data)
     pqxx::work W{ C };
     pqxx::result result = W.exec_prepared("select_account", data.username);
     return result;
+}
+
+pqxx::result Repository::select_fields()
+{
+    pqxx::work W{ C };
+    pqxx::result result = W.exec_prepared("select_fields");
+    return result;
+}
+
+Repository::Repository()
+{
+}
+
+Repository::Repository(Config *conf)
+{
+    this->config = conf;
+}
+
+void Repository::init()
+{
+    // create tables
+    pqxx::work W{ C };
+    for (auto create_table : this->config->create) {
+        W.exec(create_table);
+    }
+    W.commit();
+    // prepared statements
+    for (auto prepared : this->config->prepared) {
+        C.prepare(prepared.first, prepared.second);
+    }
 }

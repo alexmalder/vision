@@ -1,5 +1,4 @@
-version: 0.1.8
-
+---
 postgres:
   create:
     - name: create_account
@@ -22,8 +21,8 @@ postgres:
           high REAL,
           low REAL,
           close REAL,
-          volume_original VARCHAR(255),
-          volume_usd VARCHAR(255)
+          volume_original REAL,
+          volume_usd REAL
         )
   prepared:
     - name: insert_crypto
@@ -67,3 +66,16 @@ postgres:
     - name: select_account
       query: |
         SELECT * FROM account WHERE account.username = $1
+
+    - name: select_fields
+      query: |
+        SELECT 
+          table_name, 
+          column_name, 
+          data_type 
+        FROM 
+          information_schema.columns 
+        WHERE 
+          table_name = 'crypto'
+        AND
+          data_type = 'real'

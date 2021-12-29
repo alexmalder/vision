@@ -3,10 +3,10 @@ import csv
 import requests
 import json
 import sys
+import getopt
 
-host = sys.argv[1]
 
-def loader():
+def upload(host):
     items = []
     directory = "data"
     filenames = os.listdir(directory)
@@ -32,21 +32,45 @@ def loader():
         headers = {
             "authorization": "vnmntn"
         }
-        resp = requests.post(host, json=items, headers=headers)
+        resp = requests.post(host + "/crypto", json=items, headers=headers)
         print(resp.status_code)
         print(resp.text)
 
 
-def mocks():
+def mocks(host):
     headers={"authorization": "vnmntn"}
     params = {
         "symbol": "BTC/USD",
-        "start_date": "2020-01-01",
-        "end_date": "2021-01-01"
+        "start_date": "2021-01-01",
+        "end_date": "2021-01-03"
     }
-    for v in range(1024):
-        resp = requests.get(host, params=params, headers=headers)
-        print(resp.text, v)
+    resp = requests.get(host + "/crypto", params=params, headers=headers)
+    print(resp.text)
 
-# mocks()
-loader()
+    resp = requests.get(host + "/fields", headers=headers)
+    print(resp.text)
+
+def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "h:s:")
+        # print(opts, args)
+    except getopt.GetoptError as err:
+        print(err)
+        sys.exit(2)
+    stage = str()
+    for o, a in opts:
+        if o in ("-h", "--host"):
+            host = a
+        elif o in ("-s", "--stage"):
+            stage = a
+        else:
+            assert False, "unhandled option : getopt"
+
+    if stage == "upload":
+        upload(host)
+    elif stage == "mocks":
+        mocks(host)
+    else:
+        print("python3 api.py loader -h <host> -s <stage>")
+
+main()

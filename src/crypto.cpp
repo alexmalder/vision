@@ -1,18 +1,6 @@
 #include "vision.hpp"
 #include <regex>
 
-Query::Query(string sym, string start, string end)
-{
-    this->symbol = sym;
-    this->start_date = start;
-    this->end_date = end;
-}
-
-Crypto::Crypto(Repository *rep)
-{
-    this->rep = rep;
-}
-
 Response_t Crypto::get(string token, Query query)
 {
     Response_t response;
@@ -28,11 +16,11 @@ Response_t Crypto::get(string token, Query query)
             j["datetime"] = row["datetime"].as<string>();
             //j["symbol"] = row["symbol"].as<string>();
             j["open"] = row["open"].as<double>();
-            //j["high"] = row["high"].as<double>();
-            //j["low"] = row["low"].as<double>();
+            j["high"] = row["high"].as<double>();
+            j["low"] = row["low"].as<double>();
             j["close"] = row["close"].as<double>();
-            j["volume_original"] = row["volume_original"].as<double>();
-            j["volume_usd"] = row["volume_usd"].as<double>();
+            //j["volume_original"] = row["volume_original"].as<double>();
+            //j["volume_usd"] = row["volume_usd"].as<double>();
             res_json.push_back(j);
         }
         response.status = 200;
@@ -74,4 +62,16 @@ Response_t Crypto::post(string token, string body)
     }
     response.body = res_json.dump();
     return response;
+}
+
+Query::Query(string sym, string start, string end)
+{
+    this->symbol = sym;
+    this->start_date = start;
+    this->end_date = end;
+}
+
+Crypto::Crypto(Repository *rep)
+{
+    this->rep = rep;
 }

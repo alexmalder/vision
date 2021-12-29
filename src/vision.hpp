@@ -65,6 +65,7 @@ public:
     void init();
     void insert_crypto(vector<CryptoData> &data);
     pqxx::result select_crypto(Query &data);
+    pqxx::result select_fields();
     pqxx::result insert_account(Account_t &data);
     pqxx::result select_account(Account_t &data);
 
@@ -87,12 +88,23 @@ class Crypto {
 public:
     Crypto(Repository *rep);
     Response_t get(string token, Query query);
+    Response_t get_fields();
     Response_t post(string token, string body);
 
 private:
     Repository *rep;
 };
 
-double cosine_similarity(vector<double> &a, vector<double> &b, unsigned int length);
+class Workflow {
+public:
+    Workflow(Repository *rep);
+    Response_t search(Query &query);
+    vector<double> extractVector(Query &query);
+    double cosineSimilarity(vector<double> &a, vector<double> &b,
+                            unsigned int length);
+
+private:
+    Repository *rep;
+};
 
 #endif

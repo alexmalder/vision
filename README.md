@@ -31,7 +31,7 @@
 ## Requirements
 
 - environment
-  `POSTGRES_CONN` : postgresql connection string
+  - `POSTGRES_CONN` : postgresql connection string
 
 ## How to build
 

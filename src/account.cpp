@@ -1,10 +1,5 @@
 #include "vision.hpp"
 
-Account::Account(Repository *rep)
-{
-    this->rep = rep;
-}
-
 Response_t Account::sign_in(string body)
 {
     Response_t response;
@@ -59,4 +54,9 @@ Response_t Account::sign_up(string body)
     response.status = 200;
     response.body = res_json.dump();
     return response;
+}
+
+Account::Account(Repository *rep)
+{
+    this->rep = rep;
 }
