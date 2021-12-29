@@ -6,9 +6,9 @@ Response_t Crypto::get(string token, Query query)
     Response_t response;
     Account_t account;
     account.username = token;
-    pqxx::result result = rep->select_account(account);
+    pqxx::result dbacc = rep->select_account(account);
     nlohmann::json res_json;
-    if (!result.empty()) {
+    if (!dbacc.empty()) {
         pqxx::result rows = rep->select_crypto(query);
         for (auto row : rows) {
             nlohmann::json j;
@@ -37,9 +37,9 @@ Response_t Crypto::post(string token, string body)
     Response_t response;
     Account_t account;
     account.username = token;
-    pqxx::result result = rep->select_account(account);
+    pqxx::result dbacc = rep->select_account(account);
     nlohmann::json res_json;
-    if (!result.empty()) {
+    if (!dbacc.empty()) {
         nlohmann::json json;
         vector<CryptoData> vcd;
         auto data = json.parse(body);

@@ -37,74 +37,85 @@ double Workflow::cosineSimilarity(vector<WorkflowResponse> &a,
     return dot / (sqrt(denom_a) * sqrt(denom_b));
 }
 
-Response_t Workflow::search(WorkflowQuery &query)
+Response_t Workflow::search(string token, WorkflowQuery &query)
 {
     Response_t response;
-    WorkflowQuery vision;
-    vision.symbol = query.symbol;
-    vision.start_date = "2012-01-01";
-    vision.end_date = "2022-01-01";
-    vision.field_name = query.field_name;
-
-    vector<WorkflowResponse> visionedData = extractVector(vision);
-    vector<WorkflowResponse> searchData = extractVector(query);
-    uint64_t vSize = visionedData.size();
-    uint64_t sSize = searchData.size();
-
-    unsigned int start = 0;
-    unsigned int stop = vSize;
-    unsigned int step = 10;
-
-    cout << "vSize: " << vSize << endl;
-    cout << "sSize: " << sSize << endl;
-
+    Account_t account;
+    account.username = token;
+    pqxx::result dbacc = rep->select_account(account);
     nlohmann::json res_json;
-    vector<WorkflowResponse> compareData;
-    for (unsigned int x = start; x < stop; x++) {
-        compareData.push_back(visionedData[x]);
-        if (x % sSize == 0) {
-            //cout << "x: " << x << endl;
-            double result = cosineSimilarity(searchData, compareData, sSize);
-            double thresh = 0.99;
-            if (result > thresh) {
-                std::cout << result << std::endl;
-                nlohmann::json j = extractCompare(compareData);
-                res_json.push_back(j);
+    if (!dbacc.empty()) {
+        WorkflowQuery vision;
+        vision.symbol = query.symbol;
+        vision.start_date = "2012-01-01";
+        vision.end_date = "2022-01-01";
+        vision.field_name = query.field_name;
+
+        vector<WorkflowResponse> visionedData = extractVector(vision);
+        vector<WorkflowResponse> searchData = extractVector(query);
+        uint64_t vSize = visionedData.size();
+        uint64_t sSize = searchData.size();
+
+        unsigned int start = 0;
+        unsigned int stop = vSize;
+        unsigned int step = 10;
+
+        cout << "vSize: " << vSize << endl;
+        cout << "sSize: " << sSize << endl;
+
+        vector<WorkflowResponse> compareData;
+        for (unsigned int x = start; x < stop; x++) {
+            compareData.push_back(visionedData[x]);
+            if (x % sSize == 0) {
+                //cout << "x: " << x << endl;
+                double result =
+                    cosineSimilarity(searchData, compareData, sSize);
+                double thresh = 0.99;
+                if (result > thresh) {
+                    std::cout << result << std::endl;
+                    nlohmann::json j = extractCompare(compareData);
+                    res_json.push_back(j);
+                }
+                //start += step;
+                //vSize += step;
+                compareData.clear();
             }
-            //start += step;
-            //vSize += step;
-            compareData.clear();
         }
+        response.status = 200;
+    } else {
+        response.status = 401;
+        res_json["message"] = "unauthorized";
     }
     response.body = res_json.dump();
-    response.status = 200;
     return response;
 }
 
-Response_t Workflow::getFields()
+Response_t Workflow::getFields(string token)
 {
     Response_t response;
+    Account_t account;
+    account.username = token;
+    pqxx::result dbacc = rep->select_account(account);
     nlohmann::json res_json;
-    pqxx::result result = rep->select_fields();
-    for (auto row : result) {
-        nlohmann::json j;
-        j["table_name"] = row["table_name"].as<string>();
-        j["column_name"] = row["column_name"].as<string>();
-        j["data_type"] = row["data_type"].as<string>();
-        res_json.push_back(j);
+    if (!dbacc.empty()) {
+        pqxx::result result = rep->select_fields();
+        for (auto row : result) {
+            nlohmann::json j;
+            j["table_name"] = row["table_name"].as<string>();
+            j["column_name"] = row["column_name"].as<string>();
+            j["data_type"] = row["data_type"].as<string>();
+            res_json.push_back(j);
+        }
+        response.status = 200;
+    } else {
+        response.status = 401;
+        res_json["message"] = "unauthorized";
     }
+
     response.body = res_json.dump();
-    response.status = 200;
     return response;
 }
 
-/*
-    X : iterate by small step
-    Y :
-    - fill array by small step size 
-    - check similarity
-    - if found return filled array
-*/
 Workflow::Workflow(Repository *rep)
 {
     this->rep = rep;

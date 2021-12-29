@@ -10,12 +10,10 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <sys/types.h>
 #include <string>
 #include <pqxx/pqxx>
 #include <yaml-cpp/yaml.h>
 #include <nlohmann/json.hpp>
-#include <openssl/sha.h>
 #include <bcrypt/BCrypt.hpp>
 #include <httplib.h>
 
@@ -96,7 +94,6 @@ class Crypto {
 public:
     Crypto(Repository *rep);
     Response_t get(string token, Query query);
-    Response_t get_fields();
     Response_t post(string token, string body);
 
 private:
@@ -106,8 +103,15 @@ private:
 class Workflow {
 public:
     Workflow(Repository *rep);
-    Response_t search(WorkflowQuery &query);
-    Response_t getFields();
+    /*
+        X : iterate by small step
+        Y :
+        - fill array by small step size 
+        - check similarity
+        - if found return filled array
+    */
+    Response_t search(string token, WorkflowQuery &query);
+    Response_t getFields(string token);
     vector<WorkflowResponse> extractVector(WorkflowQuery &query);
     double cosineSimilarity(vector<WorkflowResponse> &a,
                             vector<WorkflowResponse> &b, unsigned int length);

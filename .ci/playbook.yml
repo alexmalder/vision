@@ -4,7 +4,7 @@
     git_uri: http://git.vnmntn.com/vnmntn
     repository: vision
     namespace: vision
-    tag: 0.1.5
+    tag: 0.1.6
   tasks:
     - name: clone repository
       git:

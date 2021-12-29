@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     });
 
     srv.Get("/v1/workflow", [&rep](const Request &req, Response &res) {
-        //string token = req.get_header_value("authorization");
+        string token = req.get_header_value("authorization");
         WorkflowQuery query;
         query.symbol = req.get_param_value("symbol");
         query.start_date = req.get_param_value("start_date");
@@ -60,15 +60,16 @@ int main(int argc, char **argv)
         query.field_name = req.get_param_value("field_name");
 
         Workflow *workflow = new Workflow(rep);
-        Response_t response = workflow->search(query);
+        Response_t response = workflow->search(token, query);
         delete workflow;
         res.status = response.status;
         res.set_content(response.body, "application/json");
     });
 
     srv.Get("/v1/workflow/fields", [&rep](const Request &req, Response &res) {
+        string token = req.get_header_value("authorization");
         Workflow *workflow = new Workflow(rep);
-        Response_t response = workflow->getFields();
+        Response_t response = workflow->getFields(token);
         delete workflow;
         res.status = response.status;
         res.set_content(response.body, "application/json");
