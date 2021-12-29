@@ -1,8 +1,9 @@
 apps:
-  - name: "HTTP-API"
+  - name: vision
     script: gcc -ljson-c main.c && ./a.out
     max_memory_restart: 64M
     watch: true
+    watch_delay: 4000
     ignore_watch:
       - ./build
       - ./swagger

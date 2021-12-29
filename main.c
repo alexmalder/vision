@@ -52,8 +52,13 @@ void handle_request(struct http_request_s *request)
         query->symbol = json_object_get_string(symbol);
         query->field_name = json_object_get_string(field_name);
 
-        printf("%s %s %s %s\n", query->start_date, query->end_date,
-               query->symbol, query->field_name);
+        char *token;
+        struct http_string_s ss = http_request_header(request, "authorization");
+        token=ss.buf;
+        token[ss.len]='\0';
+        printf("%s", token);
+
+        //printf("%s %s %s %s\n", query->start_date, query->end_date, query->symbol, query->field_name);
         fflush(stdout);
 
         http_response_header(response, "Content-Type", "application/json");
