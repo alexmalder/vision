@@ -48,5 +48,5 @@ def mocks():
         resp = requests.get(host, params=params, headers=headers)
         print(resp.text, v)
 
-mocks()
-# loader()
+# mocks()
+loader()

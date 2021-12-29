@@ -2,10 +2,15 @@
 
 ## Workflow
 
-- [ ] User sign-in
-- [ ] Daily filtered data visualization
+- [x] User sign-in
+- [x] Daily filtered data visualization
 - [ ] Similarity vectors visualization
-- [ ] Prediction interface
+  - [x] search similarity in many by one
+  - [ ] vector metadata for client result
+  - [ ] high resolution with smaller steps
+  - [ ] multiple fields eye
+  - [ ] visualize
+- [ ] Workflow of prediction
 - [ ] Contribution managment
 - [ ] Finance managment
 

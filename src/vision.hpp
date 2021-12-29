@@ -93,15 +93,6 @@ private:
     Repository *rep;
 };
 
-class Visioner {
-public:
-    Visioner(vector<CryptoData> vcd);
-    double cosine_similarity(vector<double> A, vector<double> B,
-                             unsigned int Vector_Length);
-    void crossvalidation();
-
-private:
-    vector<CryptoData> vcd;
-};
+double cosine_similarity(vector<double> &a, vector<double> &b, unsigned int length);
 
 #endif
