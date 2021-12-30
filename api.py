@@ -4,54 +4,60 @@ import requests
 import sys
 import getopt
 import tarantool
+from tarantool.connection import Connection
+from tarantool.error import DatabaseError
 # import json
 
 
-def upload(host, headers):
-    total_length = 0
-    directory = "data"
+def construct_tuples(crypto):
+    my_tuples = []
+    for row in crypto:
+        unix = int(row[0])
+        datetime = row[1]
+        symbol = row[2]
+        _open = float(row[3])
+        _high = float(row[4])
+        _low = float(row[5]),
+        _close = float(row[6])
+        volume_original = float(row[7])
+        volume_usd = float(row[8])
+        if (_open != 0 and _close != 0 and _low != 0):
+            my_tuple = (unix, datetime, symbol, _open, _high,
+                        _low, _close, volume_original, volume_usd)
+            my_tuples.append(my_tuple)
+    return my_tuples
+
+
+def client_create() -> Connection:
     tnt_host = os.getenv("TNT_HOST")
     tnt_port = os.getenv("TNT_PORT")
     tnt_user = os.getenv("TNT_USER")
     tnt_pass = os.getenv("TNT_PASSWORD")
-    filenames = os.listdir(directory)
-
-    server = tarantool.connect(host=tnt_host, port=int(
+    if (tnt_host is None or tnt_port is None or tnt_user is None or tnt_pass is None):
+        sys.exit(1)
+    client = tarantool.connect(host=tnt_host, port=int(
         tnt_port), user=tnt_user, password=tnt_pass)
-    space = server.space(517)
+    return client
+
+
+def upload():
+    directory = "data"
+    total_length = 0
+    client = client_create()
+    space = client.space(517)
+    filenames = os.listdir(directory)
     for filename in filenames:
         # print(filename.split(".")[-2])
         print(filename)
         with open(directory + "/" + filename, newline='') as csvfile:
-            request = {}
-            items = []
-            spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
-            for i, row in enumerate(spamreader):
-                unix = int(row[0])
-                datetime = row[1]
-                symbol = row[2]
-                _open = float(row[3])
-                _high = float(row[4])
-                _low = float(row[5]),
-                _close = float(row[6])
-                volume_original = float(row[7])
-                volume_usd = float(row[8])
-                if (_open != 0 and _close != 0 and _low != 0):
+            crypto = csv.reader(csvfile, delimiter=',', quotechar='|')
+            my_tuples = construct_tuples(crypto)
+            for my_tuple in my_tuples:
+                try:
+                    space.insert(my_tuple)
                     total_length += 1
-                    try:
-                        space.insert((
-                            unix,
-                            datetime,
-                            symbol,
-                            _open,
-                            _high,
-                            _low,
-                            _close,
-                            volume_original,
-                            volume_usd
-                        ))
-                    except tarantool.error.DatabaseError as e:
-                        print(e)
+                except DatabaseError as e:
+                    print(e)
     print("total_length: ", total_length)
 
 
@@ -99,7 +105,7 @@ def main():
             assert False, "unhandled option : getopt"
     if host is not None:
         if stage == "upload":
-            upload(host, headers)
+            upload()
         elif stage == "mocks":
             mocks(host, headers)
         else:
