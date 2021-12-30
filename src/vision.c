@@ -1,5 +1,5 @@
 #include "vision.h"
-//#include <opencv/cv.h>
+#include <math.h>
 
 double cosine_similarity(double *a, double *b, uint64_t length)
 {

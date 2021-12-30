@@ -4,6 +4,9 @@
 #include "src/vision.h"
 
 #define RESPONSE "VNMNTN"
+#define CONTENT_TYPE "Content-Type"
+#define APP_JSON "application/json"
+
 
 int request_target_is(struct http_request_s *request, char const *target)
 {
@@ -19,7 +22,7 @@ void handle_request(struct http_request_s *request)
     http_response_status(response, 200);
     if (request_target_is(request, "/echo")) {
         http_string_t body = http_request_body(request);
-        http_response_header(response, "Content-Type", "application/json");
+        http_response_header(response, CONTENT_TYPE, APP_JSON);
         http_response_body(response, body.buf, body.len);
     } else if (request_target_is(request, "/query")) {
         http_string_t body = http_request_body(request);
@@ -50,7 +53,7 @@ void handle_request(struct http_request_s *request)
         //printf("%s %s %s %s\n", query->start_date, query->end_date, query->symbol, query->field_name);
         fflush(stdout);
 
-        http_response_header(response, "Content-Type", "application/json");
+        http_response_header(response, CONTENT_TYPE, APP_JSON);
         http_response_body(response, RESPONSE, sizeof(RESPONSE) - 1);
         free(query);
         json_object_put(parsed_json);
@@ -59,7 +62,7 @@ void handle_request(struct http_request_s *request)
         json_object_put(symbol);
         json_object_put(field_name);
     } else {
-        http_response_header(response, "Content-Type", "application/json");
+        http_response_header(response, CONTENT_TYPE, APP_JSON);
         http_response_body(response, RESPONSE, sizeof(RESPONSE) - 1);
     }
     http_respond(request, response);
@@ -73,11 +76,23 @@ void handle_sigterm(int signum)
     exit(0);
 }
 
+int test()
+{
+    double a[] = { 0.11, 0.12, 0.13 };
+    double b[] = { 0.11, 0.12, 0.14 };
+    double r = cosine_similarity(a, b, 3);
+    printf("cosine_similarity test result: %lf\n", r);
+    fflush(stdout);
+    return 0;
+}
+
 int main()
 {
     signal(SIGTERM, handle_sigterm);
+    test();
     server = http_server_init(5000, handle_request);
     printf("httpserver listening on port 5000...\n");
     fflush(stdout);
     http_server_listen(server);
+    return 0;
 }
