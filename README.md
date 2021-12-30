@@ -22,6 +22,12 @@
 - bcrypt
 - cpp-httplib
 
+## Migration
+
+- httpserver.h
+- tarantool-c
+- msgpuck
+
 ## Research
 
 - msgpack
