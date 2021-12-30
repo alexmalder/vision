@@ -1,19 +1,9 @@
 #define HTTPSERVER_IMPL
 
 #include "httpserver.h"
-#include <signal.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <json-c/json.h>
+#include "src/vision.h"
 
 #define RESPONSE "VNMNTN"
-
-struct query_t {
-    const char *start_date;
-    const char *end_date;
-    const char *symbol;
-    const char *field_name;
-};
 
 int request_target_is(struct http_request_s *request, char const *target)
 {
