@@ -90,6 +90,7 @@ int main()
 {
     signal(SIGTERM, handle_sigterm);
     test();
+    tarantool_insert();
     server = http_server_init(5000, handle_request);
     printf("httpserver listening on port 5000...\n");
     fflush(stdout);

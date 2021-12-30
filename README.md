@@ -36,7 +36,12 @@ make install #optional
 
 ## How to create space and configure it
 
+> interactive
+
 ```lua
+console = require('console')
+console.connect('user:password@127.0.0.1:3301')
+
 box.schema.space.create('crypto')
 
 box.space.crypto:format({

@@ -1,9 +1,9 @@
 import os
 import csv
 import requests
-import json
 import sys
 import getopt
+# import json
 
 
 def upload(host):
@@ -66,10 +66,11 @@ def mocks(host):
 def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "h:s:")
-        # print(opts, args)
+        print(opts, args)
     except getopt.GetoptError as err:
         print(err)
         sys.exit(2)
+    host = str()
     stage = str()
     for o, a in opts:
         if o in ("-h", "--host"):
@@ -79,12 +80,16 @@ def main():
         else:
             assert False, "unhandled option : getopt"
 
-    if stage == "upload":
-        upload(host)
-    elif stage == "mocks":
-        mocks(host)
+    if host is not None:
+        if stage == "upload":
+            upload(host)
+        elif stage == "mocks":
+            mocks(host)
+        else:
+            print("python3 api.py -h <host> -s <stage>")
     else:
-        print("python3 api.py -h <host> -s <stage>")
+        print("host is none")
+        sys.exit(1)
 
 
 main()
