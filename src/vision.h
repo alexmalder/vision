@@ -12,8 +12,8 @@
 
 struct crypto_data {
     uint64_t unix;
-    // char* datetime;
-    // char* symbol;
+    char* datetime;
+    char* symbol;
     double open;
     double high;
     double low;
