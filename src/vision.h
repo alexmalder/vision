@@ -9,6 +9,7 @@
 #include <tarantool/tarantool.h>
 #include <tarantool/tnt_net.h>
 #include <tarantool/tnt_opt.h>
+#include "httpserver.h"
 
 struct crypto_data {
     uint64_t unix;
@@ -23,16 +24,20 @@ struct crypto_data {
 };
 
 struct query_t {
-    const char *start_date;
-    const char *end_date;
-    const char *symbol;
-    const char *field_name;
+    char *start_date;
+    char *end_date;
+    char *symbol;
+    char *field_name;
 };
 
 double cosine_similarity(double *a, double *b, uint64_t length);
+int cosine_similarity_test();
 void crypto_get();
 void crypto_post();
 void crypto_search();
-int tarantool_insert();
+int tarantool_insert(struct crypto_data *cd, uint64_t length);
+int request_target_is(struct http_request_s *request, char const *target);
+void handle_request(struct http_request_s *request);
+void handle_sigterm(int signum);
 
 #endif

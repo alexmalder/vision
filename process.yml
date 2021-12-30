@@ -9,9 +9,9 @@ apps:
       make install
       cd ../
       vision
-    max_memory_restart: 64M
+    max_memory_restart: 128M
     watch: true
-    watch_delay: 4000
+    watch_delay: 1000
     ignore_watch:
       - ./build
       - ./swagger

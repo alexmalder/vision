@@ -39,29 +39,10 @@ make install #optional
 > interactive
 
 ```lua
+--
 console = require('console')
-console.connect('user:password@127.0.0.1:3301')
-
-box.schema.space.create('crypto')
-
-box.space.crypto:format({
-  {name='unix', type='number'}, 
-  {name='datetime', type='string'},
-  {name='symbol', type='string'}, 
-  {name='open', type='number'}, 
-  {name='high', type='number'},
-  {name='low', type='number'},
-  {name='close', type='number'},
-  {name='volume_original', type='number'},
-  {name='volume_usd', type='number'}
-})
-
-box.space.crypto:create_index('primary', { 
-  unique = true, 
-  parts = { 
-    {field=1, type='number'} 
-  } 
-})
+console.connect('tnt_user:tnt_password@127.0.0.1:3301')
+--
 ```
 
 ## Todo

@@ -1,4 +1,5 @@
 #include "vision.h"
+#include <stdio.h>
 
 double cosine_similarity(double *a, double *b, uint64_t length)
 {
@@ -11,20 +12,30 @@ double cosine_similarity(double *a, double *b, uint64_t length)
     return dot / (sqrt(denom_a) * sqrt(denom_b));
 }
 
-int tarantool_insert()
+int tarantool_insert(struct crypto_data *cd, uint64_t length)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
-    const char connection[] = "tnt_user:tnt_password@192.168.238.128:3301";
-    tnt_set(tnt, TNT_OPT_URI, connection);
+    char conn_string[128];
+    char *tnt_user = getenv("TNT_USER");
+    char *tnt_pass = getenv("TNT_PASSWORD");
+    char *tnt_host = getenv("TNT_HOST");
+    char *tnt_port = getenv("TNT_PORT");
+    sprintf(conn_string, "%s:%s@%s:%s", tnt_user, tnt_pass, tnt_host, tnt_port);
+
+    tnt_set(tnt, TNT_OPT_URI, conn_string);
     if (tnt_connect(tnt) < 0) {
         printf("Connection refused \n");
-        //return 255;
+        return -1;
     }
-    struct tnt_stream *tuple = tnt_object(NULL);
     const char *format = "[%d%s%s%lf%lf%lf%lf%lf%lf]";
-    tnt_object_format(tuple, format, 112, "2020-01-01", "BTC/USD", 0.11, 0.12,
-                      0.13, 0.14, 0.111, 0.112);
-    tnt_insert(tnt, 513, tuple);
+    for (uint64_t i = 0; i < length; i++) {
+        struct tnt_stream *tuple = tnt_object(NULL);
+        tnt_object_format(tuple, format, cd[i].unix, cd[i].datetime,
+                          cd[i].symbol, cd[i].open, cd[i].high, cd[i].low,
+                          cd[i].close, cd[i].volume_original, cd[i].volume_usd);
+        tnt_insert(tnt, 512, tuple);
+        //tnt_stream_free(tuple);
+    }
     tnt_flush(tnt);
     struct tnt_reply reply;
     tnt_reply_init(&reply);
@@ -35,7 +46,6 @@ int tarantool_insert()
     printf("Tuple inserted with code %llu.\n", reply.code);
     fflush(stdout);
     tnt_close(tnt);
-    tnt_stream_free(tuple);
     tnt_stream_free(tnt);
     return 0;
 }
