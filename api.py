@@ -3,42 +3,56 @@ import csv
 import requests
 import sys
 import getopt
-import time
+import tarantool
 # import json
 
 
 def upload(host, headers):
+    total_length = 0
     directory = "data"
+    tnt_host = os.getenv("TNT_HOST")
+    tnt_port = os.getenv("TNT_PORT")
+    tnt_user = os.getenv("TNT_USER")
+    tnt_pass = os.getenv("TNT_PASSWORD")
     filenames = os.listdir(directory)
 
+    server = tarantool.connect(host=tnt_host, port=int(
+        tnt_port), user=tnt_user, password=tnt_pass)
+    space = server.space(517)
     for filename in filenames:
         # print(filename.split(".")[-2])
+        print(filename)
         with open(directory + "/" + filename, newline='') as csvfile:
             request = {}
             items = []
             spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
             for i, row in enumerate(spamreader):
-                item = {
-                    "unix": int(row[0]),
-                    "datetime": row[1],
-                    "symbol": row[2],
-                    "open": float(row[3]),
-                    "high": float(row[4]),
-                    "low": float(row[5]),
-                    "close": float(row[6]),
-                    "volume_original": float(row[7]),
-                    "volume_usd": float(row[8])
-                }
-                if (item["open"] != 0):
-                    items.append(item)
-                if (i % 100 == 0):
-                    request["length"] = len(items)
-                    request["items"] = items
-                    resp = requests.post(
-                        host + "/v1/crypto", json=request, headers=headers)
-                    print(resp.status_code)
-                    print(resp.text)
-                    items = []
+                unix = int(row[0])
+                datetime = row[1]
+                symbol = row[2]
+                _open = float(row[3])
+                _high = float(row[4])
+                _low = float(row[5]),
+                _close = float(row[6])
+                volume_original = float(row[7])
+                volume_usd = float(row[8])
+                if (_open != 0 and _close != 0 and _low != 0):
+                    total_length += 1
+                    try:
+                        space.insert((
+                            unix,
+                            datetime,
+                            symbol,
+                            _open,
+                            _high,
+                            _low,
+                            _close,
+                            volume_original,
+                            volume_usd
+                        ))
+                    except tarantool.error.DatabaseError as e:
+                        print(e)
+    print("total_length: ", total_length)
 
 
 def mocks(host, headers):
