@@ -43,8 +43,9 @@ def client_create() -> Connection:
 def upload():
     directory = "data"
     total_length = 0
+    database_errors = 0
     client = client_create()
-    space = client.space(517)
+    space = client.space(520)
     filenames = os.listdir(directory)
     for filename in filenames:
         # print(filename.split(".")[-2])
@@ -56,9 +57,12 @@ def upload():
                 try:
                     space.insert(my_tuple)
                     total_length += 1
+                    print(total_length)
                 except DatabaseError as e:
+                    database_errors += 1
                     print(e)
     print("total_length: ", total_length)
+    print("database_errors: ", database_errors)
 
 
 def mocks(host, headers):

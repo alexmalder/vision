@@ -3,6 +3,7 @@
 #include <msgpuck.h>
 
 #define MP_SOURCE 1
+#define SPACE_ID 520
 
 double cosine_similarity(double *a, double *b, uint64_t length)
 {
@@ -35,7 +36,7 @@ int tarantool_insert(struct crypto_data *cd)
     tnt_object_format(tuple, format, cd->unix, cd->datetime, cd->symbol,
                       cd->open, cd->high, cd->low, cd->close,
                       cd->volume_original, cd->volume_usd);
-    tnt_insert(tnt, 517, tuple);
+    tnt_insert(tnt, SPACE_ID, tuple);
     tnt_flush(tnt);
     struct tnt_reply reply;
     tnt_reply_init(&reply);
@@ -61,7 +62,7 @@ int tarantool_select(struct crypto_data *cd)
     }
     struct tnt_stream *tuple = tnt_object(NULL);
     tnt_object_format(tuple, "[%d]", 99999); /* кортеж tuple = ключ для поиска */
-    tnt_select(tnt, 999, 0, 1048576, 0, 0, tuple);
+    tnt_select(tnt, SPACE_ID, 0, 1048576, 0, 0, tuple);
     tnt_flush(tnt);
     struct tnt_reply reply;
     tnt_reply_init(&reply);
