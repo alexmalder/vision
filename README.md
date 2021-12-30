@@ -3,6 +3,7 @@
 ## Motivation
 
 We have a lot of cryptocurrency services, but this is stupid. no linear conditions in you'r trading strategies...
+
 Get tranparency of trading platform with computer vision technologies now!
 
 ## Migration
