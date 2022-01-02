@@ -12,6 +12,7 @@ apps:
     max_memory_restart: 128M
     watch: true
     watch_delay: 1000
+    restart_delay: 1500
     ignore_watch:
       - ./.ci
       - ./.git

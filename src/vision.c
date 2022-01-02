@@ -16,15 +16,21 @@ double cosine_similarity(double *a, double *b, uint64_t length)
     return dot / (sqrt(denom_a) * sqrt(denom_b));
 }
 
-int tarantool_insert(struct crypto_data *cd)
+int init_conn_str(char *conn_string)
 {
-    struct tnt_stream *tnt = tnt_net(NULL);
-    char conn_string[128];
     char *tnt_user = getenv("TNT_USER");
     char *tnt_pass = getenv("TNT_PASSWORD");
     char *tnt_host = getenv("TNT_HOST");
     char *tnt_port = getenv("TNT_PORT");
     sprintf(conn_string, "%s:%s@%s:%s", tnt_user, tnt_pass, tnt_host, tnt_port);
+    return 0;
+}
+
+int tarantool_insert(struct crypto_data *cd)
+{
+    struct tnt_stream *tnt = tnt_net(NULL);
+    char conn_string[128];
+    init_conn_str(conn_string);
 
     tnt_set(tnt, TNT_OPT_URI, conn_string);
     if (tnt_connect(tnt) < 0) {
@@ -52,17 +58,19 @@ int tarantool_insert(struct crypto_data *cd)
     return 0;
 }
 
-int tarantool_select(struct crypto_data *cd)
+int tarantool_select(struct query_t *query)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
-    tnt_set(tnt, TNT_OPT_URI, "localhost:3301");
+    char conn_string[128];
+    init_conn_str(conn_string);
+    tnt_set(tnt, TNT_OPT_URI, conn_string);
     if (tnt_connect(tnt) < 0) {
         printf("Connection refused\n");
         exit(1);
     }
     struct tnt_stream *tuple = tnt_object(NULL);
-    tnt_object_format(tuple, "[%d]", 99999); /* кортеж tuple = ключ для поиска */
-    tnt_select(tnt, SPACE_ID, 0, 1048576, 0, 0, tuple);
+    tnt_object_format(tuple, "[%s]", "BTC/USD");
+    tnt_select(tnt, 520, 0, 1024, 0, 0, tuple);
     tnt_flush(tnt);
     struct tnt_reply reply;
     tnt_reply_init(&reply);
@@ -83,28 +91,30 @@ int tarantool_select(struct crypto_data *cd)
     unsigned int i, j;
     for (i = 0; i < tuple_count; ++i) {
         field_type = mp_typeof(*reply.data);
-        if (field_type != MP_ARRAY) {
-            printf("no field array\n");
-            exit(1);
-        }
+        if (field_type != MP_ARRAY) { printf("no field array\n"); exit(1); }
         uint32_t field_count = mp_decode_array(&reply.data);
         printf("  field count=%u\n", field_count);
-        for (j = 0; j < field_count; ++j) {
+        for (j = 0; j < 4; ++j) {
             field_type = mp_typeof(*reply.data);
             if (field_type == MP_UINT) {
-                uint64_t num_value = mp_decode_uint(&reply.data);
-                printf("    value=%lu.\n", num_value);
+                unsigned long num_value = mp_decode_uint(&reply.data);
+                printf("    uint value=%lu.\n", num_value);
             } else if (field_type == MP_STR) {
                 const char *str_value;
                 uint32_t str_value_length;
                 str_value = mp_decode_str(&reply.data, &str_value_length);
-                printf("    value=%.*s.\n", str_value_length, str_value);
+                printf("    str value=%.*s.\n", str_value_length, str_value);
+            } else if (field_type == MP_DOUBLE) {
+                double double_value;
+                double_value = mp_decode_double(&reply.data);
+                printf("    double value=%lf.\n", double_value);
             } else {
                 printf("wrong field type\n");
                 exit(1);
             }
         }
     }
+    fflush(stdout);
     tnt_close(tnt);
     tnt_stream_free(tuple);
     tnt_stream_free(tnt);

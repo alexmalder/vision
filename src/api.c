@@ -46,22 +46,23 @@ void query_init(struct query_t *query, const char *buffer)
 void workflow(struct http_request_s *request, struct http_response_s *response)
 {
     http_string_t body = http_request_body(request);
-    struct query_t *query = malloc(sizeof(struct query_t));
-    query_init(query, body.buf);
+    struct query_t *q = malloc(sizeof(struct query_t));
+    query_init(q, body.buf);
     // extract header
     struct http_string_s ss = http_request_header(request, "authorization");
     char *token = ss.buf;
     token[ss.len] = '\0';
     printf("%s", token);
     // debug
-    printf("[%s %s %s %s]\n", query->start_date, query->end_date, query->symbol,
-           query->field_name);
+    printf("[%s %s %s %s]\n", q->start_date, q->end_date, q->symbol, q->field_name);
     fflush(stdout);
+    // select
+    tarantool_select(q);
     // make response
     http_response_header(response, CONTENT_TYPE, TEXT_PLAIN);
     http_response_body(response, RESPONSE, sizeof(RESPONSE) - 1);
     // free memory
-    free(query);
+    free(q);
 }
 
 void handle_request(struct http_request_s *request)
@@ -77,7 +78,6 @@ void handle_request(struct http_request_s *request)
         http_string_t body = http_request_body(request);
         http_response_header(response, CONTENT_TYPE, APP_JSON);
         struct crypto_data *cd = malloc(sizeof(struct crypto_data));
-        //tarantool_insert(cd);
         workflow(request, response);
         http_response_body(response, RESPONSE, sizeof(RESPONSE) - 1);
     } else if (request_target_is(request, "/v1/query")) {
