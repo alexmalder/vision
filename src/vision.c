@@ -26,7 +26,7 @@ int init_conn_str(char *conn_string)
     return 0;
 }
 
-int tarantool_insert(struct crypto_data *cd)
+int tarantool_insert(struct crypto_t *cd)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
@@ -58,7 +58,7 @@ int tarantool_insert(struct crypto_data *cd)
     return 0;
 }
 
-int tarantool_select(struct query_t *query, struct crypto_data *cd)
+int tarantool_select(struct query_t *query, struct crypto_t *cd)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];

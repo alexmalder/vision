@@ -12,5 +12,5 @@ add_executable(${PROJECT_NAME} main.c ${SRC_FILES})
 
 find_package(OpenSSL REQUIRED)
 
-target_link_libraries(${PROJECT_NAME} json-c tarantool)
+target_link_libraries(${PROJECT_NAME} zmq tarantool)
 install (TARGETS ${PROJECT_NAME} RUNTIME DESTINATION /usr/local/bin)
