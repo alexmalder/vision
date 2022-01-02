@@ -9,7 +9,7 @@ apps:
       make install
       cd ../
       vision
-    max_memory_restart: 128M
+    max_memory_restart: 1024M
     watch: true
     watch_delay: 1000
     restart_delay: 1500

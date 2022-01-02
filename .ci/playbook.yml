@@ -12,6 +12,14 @@
         dest: "{{ ansible_env.HOME }}/{{ repository }}"
         force: yes
         version: c-main
+      tags:
+        - docker
+        - kube
+
+    - name: deploy tarantool
+      include: playbooks/tarantool.yml
+      tags:
+        - docker
 
     - name: "build {{ repository }} and push it to a private repo"
       community.docker.docker_image:
@@ -21,14 +29,23 @@
         tag: "{{ tag }}-c"
         push: yes
         source: build
+      tags:
+        - docker
 
-    #- name: deploy application
-    #  include: playbooks/application.yml
+    - name: deploy application
+      include: playbooks/application.yml
+      tags:
+        - kube
 
-    #- name: deploy swagger
-    #  include: playbooks/swagger.yml
+    - name: deploy swagger
+      include: playbooks/swagger.yml
+      tags:
+        - kube
 
-    #- name: delete content & directory
-    #  file:
-    #    state: absent
-    #    path: "{{ ansible_env.HOME }}/{{ repository }}"
+    - name: delete content & directory
+      file:
+        state: absent
+        path: "{{ ansible_env.HOME }}/{{ repository }}"
+      tags:
+        - docker
+        - kube

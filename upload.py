@@ -11,17 +11,29 @@ from tarantool.error import DatabaseError
 
 def construct_tuples(crypto):
     my_tuples = []
+    symbol = 0
     for row in crypto:
         unix = int(row[0])
         datetime = row[1]
-        symbol = row[2]
+        if row[2] == "BCH/USD":
+            symbol = 1
+        elif row[2] == "BTC/USD":
+            symbol = 2
+        elif row[2] == "ETH/USD":
+            symbol = 3
+        elif row[2] == "LTC/USD":
+            symbol = 4
+        elif row[2] == "XRP/USD":
+            symbol = 5
+        else:
+            continue
         _open = float(row[3])
         _high = float(row[4])
-        _low = float(row[5]),
+        _low = float(row[5])
         _close = float(row[6])
         volume_original = float(row[7])
         volume_usd = float(row[8])
-        if (_open != 0 and _close != 0 and _low != 0):
+        if (_open != 0 and _high != 0 and _low != 0 and _close != 0):
             my_tuple = (unix, datetime, symbol, _open, _high,
                         _low, _close, volume_original, volume_usd)
             my_tuples.append(my_tuple)
@@ -45,7 +57,7 @@ def upload():
     total_length = 0
     database_errors = 0
     client = client_create()
-    space = client.space(520)
+    space = client.space(514)
     filenames = os.listdir(directory)
     for filename in filenames:
         # print(filename.split(".")[-2])
@@ -59,6 +71,7 @@ def upload():
                     total_length += 1
                     print(total_length)
                 except DatabaseError as e:
+                    print(my_tuple)
                     database_errors += 1
                     print(e)
     print("total_length: ", total_length)

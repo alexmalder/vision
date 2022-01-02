@@ -3,7 +3,7 @@
 #include <msgpuck.h>
 
 #define MP_SOURCE 1
-#define SPACE_ID 520
+#define SPACE_ID 514
 
 double cosine_similarity(double *a, double *b, uint64_t length)
 {
@@ -58,7 +58,7 @@ int tarantool_insert(struct crypto_data *cd)
     return 0;
 }
 
-int tarantool_select(struct query_t *query)
+int tarantool_select(struct query_t *query, struct crypto_data *cd)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
@@ -69,14 +69,14 @@ int tarantool_select(struct query_t *query)
         exit(1);
     }
     struct tnt_stream *tuple = tnt_object(NULL);
-    tnt_object_format(tuple, "[%s]", "BTC/USD");
-    tnt_select(tnt, 520, 0, 1024, 0, 0, tuple);
+    tnt_object_format(tuple, "[%lld]", query->symbol);
+    tnt_select(tnt, SPACE_ID, 0, 1048576, 0, 0, tuple);
     tnt_flush(tnt);
     struct tnt_reply reply;
     tnt_reply_init(&reply);
     tnt->read_reply(tnt, &reply);
     if (reply.code != 0) {
-        printf("Select failed.\n");
+        printf("Select failed with status code %lld.\n", reply.code);
         exit(1);
     }
     char field_type;
@@ -91,31 +91,53 @@ int tarantool_select(struct query_t *query)
     unsigned int i, j;
     for (i = 0; i < tuple_count; ++i) {
         field_type = mp_typeof(*reply.data);
-        if (field_type != MP_ARRAY) { printf("no field array\n"); exit(1); }
+        if (field_type != MP_ARRAY) {
+            printf("no field array\n");
+        }
         uint32_t field_count = mp_decode_array(&reply.data);
         printf("  field count=%u\n", field_count);
-        for (j = 0; j < 4; ++j) {
-            field_type = mp_typeof(*reply.data);
-            if (field_type == MP_UINT) {
-                unsigned long num_value = mp_decode_uint(&reply.data);
-                printf("    uint value=%lu.\n", num_value);
-            } else if (field_type == MP_STR) {
-                const char *str_value;
-                uint32_t str_value_length;
-                str_value = mp_decode_str(&reply.data, &str_value_length);
-                printf("    str value=%.*s.\n", str_value_length, str_value);
-            } else if (field_type == MP_DOUBLE) {
-                double double_value;
-                double_value = mp_decode_double(&reply.data);
-                printf("    double value=%lf.\n", double_value);
-            } else {
-                printf("wrong field type\n");
-                exit(1);
-            }
-        }
+
+        unsigned long unix = mp_decode_uint(&reply.data);
+        printf("    unix=%lu.\n", unix);
+        cd[i].unix = unix;
+
+        const char *str_value;
+        uint32_t str_value_length;
+        str_value = mp_decode_str(&reply.data, &str_value_length);
+        printf("    datetime=%.*s.\n", str_value_length, str_value);
+        cd[i].datetime = str_value;
+
+        unsigned long symbol = mp_decode_uint(&reply.data);
+        printf("    symbol=%lu.\n", symbol);
+        cd[i].symbol = symbol;
+
+        double open = mp_decode_double(&reply.data);
+        printf("    open=%lf.\n", open);
+        cd[i].open = open;
+
+        double high = mp_decode_double(&reply.data);
+        printf("    high=%lf.\n", high);
+        cd[i].high = high;
+
+        double low = mp_decode_double(&reply.data);
+        printf("    low=%lf.\n", low);
+        cd[i].low = low;
+
+        double close = mp_decode_double(&reply.data);
+        printf("    close=%lf.\n", close);
+        cd[i].close = close;
+
+        double volume_original = mp_decode_double(&reply.data);
+        printf("    volume_original=%lf.\n", volume_original);
+        cd[i].volume_original = volume_original;
+
+        double volume_usd = mp_decode_double(&reply.data);
+        printf("    volume_usd=%lf.\n", volume_usd);
+        cd[i].volume_usd = volume_usd;
     }
     fflush(stdout);
     tnt_close(tnt);
     tnt_stream_free(tuple);
     tnt_stream_free(tnt);
+    return tuple_count;
 }

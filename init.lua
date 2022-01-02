@@ -41,7 +41,7 @@ box.once("bootstrap", function()
     box.space.crypto:format({
         {name='unix', type='number'},
         {name='datetime', type='string'},
-        {name='symbol', type='string'},
+        {name='symbol', type='number'},
         {name='open', type='number'},
         {name='high', type='number'},
         {name='low', type='number'},
@@ -52,7 +52,7 @@ box.once("bootstrap", function()
     box.space.crypto:create_index('primary', {
         unique = true,
         parts = {
-            {field=3, type='string'},
+            {field=3, type='number'},
             {field=1, type='number'},
         }
     })

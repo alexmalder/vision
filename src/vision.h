@@ -14,7 +14,7 @@
 struct crypto_data {
     uint64_t unix;
     char *datetime;
-    char *symbol;
+    uint64_t symbol;
     double open;
     double high;
     double low;
@@ -24,10 +24,9 @@ struct crypto_data {
 };
 
 struct query_t {
-    char *start_date;
-    char *end_date;
-    char *symbol;
-    char *field_name;
+    uint64_t start_date;
+    uint64_t end_date;
+    uint64_t symbol;
 };
 
 double cosine_similarity(double *a, double *b, uint64_t length);
@@ -36,7 +35,7 @@ void crypto_get();
 void crypto_post();
 void crypto_search();
 int tarantool_insert(struct crypto_data *cd);
-int tarantool_select(struct query_t *query);
+int tarantool_select(struct query_t *query, struct crypto_data *cd);
 int request_target_is(struct http_request_s *request, char const *target);
 void handle_request(struct http_request_s *request);
 void handle_sigterm(int signum);
