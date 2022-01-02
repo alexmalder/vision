@@ -95,47 +95,36 @@ int tarantool_select(struct query_t *query, struct crypto_data *cd)
             printf("no field array\n");
         }
         uint32_t field_count = mp_decode_array(&reply.data);
-        printf("  field count=%u\n", field_count);
 
         unsigned long unix = mp_decode_uint(&reply.data);
-        printf("    unix=%lu.\n", unix);
         cd[i].unix = unix;
 
         const char *str_value;
         uint32_t str_value_length;
         str_value = mp_decode_str(&reply.data, &str_value_length);
-        printf("    datetime=%.*s.\n", str_value_length, str_value);
         cd[i].datetime = str_value;
 
         unsigned long symbol = mp_decode_uint(&reply.data);
-        printf("    symbol=%lu.\n", symbol);
         cd[i].symbol = symbol;
 
         double open = mp_decode_double(&reply.data);
-        printf("    open=%lf.\n", open);
         cd[i].open = open;
 
         double high = mp_decode_double(&reply.data);
-        printf("    high=%lf.\n", high);
         cd[i].high = high;
 
         double low = mp_decode_double(&reply.data);
-        printf("    low=%lf.\n", low);
         cd[i].low = low;
 
         double close = mp_decode_double(&reply.data);
-        printf("    close=%lf.\n", close);
         cd[i].close = close;
 
         double volume_original = mp_decode_double(&reply.data);
-        printf("    volume_original=%lf.\n", volume_original);
         cd[i].volume_original = volume_original;
 
         double volume_usd = mp_decode_double(&reply.data);
-        printf("    volume_usd=%lf.\n", volume_usd);
         cd[i].volume_usd = volume_usd;
     }
-    fflush(stdout);
     tnt_close(tnt);
     tnt_stream_free(tuple);
     tnt_stream_free(tnt);

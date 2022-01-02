@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define HTTPSERVER_IMPL
 
+#define HTTPSERVER_IMPL
 #define RESPONSE "VNMNTN"
 #define CONTENT_TYPE "Content-Type"
 #define APP_JSON "application/json"
@@ -50,26 +50,22 @@ void handle_request(struct http_request_s *request)
     http_request_connection(request, HTTP_AUTOMATIC);
     struct http_response_s *response = http_response_init();
     http_response_status(response, 200);
-    if (request_target_is(request, "/echo")) {
-        http_string_t body = http_request_body(request);
-        http_response_header(response, CONTENT_TYPE, APP_JSON);
-        http_response_body(response, body.buf, body.len);
-        //struct crypto_data *cd = malloc(sizeof(struct crypto_data));
-        http_respond(request, response);
-    } else if (request_target_is(request, "/v1/crypto")) {
+    if (request_target_is(request, "/v1/crypto")) {
         http_string_t body = http_request_body(request);
         struct query_t *q = malloc(sizeof(struct query_t));
         query_init(q, body.buf);
         // extract header
         struct http_string_s ss = http_request_header(request, "authorization");
-        char *token = ss.buf;
-        token[ss.len] = '\0';
-        printf("%s", token);
+        if (ss.len != 0) {
+            char *token = ss.buf;
+            token[ss.len] = '\0';
+            printf("%s", token);
+        }
         // debug
         printf("[%lld %lld %lld]\n", q->start_date, q->end_date, q->symbol);
         fflush(stdout);
         // select
-        struct crypto_data *cd = malloc(sizeof(struct crypto_data) * 4096);
+        struct crypto_data *cd = malloc(sizeof(struct crypto_data) * 2048);
         int tuple_count = tarantool_select(q, cd);
         printf("Tuple count: %d", tuple_count);
 
@@ -111,7 +107,6 @@ void handle_request(struct http_request_s *request)
             json_object_object_add(jobj, "volume_usd", jvolume_usd);
             json_object_array_add(jarray, jobj);
             fflush(stdout);
-            // free json objects
         }
 
         // make response
@@ -122,6 +117,7 @@ void handle_request(struct http_request_s *request)
         // free memory
         free(q);
         free(cd);
+        json_object_put(jarray);
         json_object_put(junix);
         json_object_put(jsymbol);
         json_object_put(jopen);
@@ -130,8 +126,9 @@ void handle_request(struct http_request_s *request)
         json_object_put(jclose);
         json_object_put(jvolume_original);
         json_object_put(jvolume_usd);
-        json_object_put(jarray);
-    } else if (request_target_is(request, "/v1/query")) {
+    } else if (request_target_is(request, "/v1/workflow")) {
+        http_response_header(response, CONTENT_TYPE, APP_JSON);
+        http_response_body(response, RESPONSE, sizeof(RESPONSE) - 1);
         http_respond(request, response);
     } else {
         http_response_header(response, CONTENT_TYPE, APP_JSON);
