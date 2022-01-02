@@ -36,8 +36,5 @@ void crypto_post();
 void crypto_search();
 int tarantool_insert(struct crypto_data *cd);
 int tarantool_select(struct query_t *query, struct crypto_data *cd);
-int request_target_is(struct http_request_s *request, char const *target);
-void handle_request(struct http_request_s *request);
-void handle_sigterm(int signum);
 
 #endif
