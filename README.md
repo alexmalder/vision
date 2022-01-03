@@ -8,18 +8,31 @@ Get tranparency of trading platform with computer vision technologies now!
 
 ## Migration
 
-- msgpuck
-- tarantool-c
-- httpserver.h
+-   msgpuck
+-   tarantool
+-   zmq
 
 ## Research
 
-- zmq/msgpuck for microservices
+-   zmq/msgpuck for microservices
+    -   server
+    -   simple map deserialization
+    -   service result structure
+
+## Service result
+
+-   simple `uint64_t` value is an unique identifier in tarantool database
+
+1. Step one
+
+-   tuples with fields
+    -   `start_date` : `uint64_t`
+    -   `end_date` : `uint64_t`
 
 ## Requirements
 
-- environment
-  - `POSTGRES_CONN` : postgresql connection string
+-   environment
+    -   `POSTGRES_CONN` : postgresql connection string
 
 ## How to build
 
@@ -47,14 +60,14 @@ console.connect('tnt_user:tnt_password@127.0.0.1:3301')
 
 ## Todo
 
-- [x] User sign-in
-- [x] Daily filtered data visualization
-- [ ] Similarity vectors visualization
-  - [x] search similarity in many by one
-  - [ ] vector metadata for client result[bug]
-  - [ ] high resolution with smaller steps
-  - [ ] multiple fields eye
-  - [ ] visualize
-- [ ] Workflow of prediction
-- [ ] Contribution managment
-- [ ] Finance managment
+-   [x] User sign-in
+-   [x] Daily filtered data visualization
+-   [ ] Similarity vectors visualization
+    -   [x] search similarity in many by one
+    -   [ ] vector metadata for client result[bug]
+    -   [ ] high resolution with smaller steps
+    -   [ ] multiple fields eye
+    -   [ ] visualize
+-   [ ] Workflow of prediction
+-   [ ] Contribution managment
+-   [ ] Finance managment
