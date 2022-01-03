@@ -2,7 +2,7 @@
 
 ## Motivation
 
-We have a lot of cryptocurrency services, but this is stupid. no linear conditions in you'r trading strategies...
+We have a lot of cryptocurrency services, but this is stupid. No linear conditions in you'r trading strategies...
 
 Get tranparency of trading platform with computer vision technologies now!
 
@@ -15,11 +15,13 @@ Get tranparency of trading platform with computer vision technologies now!
 ## Research
 
 -   zmq/msgpuck for microservices
-    -   server
+    -   socket bind
     -   simple map deserialization
     -   service result structure
 
 ## Service result
+
+Description
 
 -   simple `uint64_t` value is an unique identifier in tarantool database
 
@@ -28,6 +30,10 @@ Get tranparency of trading platform with computer vision technologies now!
 -   tuples with fields
     -   `start_date` : `uint64_t`
     -   `end_date` : `uint64_t`
+
+2. Callback on gateway
+
+-   show data by unique identifier as `uint64_t` value from callback
 
 ## Requirements
 
