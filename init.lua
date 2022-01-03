@@ -25,7 +25,9 @@ box.once("bootstrap", function()
         {name='repository', type='string'},
         {name='branch', type='string'},
         {name='stage', type='string'},
-        {name='text', type='string'}
+        {name='stdout', type='string'},
+        {name='stderr', type='string'},
+        {name='error', type='string'},
     })
 
     box.space.log:create_index('primary', {
