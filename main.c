@@ -26,15 +26,21 @@ int zmq_listen()
         uint32_t tuple_count;
         //double value;
         tuple_count = mp_decode_array(&r);
-        uint32_t size = mp_decode_map(&r);
-        printf("size of map: %d\n", size);
-        for (uint32_t i = 0; i < size; i++) {
-            uint32_t key_len = 3;
-            uint32_t *mylen = &key_len;
-            const char *key = mp_decode_str(&r, mylen);
+        for (int i = 0; i < tuple_count; i++) {
             double val = mp_decode_double(&r);
-            printf("key: %s, val: %lf\n", key, val);
+            printf("iter: %d, val: %lf\n", i, val);
         }
+
+        //uint32_t size = mp_decode_map(&r);
+        //printf("size of map: %d\n", size);
+        //for (uint32_t i = 0; i < size; i++) {
+        //    uint32_t key_len = 3;
+        //    uint32_t *mylen = &key_len;
+        //    const char *key = mp_decode_str(&r, mylen);
+        //    double val = mp_decode_double(&r);
+        //    printf("key: %s, val: %lf\n", key, val);
+        //}
+
         //value = mp_decode_double(&r);
         printf("received message with tuple_count <%d>\n", tuple_count);
         //unsigned int i, j;
