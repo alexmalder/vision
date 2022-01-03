@@ -16,11 +16,6 @@
         - docker
         - kube
 
-    - name: deploy tarantool
-      include: playbooks/tarantool.yml
-      tags:
-        - docker
-
     - name: "build {{ repository }} and push it to a private repo"
       community.docker.docker_image:
         build:
@@ -29,6 +24,11 @@
         tag: "{{ tag }}-c"
         push: yes
         source: build
+      tags:
+        - docker
+
+    - name: deploy database
+      include: playbooks/tarantool.yml
       tags:
         - docker
 
