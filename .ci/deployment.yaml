@@ -1,0 +1,32 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "vision"
+  labels:
+    app: "vision"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "vision"
+  template:
+    metadata:
+      labels:
+        app: "vision"
+    spec:
+      containers:
+        - name: "vision"
+          image: "harbor.vnmntn.com/library/vision:<TAG>"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TNT_USER
+              value: "<TNT_USER>"
+            - name: TNT_PASSWORD
+              value: "<TNT_PASSWORD>"
+            - name: TNT_HOST
+              value: "<TNT_HOST>"
+            - name: TNT_PORT
+              value: "<TNT_PORT>"
+            - name: KEYCLOAK_URI
+              value: "<KEYCLOAK_URI>"
