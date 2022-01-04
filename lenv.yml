@@ -16,4 +16,3 @@ stages:
       - sed -i "s/<TNT_PORT>/$TNT_PORT/g" .ci/deployment.yaml
       - kubectl apply -f ./.ci/deployment.yaml --namespace $NAMESPACE
       - kubectl apply -f ./.ci/service.yaml --namespace $NAMESPACE
-      - kubectl apply -f ./.ci/ingress.yaml --namespace $NAMESPACE
