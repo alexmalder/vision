@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <signal.h>
-#include <json-c/json.h>
 #include <tarantool/tarantool.h>
 #include <tarantool/tnt_net.h>
 #include <tarantool/tnt_opt.h>
