@@ -1,6 +1,6 @@
 FROM alpine:3.14 as builder
 
-RUN apk updateapk
+RUN apk update
 RUN apk add g++ git make cmake libzmq-dev openssl-dev bash sudo
 COPY ./cmake_install /cmake_install
 RUN /cmake_install rtsisyk/msgpuck master
