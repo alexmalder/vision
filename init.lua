@@ -6,36 +6,13 @@ box.cfg {
 box.once("bootstrap", function()
     box.schema.space.create('env')
     box.space.env:format({
-        {name='repository', type='string'},
         {name='key', type='string'},
         {name='value', type='string'}
     })
     box.space.env:create_index('primary', {
         unique = true,
         parts = {
-            {field=1, type='string'},
-            {field=2, type='string'}
-        }
-    })
-
-    box.schema.space.create('log')
-    box.space.log:format({
-        {name='unix', type='number'},
-        {name='jobtimestamp', type='number'},
-        {name='repository', type='string'},
-        {name='branch', type='string'},
-        {name='stage', type='string'},
-        {name='stdout', type='string'},
-        {name='stderr', type='string'},
-        {name='error', type='string'},
-    })
-
-    box.space.log:create_index('primary', {
-        unique=true,
-        parts = {
-            {field=3, type='string'},
-            {field=2, type='number'},
-            {field=1, type='number'}
+            {field=1, type='string'}
         }
     })
 
