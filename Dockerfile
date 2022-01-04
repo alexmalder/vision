@@ -1,15 +1,10 @@
-FROM alpine:3.14
+FROM alpine:3.14 as builder
 
-RUN apk update
-RUN apk add g++ git make cmake yaml-cpp-dev postgresql-dev libpq nlohmann-json
-
-RUN mkdir -p /usr/local/include && git clone https://github.com/yhirose/cpp-httplib && cp cpp-httplib/httplib.h /usr/local/include && rm -rf cpp-httplib
-
-ARG REPO=jtv/libpqxx
-RUN git clone -b 6.4 https://github.com/$REPO $REPO && cd $REPO && mkdir build && cd build && cmake .. && make && make install && cd ../ && rm -rf $REPO
-
-ARG REPO=trusch/libbcrypt
-RUN git clone https://github.com/$REPO $REPO && cd $REPO && mkdir build && cd build && cmake .. && make && make install && cd ../ && rm -rf $REPO
+RUN apk updateapk
+RUN apk add g++ git make cmake libzmq-dev openssl-dev bash sudo
+COPY ./cmake_install /cmake_install
+RUN /cmake_install rtsisyk/msgpuck master
+RUN /cmake_install tarantool/tarantool-c master
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 WORKDIR /app
@@ -20,6 +15,9 @@ RUN cmake ..
 RUN make
 RUN make install
 
-WORKDIR /app
-
-CMD ["/usr/local/bin/vision", "/app/config.yml"]
+FROM alpine:3.14
+RUN apk update
+RUN apk add libzmq openssl
+COPY --from=builder /usr/local/lib /usr/local/lib
+COPY --from=builder /usr/local/bin/vision /usr/local/bin/vision
+CMD ["/usr/local/bin/vision"]

@@ -4,7 +4,7 @@
     build:
       path: "{{ ansible_env.HOME }}/{{ repository }}"
     name: "vnmntn/{{ repository }}"
-    tag: "{{ tag }}"
+    tag: "{{ tag }}-c"
     push: yes
     source: build
 
@@ -15,11 +15,11 @@
       apiVersion: v1
       kind: Service
       metadata:
-        name: "{{repository}}"
-        namespace: "{{namespace}}"
+        name: "{{ repository }}"
+        namespace: "{{ namespace }}"
       spec:
         selector:
-          app: "{{repository}}"
+          app: "{{ repository }}"
         ports:
           - name: web
             port: 80
@@ -48,11 +48,17 @@
           spec:
             containers:
               - name: "{{ repository }}"
-                image: "vnmntn/{{ repository }}:{{ tag }}"
+                image: "vnmntn/{{ repository }}:{{ tag }}-c"
                 imagePullPolicy: IfNotPresent
                 env:
-                  - name: POSTGRES_CONN
-                    value: "{{ pg_conn }}"
+                  - name: TNT_USER
+                    value: "{{ tnt_user }}"
+                  - name: TNT_PASSWORD
+                    value: "{{ tnt_password }}"
+                  - name: TNT_HOST
+                    value: "{{ tnt_host }}"
+                  - name: TNT_PORT
+                    value: "{{ tnt_port }}"
 
 - name: create application ingress
   kubernetes.core.k8s:

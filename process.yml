@@ -1,0 +1,21 @@
+apps:
+  - name: vision
+    script: |
+      set -eo pipefail
+      mkdir -p build
+      cd build
+      cmake ..
+      make -j4
+      make install
+      cd ../
+      vision
+    max_memory_restart: 1024M
+    watch: true
+    watch_delay: 1000
+    restart_delay: 1500
+    ignore_watch:
+      - ./.ci
+      - ./.git
+      - ./build
+      - ./swagger
+      - ./venv
