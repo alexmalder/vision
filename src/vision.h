@@ -12,7 +12,7 @@
 #include <zmq.h>
 
 struct crypto_t {
-    uint64_t unix;
+    uint64_t unix_val;
     char *datetime;
     uint64_t symbol;
     double open;

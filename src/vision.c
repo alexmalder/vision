@@ -40,7 +40,7 @@ int tarantool_insert(struct crypto_t *cd)
     }
     const char *format = "[%d%s%s%lf%lf%lf%lf%lf%lf]";
     struct tnt_stream *tuple = tnt_object(NULL);
-    tnt_object_format(tuple, format, cd->unix, cd->datetime, cd->symbol,
+    tnt_object_format(tuple, format, cd->unix_val, cd->datetime, cd->symbol,
                       cd->open, cd->high, cd->low, cd->close,
                       cd->volume_original, cd->volume_usd);
     tnt_insert(tnt, SPACE_ID, tuple);
@@ -97,8 +97,8 @@ int tarantool_select(struct query_t *query, struct crypto_t *cd)
         }
         uint32_t field_count = mp_decode_array(&reply.data);
 
-        unsigned long unix = mp_decode_uint(&reply.data);
-        cd[i].unix = unix;
+        unsigned long unix_val = mp_decode_uint(&reply.data);
+        cd[i].unix_val = unix_val;
 
         const char *str_value;
         uint32_t str_value_length;
