@@ -1,0 +1,19 @@
+variables:
+  TAG: 0.1.0
+  NAMESPACE: cv
+
+stages:
+  - stage: build
+    script:
+      - docker build . -t harbor.vnmntn.com/library/vision:$TAG
+      - docker push harbor.vnmntn.com/library/vision:$TAG
+  - stage: deploy
+    script:
+      - sed -i "s/<TAG>/$TAG/g" .ci/deployment.yaml
+      - sed -i "s/<TNT_USER>/$TNT_USER/g" .ci/deployment.yaml
+      - sed -i "s/<TNT_PASSWORD>/$TNT_PASSWORD/g" .ci/deployment.yaml
+      - sed -i "s/<TNT_HOST>/$TNT_HOST/g" .ci/deployment.yaml
+      - sed -i "s/<TNT_PORT>/$TNT_PORT/g" .ci/deployment.yaml
+      - kubectl apply -f ./.ci/deployment.yaml --namespace $NAMESPACE
+      - kubectl apply -f ./.ci/service.yaml --namespace $NAMESPACE
+      - kubectl apply -f ./.ci/ingress.yaml --namespace $NAMESPACE
