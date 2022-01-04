@@ -19,6 +19,6 @@ FROM alpine:3.14
 RUN apk update
 RUN apk add zeromq openssl
 COPY --from=builder /usr/local/lib /usr/local/lib
-COPY --from=builder /usr/lib /usr/lib
+#COPY --from=builder /usr/lib /usr/lib
 COPY --from=builder /usr/local/bin/vision /usr/local/bin/vision
 CMD ["/usr/local/bin/vision"]
