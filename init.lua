@@ -1,4 +1,3 @@
--- tarantool initialization script
 box.cfg {
     listen = 3301
 }
