@@ -7,9 +7,6 @@ stages:
     script:
       - docker build . -t $DOCKER_REGISTRY/vision:$TAG
       - docker push $DOCKER_REGISTRY/vision:$TAG
-  - stage: tnt
-    script:
-      - docker-compose up --build -d
   - stage: deploy
     script:
       - sed -i "s/<DOCKER_REGISTRY>/$DOCKER_REGISTRY/g" .ci/deployment.yaml
