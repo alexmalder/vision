@@ -3,6 +3,7 @@ version: '2'
 services:
   tarantool1:
     image: tarantool/tarantool:1.10.2
+    restart: always
     environment:
       TARANTOOL_REPLICATION: "tarantool1,tarantool2"
       TARANTOOL_USER_NAME: tnt_user
@@ -14,6 +15,7 @@ services:
 
   tarantool2:
     image: tarantool/tarantool:1.10.2
+    restart: always
     environment:
       TARANTOOL_REPLICATION: "tarantool1,tarantool2"
       TARANTOOL_USER_NAME: tnt_user
