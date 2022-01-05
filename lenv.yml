@@ -1,5 +1,5 @@
 variables:
-  TAG: 0.1.2
+  TAG: 0.1.3
   NAMESPACE: cv
 
 stages:
@@ -12,6 +12,7 @@ stages:
       - docker-compose up --build -d
   - stage: deploy
     script:
+      - sed -i "s/<DOCKER_REGISTRY>/$DOCKER_REGISTRY/g" .ci/deployment.yaml
       - sed -i "s/<TAG>/$TAG/g" .ci/deployment.yaml
       - sed -i "s/<TNT_USER>/$TNT_USER/g" .ci/deployment.yaml
       - sed -i "s/<TNT_PASSWORD>/$TNT_PASSWORD/g" .ci/deployment.yaml
