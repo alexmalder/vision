@@ -1,5 +1,5 @@
 variables:
-  TAG: 0.1.1
+  TAG: 0.1.2
   NAMESPACE: cv
 
 stages:
