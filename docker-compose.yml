@@ -6,8 +6,8 @@ services:
     restart: always
     environment:
       TARANTOOL_REPLICATION: "tarantool1,tarantool2"
-      TARANTOOL_USER_NAME: tnt_user
-      TARANTOOL_USER_PASSWORD: tnt_password
+      TARANTOOL_USER_NAME: ${TNT_USER}
+      TARANTOOL_USER_PASSWORD: ${TNT_PASSWORD}
     networks:
       - mynet
     ports:
@@ -18,8 +18,8 @@ services:
     restart: always
     environment:
       TARANTOOL_REPLICATION: "tarantool1,tarantool2"
-      TARANTOOL_USER_NAME: tnt_user
-      TARANTOOL_USER_PASSWORD: tnt_password
+      TARANTOOL_USER_NAME: ${TNT_USER}
+      TARANTOOL_USER_PASSWORD: ${TNT_PASSWORD}
     networks:
       - mynet
     ports:
