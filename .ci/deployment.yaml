@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: "vision"
-          image: "<DOCKER_REGISTRY>/library/vision:<TAG>"
+          image: <DOCKER_REGISTRY>/library/vision:<TAG>
           imagePullPolicy: IfNotPresent
           env:
             - name: TNT_USER
