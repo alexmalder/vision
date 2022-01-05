@@ -7,6 +7,9 @@ stages:
     script:
       - docker build . -t harbor.vnmntn.com/library/vision:$TAG
       - docker push harbor.vnmntn.com/library/vision:$TAG
+  #- stage: tnt
+  #  script:
+  #    - docker-compose up --build -d
   - stage: deploy
     script:
       - sed -i "s/<TAG>/$TAG/g" .ci/deployment.yaml
