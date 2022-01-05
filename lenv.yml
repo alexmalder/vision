@@ -5,8 +5,8 @@ variables:
 stages:
   - stage: build
     script:
-      - docker build . -t $DOCKER_REGISTRY/vision:$TAG
-      - docker push $DOCKER_REGISTRY/vision:$TAG
+      - docker build . -t $DOCKER_REGISTRY/library/vision:$TAG
+      - docker push $DOCKER_REGISTRY/library/vision:$TAG
   - stage: deploy
     script:
       - sed -i "s/<DOCKER_REGISTRY>/$DOCKER_REGISTRY/g" .ci/deployment.yaml
