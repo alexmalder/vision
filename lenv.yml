@@ -9,11 +9,4 @@ stages:
       - docker push $DOCKER_REGISTRY/library/vision:$TAG
   - stage: deploy
     script:
-      - sed -i "s/<DOCKER_REGISTRY>/$DOCKER_REGISTRY/g" .ci/deployment.yaml
-      - sed -i "s/<TAG>/$TAG/g" .ci/deployment.yaml
-      - sed -i "s/<TNT_USER>/$TNT_USER/g" .ci/deployment.yaml
-      - sed -i "s/<TNT_PASSWORD>/$TNT_PASSWORD/g" .ci/deployment.yaml
-      - sed -i "s/<TNT_HOST>/$TNT_HOST/g" .ci/deployment.yaml
-      - sed -i "s/<TNT_PORT>/$TNT_PORT/g" .ci/deployment.yaml
-      - kubectl apply -f ./.ci/deployment.yaml --namespace $NAMESPACE
-      - kubectl apply -f ./.ci/service.yaml --namespace $NAMESPACE
+      - helm upgrade -i vision .ci -n $NAMESPACE --create-namespace --set image.tag=$TAG --set env.TNT_USER=$TNT_USER --set env.TNT_PASSWORD=$TNT_PASSWORD --set env.TNT_HOST=$TNT_HOST --set env.TNT_PORT=$TNT_PORT
