@@ -57,7 +57,7 @@ def upload():
     total_length = 0
     database_errors = 0
     client = client_create()
-    space = client.space(514)
+    space = client.space("crypto")
     filenames = os.listdir(directory)
     for filename in filenames:
         # print(filename.split(".")[-2])
