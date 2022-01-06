@@ -7,6 +7,9 @@ stages:
     script:
       - docker build . -t $DOCKER_REGISTRY/library/vision:$TAG
       - docker push $DOCKER_REGISTRY/library/vision:$TAG
+  - stage: prepare
+    script:
+      - docker-compose up --build -d
   - stage: deploy
     script:
       - helm upgrade --install 
