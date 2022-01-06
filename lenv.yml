@@ -5,8 +5,8 @@ variables:
 stages:
   - stage: build
     script:
-      - docker build . -t $DOCKER_REGISTRY/library/vision:$TAG
-      - docker push $DOCKER_REGISTRY/library/vision:$TAG
+      - docker build . -t $DOCKER_REGISTRY/vision:$TAG
+      - docker push $DOCKER_REGISTRY/vision:$TAG
   - stage: prepare
     script:
       - docker-compose up --build -d
