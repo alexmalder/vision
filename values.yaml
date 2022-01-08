@@ -13,7 +13,7 @@ image:
 imagePullSecrets: []
 nameOverride: "vision"
 fullnameOverride: ""
-versionOverride: 0.1.1
+versionOverride: 0.1.0
 
 serviceAccount:
   # Specifies whether a service account should be created
