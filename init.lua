@@ -3,6 +3,18 @@ box.cfg {
 }
 
 box.once("bootstrap", function()
+    box.schema.space.create('env')
+    box.space.env:format({
+        {name='key', type='string'},
+        {name='value', type='string'}
+    })
+    box.space.env:create_index('primary', {
+        unique = true,
+        parts = {
+            {field=1, type='string'}
+        }
+    })
+
     box.schema.space.create('account')
     box.space.account:format({
         {name='username', type='string'},
