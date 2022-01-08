@@ -12,8 +12,9 @@ stages:
       - docker-compose up --build -d
   - stage: deploy
     script:
+      - helm repo add template https://harbor.vnmntn.com/chartrepo/library
       - helm upgrade --install 
-        vision .ci 
+        vision template/template
         --namespace $NAMESPACE 
         --create-namespace 
         --set image.tag=$TAG 
@@ -21,3 +22,4 @@ stages:
         --set env.TNT_PASSWORD=$TNT_PASSWORD 
         --set env.TNT_HOST=$TNT_HOST 
         --set env.TNT_PORT=$TNT_PORT
+        -f ./values.yaml
