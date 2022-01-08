@@ -16,7 +16,7 @@ Get tranparency of trading platform with computer vision technologies now!
 
 -   zmq/msgpuck for microservices
     -   socket bind
-    -   simple map deserialization
+    -   simple deserialization
     -   service result structure
 
 ## Service result
