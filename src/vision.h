@@ -29,7 +29,8 @@ struct query_t {
     uint64_t symbol;
 };
 
-double cosine_similarity(double *a, double *b, uint64_t length);
+double cosine_similarity(double *a, double *b, unsigned int start,
+                         unsigned int end);
 int tarantool_insert(struct crypto_t *cd);
 int tarantool_select(struct query_t *query, struct crypto_t *cd);
 

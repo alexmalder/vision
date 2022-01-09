@@ -1,5 +1,6 @@
 #include "src/vision.h"
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <msgpuck.h>
 
@@ -7,9 +8,42 @@ int cosine_similarity_test()
 {
     double a[] = { 0.11, 0.12, 0.13 };
     double b[] = { 0.11, 0.12, 0.14 };
-    double r = cosine_similarity(a, b, 3);
+    double r = cosine_similarity(a, b, 0, 3);
     printf("cosine_similarity test result: %lf\n", r);
     fflush(stdout);
+    return 0;
+}
+
+int selector_test()
+{
+    // extract all
+    struct query_t *q = malloc(sizeof(struct query_t));
+    q->symbol = 2;
+    q->start_date = 1417132800; // min unix btc
+    q->end_date = 1639699200; // max unix btc
+    struct crypto_t *fd = malloc(sizeof(struct crypto_t) * 4096);
+    int tuple_count = tarantool_select(q, fd);
+    printf("tarantool_select tuple_count: %d\n", tuple_count);
+
+    uint64_t denom = 128;
+    uint64_t start = 0;
+    uint64_t end = tuple_count - denom;
+    for (uint64_t i = 0; i < tuple_count; i++) {
+        if (i % denom == 0) {
+            double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
+            for (uint64_t x = start; x < start + denom; x++) {
+                dot += fd[x].close * fd[x + denom].close;
+                denom_a += fd[x].close * fd[x].close;
+                denom_b += fd[x + denom].close * fd[x + denom].close;
+            }
+            double result = dot / (sqrt(denom_a) * sqrt(denom_b));
+            if (result > 0.98) {
+                printf("result is: %f for start: %lld and end : %lld\n", result,
+                       i, start + denom);
+            }
+            start += denom, end += denom;
+        }
+    }
     return 0;
 }
 
@@ -68,31 +102,19 @@ int zmq_publish()
     return 0;
 }
 
-int main()
+int mp_print()
 {
-    cosine_similarity_test();
     printf(
         "MP_DOUBLE: %d, MP_ARRAY: %d, MP_FLOAT: %d, MP_UINT: %d, MP_BOOL: %d, MP_EXT: %d, MP_BIN: %d, MP_MAP: %d\n",
         MP_DOUBLE, MP_ARRAY, MP_FLOAT, MP_UINT, MP_BOOL, MP_EXT, MP_BIN,
         MP_MAP);
-    struct query_t *q = malloc(sizeof(struct query_t));
-    q->symbol = 2;
-    q->start_date = 1599436800;
-    q->end_date = 1638835200;
-    struct crypto_t *cd = malloc(sizeof(struct crypto_t) * 2048);
-    int tuple_count = tarantool_select(q, cd);
-    printf("tarantool_select tuple_count: %d\n", tuple_count);
+    return 0;
+}
 
-    double a[tuple_count];
-    double b[tuple_count];
-    for (unsigned int i = 0; i < tuple_count; i++) {
-        a[i] = cd[i].close;
-        b[i] = cd[i].close;
-        if (i % 64) {
-            double result = cosine_similarity(a, b, 64);
-            printf("result is: %f\n", result);
-        }
-    }
+int main()
+{
+    cosine_similarity_test();
+    selector_test();
     zmq_listen();
     return 0;
 }

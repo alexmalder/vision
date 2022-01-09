@@ -64,16 +64,9 @@ console.connect('tnt_user:tnt_password@127.0.0.1:3301')
 --
 ```
 
-## Todo
+## Workflow
 
--   [x] User sign-in
--   [x] Daily filtered data visualization
--   [ ] Similarity vectors visualization
-    -   [x] search similarity in many by one
-    -   [ ] vector metadata for client result[bug]
-    -   [ ] high resolution with smaller steps
-    -   [ ] multiple fields eye
-    -   [ ] visualize
--   [ ] Workflow of prediction
--   [ ] Contribution managment
--   [ ] Finance managment
+- show similarity by latest items with range
+- client-side configuration of search parameters
+- double-line chart
+- virtual contribution web view
