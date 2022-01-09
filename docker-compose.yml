@@ -25,6 +25,26 @@ services:
     ports:
       - "3302:3301"
 
+  redpanda:
+    image: docker.vectorized.io/vectorized/redpanda:latest
+    container_name: redpanda-1
+    ports:
+      - 9092:9092
+      - 9644:9644
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp
+      - "1"
+      - --memory
+      - 1G
+      - --reserve-memory
+      - 0M
+      - --node-id
+      - "0"
+      - --check=false
+
 networks:
   mynet:
     driver: bridge
