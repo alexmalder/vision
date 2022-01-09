@@ -7,9 +7,13 @@ stages:
     script:
       - docker build . -t $DOCKER_REGISTRY/library/vision:$TAG
       - docker push $DOCKER_REGISTRY/library/vision:$TAG
+    only:
+      - main
   - stage: prepare
     script:
       - docker-compose up --build -d
+    only:
+      - main
   - stage: deploy
     script:
       - helm repo add template https://$DOCKER_REGISTRY/chartrepo/library
@@ -23,3 +27,5 @@ stages:
         --set env.TNT_HOST=$TNT_HOST 
         --set env.TNT_PORT=$TNT_PORT
         -f .ci/values.yaml
+    only:
+      - main
