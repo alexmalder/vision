@@ -38,7 +38,7 @@ Description
 ## Requirements
 
 -   environment
-    -   `POSTGRES_CONN` : postgresql connection string
+    - tarantool database
 
 ## How to build
 
