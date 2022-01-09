@@ -1,4 +1,5 @@
 #include "src/vision.h"
+#include <stdlib.h>
 #include <unistd.h>
 #include <msgpuck.h>
 
@@ -40,55 +41,7 @@ int zmq_listen()
         //    double val = mp_decode_double(&r);
         //    printf("key: %s, val: %lf\n", key, val);
         //}
-
-        //value = mp_decode_double(&r);
         printf("received message with tuple_count <%d>\n", tuple_count);
-        //unsigned int i, j;
-        //char field_type;
-        //field_type = mp_typeof(*r);
-        /*
-        for (i = 0; i < tuple_count; ++i) {
-            field_type = mp_typeof(*r);
-            uint32_t field_count = mp_decode_array(&r);
-            printf("  field count=%u\n", field_count);
-            for (j = 0; j < field_count; ++j) {
-                if (field_type != MP_ARRAY) {
-                    printf("no field array\n");
-                    //exit(1);
-                }
-                if (field_type == MP_UINT) {
-                    unsigned long num_value = mp_decode_uint(&r);
-                    printf("    value=%lu.\n", num_value);
-                } else if (field_type == MP_STR) {
-                    const char *str_value;
-                    uint32_t str_value_length;
-                    str_value = mp_decode_str(&r, &str_value_length);
-                    printf("    value=%.*s.\n", str_value_length, str_value);
-                } else if (field_type == MP_DOUBLE) {
-                    double double_value;
-                    double_value = mp_decode_double(&r);
-                    printf("    value=%lf.\n", double_value);
-                } else if (field_type == MP_FLOAT) {
-                    float float_value;
-                    float_value = mp_decode_double(&r);
-                    printf("    value=%lf.\n", float_value);
-                } else if (field_type == MP_MAP) {
-                    uint32_t size = mp_decode_map(&r);
-                    printf("size of map: %d", size);
-                    for (uint32_t i = 0; i < size; i++) {
-                        uint32_t key_len = 3;
-                        uint32_t *mylen = &key_len;
-                        const char *key = mp_decode_str(&r, mylen);
-                        //double val = mp_decode_double(&r);
-                        printf("key: %s\n", key);
-                    }
-                } else {
-                    printf("wrong field type %d\n", field_type);
-                    exit(1);
-                }
-            }
-        }
-            */
         sleep(1);
         zmq_send(responder, "ok", 5, 0);
     }
@@ -122,6 +75,24 @@ int main()
         "MP_DOUBLE: %d, MP_ARRAY: %d, MP_FLOAT: %d, MP_UINT: %d, MP_BOOL: %d, MP_EXT: %d, MP_BIN: %d, MP_MAP: %d\n",
         MP_DOUBLE, MP_ARRAY, MP_FLOAT, MP_UINT, MP_BOOL, MP_EXT, MP_BIN,
         MP_MAP);
+    struct query_t *q = malloc(sizeof(struct query_t));
+    q->symbol = 2;
+    q->start_date = 1599436800;
+    q->end_date = 1638835200;
+    struct crypto_t *cd = malloc(sizeof(struct crypto_t) * 2048);
+    int tuple_count = tarantool_select(q, cd);
+    printf("tarantool_select tuple_count: %d\n", tuple_count);
+
+    double a[tuple_count];
+    double b[tuple_count];
+    for (unsigned int i = 0; i < tuple_count; i++) {
+        a[i] = cd[i].close;
+        b[i] = cd[i].close;
+        if (i % 64) {
+            double result = cosine_similarity(a, b, 64);
+            printf("result is: %f\n", result);
+        }
+    }
     zmq_listen();
     return 0;
 }

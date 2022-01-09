@@ -30,10 +30,6 @@ struct query_t {
 };
 
 double cosine_similarity(double *a, double *b, uint64_t length);
-int cosine_similarity_test();
-void crypto_get();
-void crypto_post();
-void crypto_search();
 int tarantool_insert(struct crypto_t *cd);
 int tarantool_select(struct query_t *query, struct crypto_t *cd);
 
