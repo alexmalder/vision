@@ -81,12 +81,12 @@ int selector_test()
     }
     uint64_t search_count = 0;
     uint64_t insertion_count = 0;
-    uint64_t resolution = 256;
+    //uint64_t resolution = 256;
     double thresh = 0.9955;
-    for (uint64_t x = 0; x < tuple_count; x++) {
+    //for (uint64_t x = 0; x < tuple_count; x++) {
         Array a_source;
         initArray(&a_source, tuple_count);
-        if (x % resolution == 0) {
+        //if (x % resolution == 0) {
             uint64_t y;
             for (y = 0; y < tuple_count; y++) {
                 insertion_count += 1;
@@ -100,15 +100,14 @@ int selector_test()
                         printf(" <<<--- [%lf] --->>> ", similarity);
                         debugArray(&a_target, ssize);
                         printf("\n\n");
-                        break;
                     }
                     freeArray(&a_source);
                     initArray(&a_source, tuple_count);
                 }
             }
-            y += resolution;
-        }
-    }
+            //y += resolution;
+        //}
+    //}
     printf("--- search count: %lld ---\n", search_count);
     printf("--- insertion count: %lld ---\n", insertion_count);
     return 0;
