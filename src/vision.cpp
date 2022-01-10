@@ -165,11 +165,11 @@ int selector_test()
     for (uint64_t x = 0; x < tuple_count; x++) {
         std::vector<double> source;
         if (x % resolution == 0) {
-            for (uint64_t y = start; y < tuple_count; y++) {
+            uint64_t y;
+            for (y = x; y < tuple_count; y++) {
                 source.push_back(fd[y].close);
                 if (y % ssize == 0) {
-                    double similarity =
-                        cosine_similarity(source, target, ssize);
+                    double similarity = cosine_similarity(source, target, ssize);
                     search_count += 1;
                     if (similarity > thresh) {
                         printf("--- similarity: %lf ---\n", similarity);
@@ -177,7 +177,7 @@ int selector_test()
                     source.clear();
                 }
             }
-            start += resolution;
+            x += resolution;
         }
     }
     printf("--- search count: %lld ---\n", search_count);
