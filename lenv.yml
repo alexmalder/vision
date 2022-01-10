@@ -5,8 +5,8 @@ variables:
 stages:
   - stage: build
     script:
-      - docker build . -t $DOCKER_REGISTRY/library/vision:$TAG
-      - docker push $DOCKER_REGISTRY/library/vision:$TAG
+      - docker build . -t $HARBOR_URI/library/vision:$TAG
+      - docker push $HARBOR_URI/library/vision:$TAG
     only:
       - main
   - stage: prepare
@@ -16,7 +16,7 @@ stages:
       - main
   - stage: deploy
     script:
-      - helm repo add template https://$DOCKER_REGISTRY/chartrepo/library
+      - helm repo add template https://$HARBOR_URI/chartrepo/library
       - helm upgrade --install 
         vision template/template
         --namespace $NAMESPACE 
