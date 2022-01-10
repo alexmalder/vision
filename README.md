@@ -33,12 +33,12 @@ Description
 
 2. Callback on gateway
 
--   show data by unique identifier as `uint64_t` value from callback: todo
+-   show data by request_id as `uint64_t` value from callback: todo
 
 ## Requirements
 
 -   environment
-    - tarantool[in_worker]
+    -   tarantool[in_worker]
 
 ## How to build
 
@@ -66,7 +66,7 @@ console.connect('tnt_user:tnt_password@127.0.0.1:3301')
 
 ## Workflow
 
-- show similarity by latest items with range
-- client-side configuration of search parameters
-- double-line chart
-- virtual contribution web view
+-   show similarity by latest items with range
+-   client-side configuration of search parameters
+-   double-line chart
+-   virtual contribution web view
