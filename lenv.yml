@@ -21,6 +21,7 @@ stages:
         vision template/template
         --namespace $NAMESPACE 
         --create-namespace 
+        --atomic
         --set image.tag=$TAG 
         --set env.TNT_USER=$TNT_USER 
         --set env.TNT_PASSWORD=$TNT_PASSWORD 
