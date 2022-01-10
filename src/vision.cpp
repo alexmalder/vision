@@ -150,7 +150,6 @@ int selector_test()
     uint64_t day_unix = 86400; // one day in unix format
     uint64_t interval = max_unix - min_unix; // get interval
     uint64_t ssize = interval / day_unix; // size of array
-    int items[ssize];
     // extract by range, extract by currency type
     std::vector<double> target;
     for (uint64_t i = 0; i < tuple_count; i++) {
@@ -158,12 +157,10 @@ int selector_test()
             target.push_back(fd[i].close);
         }
     }
-    printf("ssize: %lld, target size:%ld\n", ssize,
-           target.size()); // print size of array
-
     uint64_t start = 0;
     uint64_t search_count = 0;
     uint64_t resolution = 10;
+    double thresh = 0.9966;
     for (uint64_t x = 0; x < tuple_count; x++) {
         std::vector<double> source;
         if (x % resolution == 0) {
@@ -172,7 +169,7 @@ int selector_test()
                 if (y % ssize == 0) {
                     double similarity = cosine_similarity(source, target, ssize);
                     search_count += 1;
-                    if (similarity > 0.9967) {
+                    if (similarity > thresh) {
                         printf("--- similarity: %lf ---\n", similarity);
                     }
                     source.clear();
@@ -182,5 +179,4 @@ int selector_test()
         }
     }
     printf("--- search count: %lld ---\n", search_count);
-    return 0;
-}
+    return 0;}
