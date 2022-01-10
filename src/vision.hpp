@@ -10,12 +10,7 @@
 #include <tarantool/tnt_net.h>
 #include <tarantool/tnt_opt.h>
 #include <zmq.h>
-
-typedef struct {
-    double *array;
-    size_t used;
-    size_t size;
-} Array;
+#include <msgpuck.h>
 
 struct crypto_t {
     uint64_t unix_val;
@@ -35,9 +30,13 @@ struct query_t {
     uint64_t symbol;
 };
 
-double cosine_similarity(Array *a, Array *b, unsigned int start,
-                         unsigned int end);
+// math
+double cosine_similarity(double *a, double *b, uint64_t start, uint64_t end);
+// insert data into tarantool
 int tarantool_insert(struct crypto_t *cd);
+// select data from tarantool
 int tarantool_select(struct query_t *query, struct crypto_t *cd);
+// tests
+int selector_test();
 
 #endif

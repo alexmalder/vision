@@ -7,8 +7,8 @@ set(PROJECT_SOURCE_DIR "src")
 #set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-L/usr/local/lib")
 
 include_directories(${PROJECT_SOURCE_DIR})
-file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/*.c)
-add_executable(${PROJECT_NAME} main.c ${SRC_FILES})
+file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/*.cpp)
+add_executable(${PROJECT_NAME} main.cpp ${SRC_FILES})
 
 find_package(OpenSSL REQUIRED)
 

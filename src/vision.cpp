@@ -1,19 +1,18 @@
-#include "vision.h"
-#include <stdio.h>
-#include <msgpuck.h>
+#include "vision.hpp"
+#include <iostream>
+#include <vector>
 
 #define MP_SOURCE 1
 
 static int SPACE_ID = 512;
 
-double cosine_similarity(Array *a, Array *b, unsigned int start,
-                         unsigned int end)
+double cosine_similarity(double *a, double *b, uint64_t start, uint64_t end)
 {
     double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
     for (uint64_t i = start; i < end; i++) {
-        dot += a->array[i] * b->array[i];
-        denom_a += a->array[i] * a->array[i];
-        denom_b += b->array[i] * b->array[i];
+        dot += a[i] * b[i];
+        denom_a += a[i] * a[i];
+        denom_b += b[i] * b[i];
     }
     return dot / (sqrt(denom_a) * sqrt(denom_b));
 }
@@ -104,7 +103,7 @@ int tarantool_select(struct query_t *query, struct crypto_t *cd)
         const char *str_value;
         uint32_t str_value_length;
         str_value = mp_decode_str(&reply.data, &str_value_length);
-        cd[i].datetime = str_value;
+        //cd[i].datetime = str_value;
 
         unsigned long symbol = mp_decode_uint(&reply.data);
         cd[i].symbol = symbol;
@@ -131,4 +130,36 @@ int tarantool_select(struct query_t *query, struct crypto_t *cd)
     tnt_stream_free(tuple);
     tnt_stream_free(tnt);
     return tuple_count;
+}
+
+int selector_test()
+{
+    // extract all
+    struct query_t *q = new query_t();
+    q->symbol = 2;
+    //q->start_date = 1417132800; // min unix btc
+    //q->end_date = 1639699200; // max unix btc
+    struct crypto_t fd[4096];
+    int tuple_count = tarantool_select(q, fd);
+    printf("tarantool_select tuple_count: %d\n", tuple_count);
+    // extract by query
+    uint64_t min_unix = 1599004800; // 2020-09-02
+    uint64_t max_unix = 1606694400; // 2020-11-30
+    uint64_t day_unix = 86400; // one day in unix format
+    uint64_t interval = max_unix - min_unix; // get interval
+    uint64_t ssize = interval / day_unix; // size of array
+    printf("ssize: %lld\n", ssize); // print size of array
+    int items[ssize];
+    // extract by range, extract by currency type
+    std::vector<double> elements;
+    for (uint64_t i = 0; i < tuple_count; i++) {
+        if (fd[i].unix_val >= min_unix && fd[i].unix_val <= max_unix) {
+            elements.push_back(fd[i].close);
+        }
+    }
+    for (uint64_t i = 0; i < elements.size(); i++) {
+        printf("%f - ", elements[i]);
+    }
+    fflush(stdout);
+    return 0;
 }
