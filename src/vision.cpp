@@ -151,15 +151,15 @@ int selector_test()
     printf("ssize: %lld\n", ssize); // print size of array
     int items[ssize];
     // extract by range, extract by currency type
-    std::vector<double> elements;
+    std::vector<double> source;
+    std::vector<double> target;
     for (uint64_t i = 0; i < tuple_count; i++) {
+        source.push_back(fd[i].close);
         if (fd[i].unix_val >= min_unix && fd[i].unix_val <= max_unix) {
-            elements.push_back(fd[i].close);
+            target.push_back(fd[i].close);
         }
     }
-    for (uint64_t i = 0; i < elements.size(); i++) {
-        printf("%f - ", elements[i]);
-    }
-    fflush(stdout);
+    //for (uint64_t i = 0; i < elements.size(); i++) { printf("%f - ", elements[i]); }
+    //fflush(stdout);
     return 0;
 }
