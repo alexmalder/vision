@@ -33,7 +33,7 @@ Description
 
 2. Callback on gateway
 
--   show data by unique identifier as `uint64_t` value from callback
+-   show data by unique identifier as `uint64_t` value from callback: todo
 
 ## Requirements
 
