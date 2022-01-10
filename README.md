@@ -38,7 +38,7 @@ Description
 ## Requirements
 
 -   environment
-    - tarantool
+    - tarantool[in_worker]
 
 ## How to build
 
