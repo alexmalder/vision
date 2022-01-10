@@ -1,24 +1,16 @@
 #include "vision.h"
+#include <stdlib.h>
 
 #define MP_SOURCE 1
 
 static int SPACE_ID = 512;
 
-int init_conn_str(char *conn_string)
-{
-    char *tnt_user = getenv("TNT_USER");
-    char *tnt_pass = getenv("TNT_PASSWORD");
-    char *tnt_host = getenv("TNT_HOST");
-    char *tnt_port = getenv("TNT_PORT");
-    sprintf(conn_string, "%s:%s@%s:%s", tnt_user, tnt_pass, tnt_host, tnt_port);
-    return 0;
-}
-
 int tarantool_insert(struct crypto_t *cd)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
-    init_conn_str(conn_string);
+    sprintf(conn_string, "%s:%s@%s:%s", getenv("TNT_USER"),
+            getenv("TNT_PASSWORD"), getenv("TNT_HOST"), getenv("TNT_PORT"));
 
     tnt_set(tnt, TNT_OPT_URI, conn_string);
     if (tnt_connect(tnt) < 0) {
@@ -50,7 +42,8 @@ int tarantool_select(struct query_t *query, struct crypto_t *cd)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
-    init_conn_str(conn_string);
+    sprintf(conn_string, "%s:%s@%s:%s", getenv("TNT_USER"),
+            getenv("TNT_PASSWORD"), getenv("TNT_HOST"), getenv("TNT_PORT"));
     tnt_set(tnt, TNT_OPT_URI, conn_string);
     if (tnt_connect(tnt) < 0) {
         printf("Connection refused\n");
