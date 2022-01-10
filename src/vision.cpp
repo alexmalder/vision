@@ -141,8 +141,9 @@ int selector_test()
     q->symbol = 2;
     //q->start_date = 1417132800; // min unix btc
     //q->end_date = 1639699200; // max unix btc
-    struct crypto_t fd[4096];
-    int tuple_count = tarantool_select(q, fd);
+    struct crypto_t fd[2577];
+    struct crypto_t *fulldata = fd;
+    int tuple_count = tarantool_select(q, fulldata);
     printf("tarantool_select tuple_count: %d\n", tuple_count);
     // extract by query
     uint64_t min_unix = 1599004800; // 2020-09-02
@@ -160,14 +161,15 @@ int selector_test()
     uint64_t start = 0;
     uint64_t search_count = 0;
     uint64_t resolution = 10;
-    double thresh = 0.9966;
+    double thresh = 0.9955;
     for (uint64_t x = 0; x < tuple_count; x++) {
         std::vector<double> source;
         if (x % resolution == 0) {
             for (uint64_t y = start; y < tuple_count; y++) {
                 source.push_back(fd[y].close);
                 if (y % ssize == 0) {
-                    double similarity = cosine_similarity(source, target, ssize);
+                    double similarity =
+                        cosine_similarity(source, target, ssize);
                     search_count += 1;
                     if (similarity > thresh) {
                         printf("--- similarity: %lf ---\n", similarity);
@@ -179,4 +181,5 @@ int selector_test()
         }
     }
     printf("--- search count: %lld ---\n", search_count);
-    return 0;}
+    return 0;
+}
