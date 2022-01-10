@@ -30,8 +30,6 @@ struct query_t {
     uint64_t symbol;
 };
 
-// math
-double cosine_similarity(double *a, double *b, uint64_t start, uint64_t end);
 // insert data into tarantool
 int tarantool_insert(struct crypto_t *cd);
 // select data from tarantool

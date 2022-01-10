@@ -6,10 +6,11 @@
 
 static int SPACE_ID = 512;
 
-double cosine_similarity(double *a, double *b, uint64_t start, uint64_t end)
+double cosine_similarity(std::vector<double> a, std::vector<double> b,
+                         uint64_t end)
 {
     double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
-    for (uint64_t i = start; i < end; i++) {
+    for (uint64_t i = 0; i < end; i++) {
         dot += a[i] * b[i];
         denom_a += a[i] * a[i];
         denom_b += b[i] * b[i];
@@ -148,18 +149,29 @@ int selector_test()
     uint64_t day_unix = 86400; // one day in unix format
     uint64_t interval = max_unix - min_unix; // get interval
     uint64_t ssize = interval / day_unix; // size of array
-    printf("ssize: %lld\n", ssize); // print size of array
     int items[ssize];
     // extract by range, extract by currency type
-    std::vector<double> source;
     std::vector<double> target;
     for (uint64_t i = 0; i < tuple_count; i++) {
-        source.push_back(fd[i].close);
-        if (fd[i].unix_val >= min_unix && fd[i].unix_val <= max_unix) {
+        if (fd[i].unix_val >= min_unix && fd[i].unix_val < max_unix) {
             target.push_back(fd[i].close);
         }
     }
-    //for (uint64_t i = 0; i < elements.size(); i++) { printf("%f - ", elements[i]); }
-    //fflush(stdout);
+    printf("ssize: %lld, target size:%ld\n", ssize,
+           target.size()); // print size of array
+
+    std::vector<double> source;
+    for (uint64_t i = 0; i < tuple_count; i++) {
+        source.push_back(fd[i].close);
+        //std::cout << "iter " << i << std::endl;
+        if (i % ssize == 0) {
+            //std::cout << "iter with condition " << i << std::endl;
+            double similarity = cosine_similarity(source, target, ssize);
+            if (similarity > 0.99) {
+                std::cout << similarity << std::endl;
+            }
+            source.clear();
+        }
+    }
     return 0;
 }
