@@ -38,7 +38,7 @@ Description
 ## Requirements
 
 -   environment
-    - tarantool database
+    - tarantool
 
 ## How to build
 
