@@ -1,23 +1,8 @@
-#include "vision.hpp"
-#include <cstdio>
-#include <iostream>
-#include <vector>
+#include "vision.h"
 
 #define MP_SOURCE 1
 
 static int SPACE_ID = 512;
-
-double cosine_similarity(std::vector<double> a, std::vector<double> b,
-                         uint64_t end)
-{
-    double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
-    for (uint64_t i = 0; i < end; i++) {
-        dot += a[i] * b[i];
-        denom_a += a[i] * a[i];
-        denom_b += b[i] * b[i];
-    }
-    return dot / (sqrt(denom_a) * sqrt(denom_b));
-}
 
 int init_conn_str(char *conn_string)
 {
@@ -132,54 +117,4 @@ int tarantool_select(struct query_t *query, struct crypto_t *cd)
     tnt_stream_free(tuple);
     tnt_stream_free(tnt);
     return tuple_count;
-}
-
-int selector_test()
-{
-    // extract all
-    struct query_t *q = new query_t();
-    q->symbol = 2;
-    //q->start_date = 1417132800; // min unix btc
-    //q->end_date = 1639699200; // max unix btc
-    struct crypto_t fd[2577];
-    struct crypto_t *fulldata = fd;
-    int tuple_count = tarantool_select(q, fulldata);
-    printf("tarantool_select tuple_count: %d\n", tuple_count);
-    // extract by query
-    uint64_t min_unix = 1599004800; // 2020-09-02
-    uint64_t max_unix = 1606694400; // 2020-11-30
-    uint64_t day_unix = 86400; // one day in unix format
-    uint64_t interval = max_unix - min_unix; // get interval
-    uint64_t ssize = interval / day_unix; // size of array
-    // extract by range, extract by currency type
-    std::vector<double> target;
-    for (uint64_t i = 0; i < tuple_count; i++) {
-        if (fd[i].unix_val >= min_unix && fd[i].unix_val < max_unix) {
-            target.push_back(fd[i].close);
-        }
-    }
-    uint64_t start = 0;
-    uint64_t search_count = 0;
-    uint64_t resolution = 10;
-    double thresh = 0.9955;
-    for (uint64_t x = 0; x < tuple_count; x++) {
-        std::vector<double> source;
-        if (x % resolution == 0) {
-            for (uint64_t y = start; y < tuple_count; y++) {
-                source.push_back(fd[y].close);
-                if (y % ssize == 0) {
-                    double similarity =
-                        cosine_similarity(source, target, ssize);
-                    search_count += 1;
-                    if (similarity > thresh) {
-                        printf("--- similarity: %lf ---\n", similarity);
-                    }
-                    source.clear();
-                }
-            }
-            start += resolution;
-        }
-    }
-    printf("--- search count: %lld ---\n", search_count);
-    return 0;
 }
