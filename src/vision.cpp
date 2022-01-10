@@ -1,4 +1,5 @@
 #include "vision.hpp"
+#include <cstdio>
 #include <iostream>
 #include <vector>
 
@@ -160,18 +161,26 @@ int selector_test()
     printf("ssize: %lld, target size:%ld\n", ssize,
            target.size()); // print size of array
 
-    std::vector<double> source;
-    for (uint64_t i = 0; i < tuple_count; i++) {
-        source.push_back(fd[i].close);
-        //std::cout << "iter " << i << std::endl;
-        if (i % ssize == 0) {
-            //std::cout << "iter with condition " << i << std::endl;
-            double similarity = cosine_similarity(source, target, ssize);
-            if (similarity > 0.99) {
-                std::cout << similarity << std::endl;
+    uint64_t start = 0;
+    uint64_t search_count = 0;
+    uint64_t resolution = 10;
+    for (uint64_t x = 0; x < tuple_count; x++) {
+        std::vector<double> source;
+        if (x % resolution == 0) {
+            for (uint64_t y = start; y < tuple_count; y++) {
+                source.push_back(fd[y].close);
+                if (y % ssize == 0) {
+                    double similarity = cosine_similarity(source, target, ssize);
+                    search_count += 1;
+                    if (similarity > 0.9967) {
+                        printf("--- similarity: %lf ---\n", similarity);
+                    }
+                    source.clear();
+                }
             }
-            source.clear();
+            start += resolution;
         }
     }
+    printf("--- search count: %lld ---\n", search_count);
     return 0;
 }
