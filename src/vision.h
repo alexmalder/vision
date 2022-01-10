@@ -11,6 +11,12 @@
 #include <tarantool/tnt_opt.h>
 #include <zmq.h>
 
+typedef struct {
+    double *array;
+    size_t used;
+    size_t size;
+} Array;
+
 struct crypto_t {
     uint64_t unix_val;
     char *datetime;
@@ -29,7 +35,7 @@ struct query_t {
     uint64_t symbol;
 };
 
-double cosine_similarity(double *a, double *b, unsigned int start,
+double cosine_similarity(Array *a, Array *b, unsigned int start,
                          unsigned int end);
 int tarantool_insert(struct crypto_t *cd);
 int tarantool_select(struct query_t *query, struct crypto_t *cd);

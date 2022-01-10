@@ -6,13 +6,14 @@
 
 static int SPACE_ID = 512;
 
-double cosine_similarity(double *a, double *b, unsigned int start, unsigned int end)
+double cosine_similarity(Array *a, Array *b, unsigned int start,
+                         unsigned int end)
 {
     double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
     for (uint64_t i = start; i < end; i++) {
-        dot += a[i] * b[i];
-        denom_a += a[i] * a[i];
-        denom_b += b[i] * b[i];
+        dot += a->array[i] * b->array[i];
+        denom_a += a->array[i] * a->array[i];
+        denom_b += b->array[i] * b->array[i];
     }
     return dot / (sqrt(denom_a) * sqrt(denom_b));
 }

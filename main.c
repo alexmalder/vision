@@ -1,17 +1,41 @@
 #include "src/vision.h"
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <msgpuck.h>
 
-int cosine_similarity_test()
+void initArray(Array *a, size_t initialSize)
 {
-    double a[] = { 0.11, 0.12, 0.13 };
-    double b[] = { 0.11, 0.12, 0.14 };
-    double r = cosine_similarity(a, b, 0, 3);
-    printf("cosine_similarity test result: %lf\n", r);
-    fflush(stdout);
-    return 0;
+    a->array = malloc(initialSize * sizeof(double));
+    a->used = 0;
+    a->size = initialSize;
+}
+
+void insertArray(Array *a, double element)
+{
+    // a->used is the number of used entries, because a->array[a->used++] updates a->used only *after* the array has been accessed.
+    // Therefore a->used can go up to a->size
+    if (a->used == a->size) {
+        a->size *= 2;
+        a->array = realloc(a->array, a->size * sizeof(double));
+    }
+    a->array[a->used++] = element;
+}
+
+void freeArray(Array *a)
+{
+    free(a->array);
+    a->array = NULL;
+    a->used = a->size = 0;
+}
+
+void debugArray(Array *a, int length)
+{
+    for (int i = 0; i < length; i++) {
+        printf("[%f]", a->array[i]);
+    }
+    printf("\n");
 }
 
 int selector_test()
@@ -21,27 +45,48 @@ int selector_test()
     q->symbol = 2;
     q->start_date = 1417132800; // min unix btc
     q->end_date = 1639699200; // max unix btc
-    struct crypto_t *fd = malloc(sizeof(struct crypto_t) * 4096);
+    struct crypto_t fd[4096];
     int tuple_count = tarantool_select(q, fd);
     printf("tarantool_select tuple_count: %d\n", tuple_count);
 
-    uint64_t denom = 128;
-    uint64_t start = 0;
-    uint64_t end = tuple_count - denom;
+    // extract by query
+    uint64_t min_unix = 1599004800; // 2020-09-02
+    uint64_t max_unix = 1606694400; // 2020-11-30
+    uint64_t day_unix = 86400; // one day in unix format
+    uint64_t range = max_unix - min_unix; // get range
+    uint64_t ssize = range / day_unix; // size of array
+    printf("ssize: %lld\n", ssize); // print size of array
+
+    // init arrays
+    Array a;
+    Array b;
+    initArray(&a, ssize);
+    initArray(&b, ssize);
+    double items[ssize];
+    // extract by range
     for (uint64_t i = 0; i < tuple_count; i++) {
-        if (i % denom == 0) {
-            double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
-            for (uint64_t x = start; x < start + denom; x++) {
-                dot += fd[x].close * fd[x + denom].close;
-                denom_a += fd[x].close * fd[x].close;
-                denom_b += fd[x + denom].close * fd[x + denom].close;
-            }
-            double result = dot / (sqrt(denom_a) * sqrt(denom_b));
-            if (result > 0.98) {
-                printf("result is: %f for start: %lld and end : %lld\n", result,
-                       i, start + denom);
-            }
-            start += denom, end += denom;
+        if (fd[i].unix_val >= min_unix && fd[i].unix_val <= max_unix) {
+            //insertArray(&a, fd[i].close);
+            items[i] = fd[i].close;
+        }
+    }
+    debugArray(&a, ssize);
+    uint64_t start = ssize;
+    for (int i = 0; i < tuple_count; i++) {
+        //printf("iter %d and close value: %f\n", i, fd[i].close);
+        int iter = i - start;
+        insertArray(&b, fd[i].close);
+        //printf("%f ", fd[i].open);
+        if (i % ssize == 0) {
+            debugArray(&b, ssize);
+            //printf("iter: %lld", i);
+            double result = cosine_similarity(&a, &b, start, start + ssize);
+            printf("result: %f\n", result);
+            start += ssize;
+            //break;
+            //freeArray(&b);
+            //initArray(&b, ssize);
+            break;
         }
     }
     return 0;
@@ -113,7 +158,6 @@ int mp_print()
 
 int main()
 {
-    cosine_similarity_test();
     selector_test();
     zmq_listen();
     return 0;
