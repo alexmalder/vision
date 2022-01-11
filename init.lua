@@ -3,21 +3,10 @@ box.cfg {
 }
 
 box.once("bootstrap", function()
-    box.schema.space.create('env')
-    box.space.env:format({
-        {name='key', type='string'},
-        {name='value', type='string'}
-    })
-    box.space.env:create_index('primary', {
-        unique = true,
-        parts = {
-            {field=1, type='string'}
-        }
-    })
-
     box.schema.space.create('account')
     box.space.account:format({
         {name='username', type='string'},
+        {name='email', type='string'},
         {name='password', type='string'},
         {name='role', type='number'}
     })
@@ -46,6 +35,14 @@ box.once("bootstrap", function()
             {field=3, type='number'},
             {field=1, type='number'},
         }
+    })
+
+    box.space.create('result')
+    box.space.crypto:format({
+        {name='unix', type='number'},
+        {name='user_id', type='number'},
+        {name='request_id', type='number'},
+        {name='target', type='number'}
     })
 
     box.schema.space.create('txn')
