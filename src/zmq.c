@@ -1,4 +1,5 @@
 #include "vision.h"
+#include <stdlib.h>
 
 static bool consumer_active = 1;
 
@@ -31,20 +32,27 @@ int zmq_listen()
         const char *r = buffer;
         uint32_t tuple_count;
         tuple_count = mp_decode_array(&r);
-        for (int i = 0; i < tuple_count; i++) {
-            uint64_t val = mp_decode_uint(&r);
-            printf("iter: %d, val: %lld\n", i, val);
-        }
-
+        struct query_t *query = malloc(sizeof(struct query_t));
+        //for (int i = 0; i < tuple_count; i++) {
+        query->searchio = mp_decode_uint(&r);
+        query->start_date = mp_decode_uint(&r);
+        query->end_date = mp_decode_uint(&r);
+        query->user_id = mp_decode_uint(&r);
+        //printf("iter: %d, val: %lld\n", i, val);
+        //}
         printf("received message with tuple_count <%d>\n", tuple_count);
-
+        printf("symbol: %lld ", query->searchio);
+        printf("start_date: %lld ", query->start_date);
+        printf("end_date: %lld ", query->end_date);
+        printf("user_id: %lld\n", query->user_id);
+        search_similarity(query);
         char buf[128];
         char *w = buf;
         w = mp_encode_array(w, 4);
-        w = mp_encode_uint(w, 128);
-        w = mp_encode_uint(w, 256);
-        w = mp_encode_uint(w, 512);
-        w = mp_encode_uint(w, 1024);
+        w = mp_encode_uint(w, 128); // start_date
+        w = mp_encode_uint(w, 256); // end_date
+        w = mp_encode_uint(w, 512); // request_id
+        w = mp_encode_uint(w, 1024); // user_id
 
         zmq_send(responder, buf, 128, 0);
     }

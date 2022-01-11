@@ -34,7 +34,8 @@ struct crypto_t {
 struct query_t {
     uint64_t start_date;
     uint64_t end_date;
-    uint64_t symbol;
+    uint64_t searchio;
+    uint64_t user_id;
 };
 
 // insert data into tarantool
@@ -43,8 +44,10 @@ int tarantool_insert(struct crypto_t *cd);
 int tarantool_select(struct query_t *query, struct crypto_t *cd);
 // 0mq
 int zmq_listen();
-// tests
-int selector_test();
+// search engine
+void query_init(struct query_t *query, uint64_t symbol, uint64_t start_date,
+                uint64_t end_date, uint64_t user_id);
+int search_similarity(struct query_t *query);
 // array
 void init_array(struct array_t *a, size_t initial_size);
 void insert_array(struct array_t *a, int element);
