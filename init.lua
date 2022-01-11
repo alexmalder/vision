@@ -62,6 +62,7 @@ box.once("bootstrap", function()
             {field=1, type='number'}
         }
     })
+
     box.schema.user.create('tnt_user', {password = 'tnt_password'})
     box.schema.user.grant('tnt_user','read,write,execute,create,drop','universe')
 end)
