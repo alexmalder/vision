@@ -35,30 +35,37 @@ int selector_test()
             insert_array(&b, fulldata[i].close);
         }
     }
-    uint64_t resolution = 64;
-    double thresh = 0.9955;
-    for (uint64_t x = 0; x < tuple_count; x++) {
+    uint64_t resolution = 10;
+    double thresh = 0.998;
+    uint64_t x = 0;
+    uint64_t slide = ssize;
+    while (x < tuple_count) {
         struct array_t a;
         init_array(&a, tuple_count);
         if (x % resolution == 0) {
-            uint64_t y;
-            for (y = 0; y < tuple_count; y++) {
+            uint64_t y = x;
+            while (y < tuple_count) {
                 insert_array(&a, fulldata[y].close);
-                if (y % ssize == 0) {
-                    double similarity =
-                        cosine_similarity(a.array, b.array, ssize);
-                    if (similarity > thresh) {
+                if (y % slide == 0) {
+                    double sim = cosine_similarity(a.array, b.array, ssize);
+                    if (sim > thresh) {
                         debug_array(&a, ssize);
-                        printf(" <<<--- [%lf] --->>> ", similarity);
+                        printf(" <<<--- [%lf] --->>> ", sim);
                         debug_array(&b, ssize);
                         printf("\n\n");
                     }
                     free_array(&a);
                     init_array(&a, tuple_count);
                 }
+                //printf(" [%lld] ", y);
+                y++;
             }
-            y += resolution;
+            //printf("\n");
+            slide += resolution;
+            x += resolution;
+            printf("\nslide: %lld, x: %lld\n", slide, x);
         }
+        x++;
     }
     return 0;
 }
