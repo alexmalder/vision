@@ -3,7 +3,7 @@
 
 #define MP_SOURCE 1
 
-static int SPACE_ID = 512;
+static int SPACE_ID = 513;
 
 int tarantool_insert(struct crypto_t *cd)
 {
