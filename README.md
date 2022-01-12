@@ -27,9 +27,19 @@ Description
 
 1. Step one
 
--   tuples with fields
-    -   `start_date` : `uint64_t`
-    -   `end_date` : `uint64_t`
+-   msgpack tuple with fields
+
+    -   `start_date`: start date unix format
+    -   `end_date`: end day unix format, completed interval
+    -   `searchio`: symbol of cryptocurrency
+    -   `user_id`: user unique identifier in database
+
+-   symbols map
+    -   `BCH/USD`: 1
+    -   `BTC/USD`: 2
+    -   `ETH/USD`: 3
+    -   `LTC/USD`: 4
+    -   `XRP/USD`: 5
 
 2. Callback for a gateway
 
@@ -74,4 +84,3 @@ console.connect('tnt_user:tnt_password@127.0.0.1:3301')
 -   [ ] debug visioner algorithm ...
 -   [ ] find beta testers
 -   [ ] auto purchase and auto sale
-
