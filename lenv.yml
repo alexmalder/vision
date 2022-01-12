@@ -9,11 +9,6 @@ stages:
       - docker push $HARBOR_URI/library/vision:$TAG
     only:
       - main
-  - stage: prepare
-    script:
-      - docker-compose up --build -d
-    only:
-      - main
   - stage: deploy
     script:
       - helm repo add template https://$HARBOR_URI/chartrepo/library
