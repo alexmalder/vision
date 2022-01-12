@@ -50,7 +50,7 @@ int tarantool_select(struct query_t *query, struct crypto_t *cd)
         exit(1);
     }
     struct tnt_stream *tuple = tnt_object(NULL);
-    tnt_object_format(tuple, "[%lld]", query->symbol);
+    tnt_object_format(tuple, "[%lld]", query->searchio);
     tnt_select(tnt, SPACE_ID, 0, 1048576, 0, 0, tuple);
     tnt_flush(tnt);
     struct tnt_reply reply;
