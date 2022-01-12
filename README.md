@@ -2,11 +2,11 @@
 
 ## Motivation
 
-We have a lot of cryptocurrency services, but this is stupid. No linear conditions in you'r trading strategies...
+We have a lot of cryptocurrency services, but this is stupidly. No linear conditions in you'r trading strategies...
 
 Get tranparency of trading platform with computer vision technologies now!
 
-## Migration
+## Stack
 
 -   msgpuck
 -   tarantool
@@ -31,14 +31,13 @@ Description
     -   `start_date` : `uint64_t`
     -   `end_date` : `uint64_t`
 
-2. Callback on gateway
+2. Callback for a gateway
 
--   show data by request_id as `uint64_t` value from callback: todo
+-   show data by `request_id` as `uint64_t` value from callback
 
-## Requirements
+## Environment
 
--   environment
-    -   tarantool[in_worker]
+-   tarantool
 
 ## How to build
 
@@ -53,7 +52,7 @@ make
 make install #optional
 ```
 
-## How to create space and configure it
+## How to connect to tarantool
 
 > interactive
 
@@ -66,7 +65,13 @@ console.connect('tnt_user:tnt_password@127.0.0.1:3301')
 
 ## Workflow
 
--   show similarity by latest items with range
--   client-side configuration of search parameters
--   double-line chart
--   virtual contribution web view
+-   [x] user sign up and user sign in
+-   [x] show similarity by latest items with range
+-   [x] client-side configuration of search parameters
+-   [ ] similar vector stabilization
+-   [ ] double-line chart
+-   [ ] virtual contribution
+-   [ ] debug visioner algorithm ...
+-   [ ] find beta testers
+-   [ ] auto purchase and auto sale
+
