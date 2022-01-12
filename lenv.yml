@@ -17,11 +17,11 @@ stages:
   - stage: deploy
     script:
       - helm repo add template https://$HARBOR_URI/chartrepo/library
-      - helm upgrade --install 
-        vision template/template
+      - helm upgrade vision template/template
+        --install 
+        --atomic
         --namespace $NAMESPACE 
         --create-namespace 
-        --atomic
         --set image.tag=$TAG 
         --set env.TNT_USER=$TNT_USER 
         --set env.TNT_PASSWORD=$TNT_PASSWORD 
