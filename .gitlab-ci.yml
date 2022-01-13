@@ -1,0 +1,17 @@
+variables:
+  NAMESPACE: vision
+  VERSION: 0.0.1
+
+stages:
+  - docker_build
+  - kubernetes
+
+docker_build:
+  stage: docker_build
+  script:
+    - docker build . -t harbor.vnmntn.com/library/vision:$VERSION
+    - docker push harbor.vnmntn.com/library/vision:$VERSION
+  only:
+    - main
+  tags:
+    - worker
