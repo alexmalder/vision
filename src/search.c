@@ -1,6 +1,8 @@
 #include "vision.h"
+#include <stdint.h>
 
-void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date, uint64_t end_date, uint64_t user_id)
+void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date,
+                uint64_t end_date, uint64_t user_id)
 {
     query->searchio = searchio;
     query->start_date = start_date;
@@ -17,6 +19,34 @@ double cosine_similarity(double *a, double *b, uint64_t end)
         denom_b += b[i] * b[i];
     }
     return dot / (sqrt(denom_a) * sqrt(denom_b));
+}
+
+void debug_iteration(double *a, double *b, double sim, uint64_t ssize,
+                     uint64_t slide, double distance, uint64_t x, uint64_t y)
+{
+    char source_buffer[4096];
+    sprintf(source_buffer, "[");
+    for (uint64_t i = 0; i < ssize; i++) {
+        sprintf(source_buffer + strlen(source_buffer), " %lf ", a[i]);
+    }
+    char target_buffer[4096];
+    sprintf(target_buffer, "[");
+    for (uint64_t i = 0; i < ssize; i++) {
+        sprintf(target_buffer + strlen(target_buffer), " %lf ", b[i]);
+    }
+    printf(
+        "{\"ssize\": %lld, \"slide\": %lld, \"distance\": %lf, \"x\": %lld, \"y\": %lld, \"similarity\": %lf, \"source\": \"%s\", \"target\": \"%s\"}\n",
+        ssize, slide, distance, x, y, sim, source_buffer, target_buffer);
+}
+
+double similar_distance(double *target, uint64_t length)
+{
+    double distance;
+    uint64_t i;
+    for (i = 0; i < length; i++) {
+        distance += target[i];
+    }
+    return (distance / length);
 }
 
 int search_similarity(struct query_t *query)
@@ -44,6 +74,7 @@ int search_similarity(struct query_t *query)
     double thresh = 0.998;
     uint64_t x = 0;
     uint64_t slide = ssize;
+    double source_distance = similar_distance(b.array, ssize);
     while (x < tuple_count) {
         struct array_t a;
         init_array(&a, tuple_count);
@@ -54,11 +85,18 @@ int search_similarity(struct query_t *query)
                 if (y % slide == 0) {
                     double sim = cosine_similarity(a.array, b.array, ssize);
                     if (sim > thresh) {
-                        debug_array(&a, ssize);
-                        printf(" <<<--- [%lf] --->>> ", sim);
-                        debug_array(&b, ssize);
-                        printf("\nslide: %lld\nx: %lld\n", slide, x);
-                        printf("\n\n");
+                        //debug_array(&a, ssize);
+                        //printf(" <<<--- [%lf] --->>> ", sim);
+                        //debug_array(&b, ssize);
+                        double target_distance =
+                            similar_distance(a.array, ssize);
+                        double distance;
+                        if (source_distance > target_distance) {
+                            distance = source_distance / target_distance;
+                        } else {
+                            distance = target_distance / source_distance;
+                        }
+                        debug_iteration(a.array, b.array, sim, ssize, slide, (distance / 1000), x, y);
                     }
                     free_array(&a);
                     init_array(&a, tuple_count);
@@ -71,6 +109,8 @@ int search_similarity(struct query_t *query)
             x += resolution;
         }
         x++;
+        free_array(&a);
     }
+    free(cd);
     return 0;
 }
