@@ -1,11 +1,10 @@
 #include "vision.h"
 
-void query_init(struct query_t *query, uint64_t start_date, uint64_t end_date,
-                uint64_t searchio, uint64_t user_id)
+void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date, uint64_t end_date, uint64_t user_id)
 {
+    query->searchio = searchio;
     query->start_date = start_date;
     query->end_date = end_date;
-    query->searchio = searchio;
     query->user_id = user_id;
 }
 

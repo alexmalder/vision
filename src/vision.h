@@ -45,7 +45,7 @@ int tarantool_select(struct query_t *query, struct crypto_t *cd);
 // 0mq
 int zmq_listen();
 // search engine
-void query_init(struct query_t *query, uint64_t symbol, uint64_t start_date,
+void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date,
                 uint64_t end_date, uint64_t user_id);
 int search_similarity(struct query_t *query);
 // array
