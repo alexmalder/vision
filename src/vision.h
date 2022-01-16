@@ -52,5 +52,7 @@ int search_similarity(struct query_t *query);
 void init_array(struct array_t *a, size_t initial_size);
 void insert_array(struct array_t *a, int element);
 void free_array(struct array_t *a);
+// kafka
+int produce(char *buf);
 
 #endif

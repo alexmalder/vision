@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <rdkafka.h>
 
@@ -9,7 +10,8 @@ static volatile sig_atomic_t run = 1;
 static void stop(int sig)
 {
     run = 0;
-    fclose(stdin); /* abort fgets() */
+    //fclose(stdin);
+    exit(1);
 }
 
 static void dr_msg_cb(rd_kafka_t *rk, const rd_kafka_message_t *rkmessage,
@@ -63,12 +65,4 @@ int produce(char *buf)
 
     rd_kafka_destroy(rk);
     return 0;
-}
-
-int main(int argc, char **argv)
-{
-    char buf[1024];
-    sprintf(buf, "{\"message\": \"text\", \"status\": %d}", 4);
-    int status = produce(buf);
-    printf("status: %d\n", status);
 }
