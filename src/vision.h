@@ -38,6 +38,14 @@ struct query_t {
     uint64_t user_id;
 };
 
+struct result_t {
+    uint64_t unix_val;
+    uint64_t symbol;
+    uint64_t user_id;
+    uint64_t request_id;
+    double target;
+};
+
 // insert data into tarantool
 int tarantool_insert(struct crypto_t *cd);
 // select data from tarantool
@@ -52,7 +60,8 @@ int search_similarity(struct query_t *query);
 void init_array(struct array_t *source, size_t initial_size);
 void insert_array(struct array_t *source, int element);
 void free_array(struct array_t *source);
-// kafka
+// logger
 int produce(char *buf);
+void debug_iteration(double *a, double *b, double sim, uint64_t ssize, uint64_t slide, double distance, uint64_t x, uint64_t y);
 
 #endif
