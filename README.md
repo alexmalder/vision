@@ -31,7 +31,7 @@ Description
 
     -   `start_date`: start date unix format
     -   `end_date`: end day unix format, completed interval
-    -   `searchio`: symbol of cryptocurrency
+    -   `searchio`: symbol of cryptocurrency type
     -   `user_id`: user unique identifier in database
 
 -   symbols map

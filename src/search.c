@@ -26,17 +26,23 @@ void debug_iteration(double *a, double *b, double sim, uint64_t ssize,
 {
     char buffer[4096 * 3];
     char source_buffer[4096];
-    sprintf(source_buffer, "[");
+    sprintf(source_buffer, "[ ");
     for (uint64_t i = 0; i < ssize; i++) {
         sprintf(source_buffer + strlen(source_buffer), " %lf ", a[i]);
     }
+    sprintf(source_buffer + strlen(source_buffer), " ]");
     char target_buffer[4096];
-    sprintf(target_buffer, "[");
+    sprintf(target_buffer, "[ ");
     for (uint64_t i = 0; i < ssize; i++) {
         sprintf(target_buffer + strlen(target_buffer), " %lf ", b[i]);
     }
-    sprintf(buffer, "{\"ssize\": %lld, \"slide\": %lld, \"distance\": %lf, \"x\": %lld, \"y\": %lld, \"similarity\": %lf, \"source\": \"%s\", \"target\": \"%s\"}\n", ssize, slide, distance, x, y, sim, source_buffer, target_buffer);
-    int status = produce(buffer);
+    sprintf(target_buffer + strlen(target_buffer), " ]");
+    sprintf(
+        buffer,
+        "{\"ssize\": %lld, \"slide\": %lld, \"distance\": %lf, \"x\": %lld, \"y\": %lld, \"similarity\": %lf, \"source\": \"%s\", \"target\": \"%s\"}\n",
+        ssize, slide, distance, x, y, sim, source_buffer, target_buffer);
+    //int status = produce(buffer);
+    printf("%s\n", buffer);
 }
 
 double similar_distance(double *target, uint64_t length)
@@ -48,6 +54,14 @@ double similar_distance(double *target, uint64_t length)
     }
     return (distance / length);
 }
+
+int similar_stabilization(double *source, uint64_t length, double distance) {
+    uint64_t i;
+    for (i = 0; i < length; i++) {
+        source[i] *= distance;
+    }
+    return 0;
+};
 
 int search_similarity(struct query_t *query)
 {
@@ -85,32 +99,31 @@ int search_similarity(struct query_t *query)
                 if (y % slide == 0) {
                     double sim = cosine_similarity(a.array, b.array, ssize);
                     if (sim > thresh) {
-                        //debug_array(&a, ssize);
-                        //printf(" <<<--- [%lf] --->>> ", sim);
-                        //debug_array(&b, ssize);
-                        double target_distance =
-                            similar_distance(a.array, ssize);
                         double distance;
+                        double target_distance = similar_distance(a.array, ssize);
                         if (source_distance > target_distance) {
                             distance = source_distance / target_distance;
+                            similar_stabilization(a.array, ssize, distance);
                         } else {
                             distance = target_distance / source_distance;
+                            similar_stabilization(b.array, ssize, distance);
+                            // return value from stabilization
                         }
-                        debug_iteration(a.array, b.array, sim, ssize, slide, (distance / 1000), x, y);
+                        debug_iteration(a.array, b.array, sim, ssize, slide, distance, x, y);
+                        // produce message from iteration
                     }
                     free_array(&a);
                     init_array(&a, tuple_count);
                 }
-                //printf(" [%lld] ", y);
                 y++;
             }
-            //printf("\n");
             slide += resolution;
             x += resolution;
         }
         x++;
         free_array(&a);
     }
+    free_array(&b);
     free(cd);
     return 0;
 }

@@ -49,9 +49,9 @@ void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date,
                 uint64_t end_date, uint64_t user_id);
 int search_similarity(struct query_t *query);
 // array
-void init_array(struct array_t *a, size_t initial_size);
-void insert_array(struct array_t *a, int element);
-void free_array(struct array_t *a);
+void init_array(struct array_t *source, size_t initial_size);
+void insert_array(struct array_t *source, int element);
+void free_array(struct array_t *source);
 // kafka
 int produce(char *buf);
 

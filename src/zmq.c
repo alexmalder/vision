@@ -55,6 +55,7 @@ int zmq_listen()
         w = mp_encode_uint(w, 1024); // user_id
 
         zmq_send(responder, buf, 128, 0);
+        free(query);
     }
     return 0;
 }
