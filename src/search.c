@@ -1,5 +1,6 @@
 #include "vision.h"
 #include <stdint.h>
+#include <stdlib.h>
 
 void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date,
                 uint64_t end_date, uint64_t user_id)
@@ -53,8 +54,8 @@ int search_similarity(struct query_t *query)
 {
     // extract all
     struct crypto_t *cd = malloc(sizeof(struct crypto_t) * 4096);
-    int tuple_count = tarantool_select(query, cd);
-    printf("tarantool_select tuple_count: %d\n", tuple_count);
+    int tuple_count = select_crypto(query, cd);
+    printf("select_crypto tuple_count: %d\n", tuple_count);
     // initialize parameters
 
     uint64_t day_unix = 86400; // one day in unix format: constant
@@ -99,6 +100,7 @@ int search_similarity(struct query_t *query)
                         //debug_iteration(a.array, b.array, sim, ssize, slide, distance, x, y);
                         //vec_merge(a.array, b.array, ssize);
                         debug_iteration(a.array, b.array, sim, ssize, slide, distance, x, y);
+                        //for (uint64_t z = 0; z < a.size; z++) { insert_result(cd[x].unix_val, cd[x].symbol, z, z, &a); }
                         break;
                     }
                     free_array(&a);

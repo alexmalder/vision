@@ -47,9 +47,9 @@ struct result_t {
 };
 
 // insert data into tarantool
-int tarantool_insert(struct crypto_t *cd);
+int insert_result(uint64_t unix_val, uint64_t symbol, uint64_t user_id, uint64_t request_id, struct array_t *arr);
 // select data from tarantool
-int tarantool_select(struct query_t *query, struct crypto_t *cd);
+int select_crypto(struct query_t *query, struct crypto_t *cd);
 // 0mq
 int zmq_listen();
 // search engine

@@ -3,9 +3,10 @@
 
 #define MP_SOURCE 1
 
-static int SPACE_ID = 513;
+static int CRYPTO_SPACE = 513;
+static int RESULT_SPACE = 514;
 
-int tarantool_insert(struct crypto_t *cd)
+int insert_result(uint64_t unix_val, uint64_t symbol, uint64_t user_id, uint64_t request_id, struct array_t *arr)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
@@ -17,13 +18,14 @@ int tarantool_insert(struct crypto_t *cd)
         printf("Connection refused \n");
         return -1;
     }
-    const char *format = "[%d%s%s%lf%lf%lf%lf%lf%lf]";
-    struct tnt_stream *tuple = tnt_object(NULL);
-    tnt_object_format(tuple, format, cd->unix_val, cd->datetime, cd->symbol,
-                      cd->open, cd->high, cd->low, cd->close,
-                      cd->volume_original, cd->volume_usd);
-    tnt_insert(tnt, SPACE_ID, tuple);
-    tnt_flush(tnt);
+    const char *format = "[%d%d%d%d%lf]";
+    for (uint64_t i = 0; i < arr->size; i++) {
+        struct tnt_stream *tuple = tnt_object(NULL);
+        tnt_object_format(tuple, format, unix_val, symbol, user_id, request_id, arr->array[i]);
+        tnt_insert(tnt, RESULT_SPACE, tuple);
+        tnt_flush(tnt);
+        tnt_stream_free(tuple);
+    }
     struct tnt_reply reply;
     tnt_reply_init(&reply);
     tnt->read_reply(tnt, &reply);
@@ -33,12 +35,11 @@ int tarantool_insert(struct crypto_t *cd)
     printf("Tuple inserted with code %llu.\n", reply.code);
     fflush(stdout);
     tnt_close(tnt);
-    tnt_stream_free(tuple);
     tnt_stream_free(tnt);
     return 0;
 }
 
-int tarantool_select(struct query_t *query, struct crypto_t *cd)
+int select_crypto(struct query_t *query, struct crypto_t *cd)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
@@ -51,7 +52,7 @@ int tarantool_select(struct query_t *query, struct crypto_t *cd)
     }
     struct tnt_stream *tuple = tnt_object(NULL);
     tnt_object_format(tuple, "[%lld]", query->searchio);
-    tnt_select(tnt, SPACE_ID, 0, 1048576, 0, 0, tuple);
+    tnt_select(tnt, CRYPTO_SPACE, 0, 1048576, 0, 0, tuple);
     tnt_flush(tnt);
     struct tnt_reply reply;
     tnt_reply_init(&reply);
