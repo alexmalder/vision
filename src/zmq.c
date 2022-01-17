@@ -33,19 +33,20 @@ int zmq_listen()
         uint32_t tuple_count;
         tuple_count = mp_decode_array(&r);
         struct query_t *query = malloc(sizeof(struct query_t));
-        //for (int i = 0; i < tuple_count; i++) {
-        query->searchio = mp_decode_uint(&r);
-        query->start_date = mp_decode_uint(&r);
-        query->end_date = mp_decode_uint(&r);
-        query->user_id = mp_decode_uint(&r);
-        //printf("iter: %d, val: %lld\n", i, val);
-        //}
-        printf("received message with tuple_count <%d>\n", tuple_count);
-        printf("symbol: %lld ", query->searchio);
-        printf("start_date: %lld ", query->start_date);
-        printf("end_date: %lld ", query->end_date);
-        printf("user_id: %lld\n", query->user_id);
-        search_similarity(query);
+        for (int i = 0; i < tuple_count; i++) {
+        //query->searchio = mp_decode_uint(&r);
+        //query->start_date = mp_decode_uint(&r);
+        //query->end_date = mp_decode_uint(&r);
+        //query->user_id = mp_decode_uint(&r);
+            double val = mp_decode_double(&r);
+            printf("iter: %d, val: %lf\n", i, val);
+        }
+        //printf("received message with tuple_count <%d>\n", tuple_count);
+        //printf("symbol: %lld ", query->searchio);
+        //printf("start_date: %lld ", query->start_date);
+        //printf("end_date: %lld ", query->end_date);
+        //printf("user_id: %lld\n", query->user_id);
+        //search_similarity(query);
         char buf[128];
         char *w = buf;
         w = mp_encode_array(w, 4);
