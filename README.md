@@ -33,10 +33,13 @@ Description
 
 3. zmq wait msgpack tuple with fields
 
-    - `start_date`: start date unix format
-    - `end_date`: end day unix format, completed interval
-    - `searchio`: symbol of cryptocurrency type
-    - `user_id`: user unique identifier in database
+    - example of tuple: `[1630454400, 1638316800, 2, 1]`
+
+    - human readable fields
+        - `start_date`: start date unix format
+        - `end_date`: end day unix format, completed interval
+        - `searchio`: symbol of cryptocurrency type
+        - `user_id`: user unique identifier in database
 
 4. write data to tarantool
 
@@ -69,8 +72,11 @@ Description
 
 5. zmq sending callback for a gateway
 
--   `user_id`
--   `request_id`
+-   example of tuple: `[1, 1]`
+
+-   human readable fields
+    -   `user_id`: uint64_t
+    -   `request_id`: uint64_t
 
 > Hardcoded values in runtime
 
