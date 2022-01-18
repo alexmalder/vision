@@ -99,7 +99,8 @@ int search_similarity(struct query_t *query)
                         }
                         //debug_iteration(a.array, b.array, sim, ssize, slide, distance, x, y);
                         //vec_merge(a.array, b.array, ssize);
-                        debug_iteration(a.array, b.array, sim, ssize, slide, distance, x, y);
+                        debug_iteration(a.array, b.array, sim, ssize, slide,
+                                        distance, x, y);
                         insert_result(&a);
                         break;
                     }

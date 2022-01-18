@@ -25,14 +25,63 @@ Description
 
 -   simple `uint64_t` value is an unique identifier in tarantool database
 
-1. Step one
+1. client request
 
--   msgpack tuple with fields
+    - `symbol`
+    - `start_date`
+    - `end_date`
 
-    -   `start_date`: start date unix format
-    -   `end_date`: end day unix format, completed interval
-    -   `searchio`: symbol of cryptocurrency type
-    -   `user_id`: user unique identifier in database
+2. gateway request
+
+    - `symbol`
+    - `start_date`
+    - `end_date`
+    - `user_id`: extracted from json web token
+
+3. zmq wait msgpack tuple with fields
+
+    - `start_date`: start date unix format
+    - `end_date`: end day unix format, completed interval
+    - `searchio`: symbol of cryptocurrency type
+    - `user_id`: user unique identifier in database
+
+> hardcoded values
+
+> `thresh`: minimal of similarity
+> `resolution`: step for increment size of read head
+
+4. write data to tarantool
+
+-   data in RAM
+
+    -   ssize: uint64_t
+    -   slide: uint64_t
+    -   distance: double
+    -   x: uint64_t
+    -   y: uint64_t
+    -   similarity: double
+    -   source: double[]
+    -   target: double[]
+
+-   data for FILTER
+    -   result
+        -   ssize: uint64_t
+        -   slide: uint64_t
+        -   distance: double
+        -   x: uint64_t
+        -   y: uint64_t
+        -   similarity: double
+        -   sim_id: uint64_t
+    -   similarity
+        -   id: uint64_t
+        -   sim_id: uint64_t
+        -   value: double
+
+5. Callback for a gateway
+
+-   show data by `request_id` as `uint64_t` value from callback
+
+## Note
 
 -   symbols map
     -   `BCH/USD`: 1
@@ -40,10 +89,6 @@ Description
     -   `ETH/USD`: 3
     -   `LTC/USD`: 4
     -   `XRP/USD`: 5
-
-2. Callback for a gateway
-
--   show data by `request_id` as `uint64_t` value from callback
 
 ## Environment
 
