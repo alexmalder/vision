@@ -67,7 +67,7 @@ Description
         -   similarity: double
         -   value: double
 
-5. Callback for a gateway
+5. zmq sending callback for a gateway
 
 -   `user_id`
 -   `request_id`
