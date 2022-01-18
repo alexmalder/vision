@@ -12,13 +12,6 @@ Get tranparency of trading platform with computer vision technologies now!
 -   tarantool
 -   zmq
 
-## Research
-
--   zmq/msgpuck for microservices
-    -   socket bind
-    -   simple deserialization
-    -   service result structure
-
 ## Service result
 
 Description
@@ -44,12 +37,6 @@ Description
     - `end_date`: end day unix format, completed interval
     - `searchio`: symbol of cryptocurrency type
     - `user_id`: user unique identifier in database
-
-> !hardcoded values
-
-> `thresh`: minimal of similarity
-
-> `resolution`: step for increment size of read head
 
 4. write data to tarantool
 
@@ -85,6 +72,12 @@ Description
 -   `user_id`
 -   `request_id`
 
+> Hardcoded values in runtime
+
+> `thresh`: minimal of similarity
+
+> `resolution`: step for increment size of read head
+
 ## Note
 
 -   symbols map
@@ -115,6 +108,10 @@ make install #optional
 
 > interactive
 
+```bash
+tarantool
+```
+
 ```lua
 --
 console = require('console')
@@ -127,9 +124,9 @@ console.connect('tnt_user:tnt_password@127.0.0.1:3301')
 -   [x] user sign up and user sign in
 -   [x] show similarity by latest items with range
 -   [x] client-side configuration of search parameters
--   [ ] similar vector stabilization
+-   [x] similar vector stabilization
+-   [ ] service result callback
 -   [ ] double-line chart
 -   [ ] virtual contribution
--   [ ] debug visioner algorithm ...
--   [ ] find beta testers
--   [ ] auto purchase and auto sale
+-   [ ] debug visioner algorithm
+-   [ ] auto purchases and auto sales
