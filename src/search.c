@@ -100,7 +100,7 @@ int search_similarity(struct query_t *query)
                         //debug_iteration(a.array, b.array, sim, ssize, slide, distance, x, y);
                         //vec_merge(a.array, b.array, ssize);
                         debug_iteration(a.array, b.array, sim, ssize, slide, distance, x, y);
-                        //for (uint64_t z = 0; z < a.size; z++) { insert_result(cd[x].unix_val, cd[x].symbol, z, z, &a); }
+                        insert_result(&a);
                         break;
                     }
                     free_array(&a);
