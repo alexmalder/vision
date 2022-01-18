@@ -45,9 +45,10 @@ Description
     - `searchio`: symbol of cryptocurrency type
     - `user_id`: user unique identifier in database
 
-> hardcoded values
+> !hardcoded values
 
 > `thresh`: minimal of similarity
+
 > `resolution`: step for increment size of read head
 
 4. write data to tarantool
@@ -63,23 +64,26 @@ Description
     -   source: double[]
     -   target: double[]
 
--   data for FILTER
+-   data in TNT
+
     -   result
+
+        -   user_id: uint64_t
+        -   request_id: uint64_t
+        -   unix: uint64_t
+        -   symbol: uint64_t
         -   ssize: uint64_t
         -   slide: uint64_t
         -   distance: double
         -   x: uint64_t
         -   y: uint64_t
         -   similarity: double
-        -   sim_id: uint64_t
-    -   similarity
-        -   id: uint64_t
-        -   sim_id: uint64_t
         -   value: double
 
 5. Callback for a gateway
 
--   show data by `request_id` as `uint64_t` value from callback
+-   `user_id`
+-   `request_id`
 
 ## Note
 
