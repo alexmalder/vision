@@ -7,7 +7,8 @@ RUN apk add \
     make \
     cmake \
     zeromq-dev \
-    bash
+    bash \
+    librdkafka-dev
     #openssl-dev 
 COPY ./cmake_install /cmake_install
 RUN /cmake_install rtsisyk/msgpuck master
@@ -24,7 +25,7 @@ RUN make install
 
 FROM alpine:3.14
 RUN apk update
-RUN apk add zeromq 
+RUN apk add zeromq librdkafka
 #openssl
 COPY --from=builder /usr/local/lib /usr/local/lib
 #COPY --from=builder /usr/lib /usr/lib
