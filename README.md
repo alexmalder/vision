@@ -8,15 +8,13 @@ Get tranparency of trading platform with computer vision technologies now!
 
 ## Stack
 
--   msgpuck
--   tarantool
--   zmq
+-   msgpuck[serialization]
+-   tarantool[database]
+-   zmq[communication]
 
 ## Service result
 
-Description
-
--   simple `uint64_t` value is an unique identifier in tarantool database
+### Workflow
 
 1. client request
 
@@ -31,7 +29,7 @@ Description
     - `end_date`
     - `user_id`: extracted from json web token
 
-3. zmq wait msgpack tuple with fields
+3. zmq wait msgpack tuple forever
 
     - example of tuple: `[1630454400, 1638316800, 2, 1]`
 
@@ -43,34 +41,32 @@ Description
 
 4. write data to tarantool
 
--   data in RAM
+-   RAM
 
-    -   ssize: uint64_t
-    -   slide: uint64_t
-    -   distance: double
-    -   x: uint64_t
-    -   y: uint64_t
-    -   similarity: double
-    -   source: double[]
-    -   target: double[]
+    -   `ssize`: uint64_t
+    -   `slide`: uint64_t
+    -   `distance`: double
+    -   `x`: uint64_t
+    -   `y`: uint64_t
+    -   `similarity`: double
+    -   `source`: double[]
+    -   `target`: double[]
 
--   data in TNT
+-   TNT
 
-    -   result
+    -   `user_id`: uint64_t
+    -   `request_id`: uint64_t
+    -   `unix`: uint64_t
+    -   `symbol`: uint64_t
+    -   `ssize`: uint64_t
+    -   `slide`: uint64_t
+    -   `distance`: double
+    -   `x`: uint64_t
+    -   `y`: uint64_t
+    -   `similarity`: double
+    -   `value`: double
 
-        -   user_id: uint64_t
-        -   request_id: uint64_t
-        -   unix: uint64_t
-        -   symbol: uint64_t
-        -   ssize: uint64_t
-        -   slide: uint64_t
-        -   distance: double
-        -   x: uint64_t
-        -   y: uint64_t
-        -   similarity: double
-        -   value: double
-
-5. zmq sending callback for a gateway
+5. zmq sending callback for a gateway...
 
 -   example of tuple: `[1, 1]`
 
@@ -131,7 +127,7 @@ console.connect('tnt_user:tnt_password@127.0.0.1:3301')
 -   [x] show similarity by latest items with range
 -   [x] client-side configuration of search parameters
 -   [x] similar vector stabilization
--   [ ] service result callback
+-   [ ] service result callback !!!
 -   [ ] double-line chart
 -   [ ] virtual contribution
 -   [ ] debug visioner algorithm

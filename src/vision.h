@@ -39,11 +39,16 @@ struct query_t {
 };
 
 struct result_t {
-    uint64_t unix_val;
-    uint64_t symbol;
     uint64_t user_id;
     uint64_t request_id;
-    double target;
+    uint64_t unix_val;
+    uint64_t symbol;
+    uint64_t ssize;
+    uint64_t slide;
+    double distance;
+    uint64_t x;
+    uint64_t y;
+    double similarity;
 };
 
 // insert data into tarantool
@@ -62,6 +67,7 @@ void insert_array(struct array_t *source, int element);
 void free_array(struct array_t *source);
 // logger
 int produce(char *buf);
-void debug_iteration(double *a, double *b, double sim, uint64_t ssize, uint64_t slide, double distance, uint64_t x, uint64_t y);
+void debug_iteration(double *a, double *b, double sim, uint64_t ssize,
+                     uint64_t slide, double distance, uint64_t x, uint64_t y);
 
 #endif

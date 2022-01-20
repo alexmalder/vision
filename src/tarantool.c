@@ -91,6 +91,7 @@ int select_crypto(struct query_t *query, struct crypto_t *cd)
 
         double open = mp_decode_double(&reply.data);
         cd[i].open = open;
+        printf("%lf\n", open);
 
         double high = mp_decode_double(&reply.data);
         cd[i].high = high;
