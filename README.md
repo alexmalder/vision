@@ -80,6 +80,14 @@ Get tranparency of trading platform with computer vision technologies now!
 
 > `resolution`: step for increment size of read head
 
+## Implementation specific cases
+
+- array_t
+    - array: array with `double` type like `open` or `close` or etc...
+    - unix: array with `uint64_t` type, unix timestamp: not implemented
+    - used: actual memory usage
+    - size: allocated memory
+
 ## Note
 
 -   symbols map
