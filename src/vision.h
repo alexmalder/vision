@@ -63,7 +63,7 @@ void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date,
 int search_similarity(struct query_t *query);
 // array
 void init_array(struct array_t *source, size_t initial_size);
-void insert_array(struct array_t *source, int element);
+void insert_array(struct array_t *source, double element);
 void free_array(struct array_t *source);
 // logger
 int produce(char *buf);

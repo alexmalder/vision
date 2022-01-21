@@ -7,7 +7,7 @@ void init_array(struct array_t *a, size_t initial_size)
         a->size = initial_size;
 }
 
-void insert_array(struct array_t *a, int element)
+void insert_array(struct array_t *a, double element)
 {
         // a->used is the number of used entries, because a->array[a->used++] updates a->used only *after* the array has been accessed.
         // Therefore a->used can go up to a->size

@@ -1,13 +1,8 @@
 #include "vision.h"
 #include <stdint.h>
 #include <stdlib.h>
-//
-// result static init
-//
-// result dynamic init
-//
-void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date,
-                uint64_t end_date, uint64_t user_id)
+
+void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date, uint64_t end_date, uint64_t user_id)
 {
     query->searchio = searchio;
     query->start_date = start_date;
@@ -64,8 +59,7 @@ int search_similarity(struct query_t *query)
     printf("select_crypto tuple_count: %d\n", tuple_count);
     // initialize result
     //struct result_t *result = malloc(sizeof(struct result_t));
-    //result->symbol = query->searchio;
-    //result->user_id = query->user_id;
+
     // initialize parameters
     uint64_t day_unix = 86400; // one day in unix format: constant
     uint64_t interval = query->end_date - query->start_date; // get interval
