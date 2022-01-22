@@ -28,7 +28,7 @@ void debug_iteration(double *a, double *b, double sim, uint64_t ssize,
         buffer,
         "{\"ssize\": %lld, \"slide\": %lld, \"distance\": %lf, \"x\": %lld, \"y\": %lld, \"similarity\": %lf, \"source\": %s, \"target\": %s}\n",
         ssize, slide, distance, x, y, sim, source_buffer, target_buffer);
-    int status = produce(buffer);
+    //int status = produce(buffer);
     printf("%s\n", buffer);
-    printf("[status: %d]\n", status);
+    //printf("[status: %d]\n", status);
 }
