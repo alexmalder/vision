@@ -112,7 +112,7 @@ int search_similarity(struct query_t *query)
         }
     }
     uint64_t resolution = 10;
-    double thresh = 0.995;
+    double thresh = 0.50;
     uint64_t x = 0;
     uint64_t slide = ssize;
     double source_distance = vec_distance(b.rows, ssize);
