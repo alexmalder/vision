@@ -2,44 +2,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date, uint64_t end_date, uint64_t user_id)
+int vec_fill(struct crypto_t *cd, struct query_t *query, int tuple_count,
+             struct array_t *b)
 {
-    query->searchio = searchio;
-    query->start_date = start_date;
-    query->end_date = end_date;
-    query->user_id = user_id;
-}
-
-void debug_iteration(uint64_t ssize, uint64_t slide, double distance, uint64_t x, uint64_t y, double sim, struct row_t *a, struct row_t *b)
-{
-    char buffer[4096 * 3];
-    char source_buffer[4096];
-    sprintf(source_buffer, "[ ");
-    for (uint64_t i = 0; i < ssize; i++) {
-        if (i == ssize - 1) {
-            sprintf(source_buffer + strlen(source_buffer), "%lf", a[i].value);
-        } else {
-            sprintf(source_buffer + strlen(source_buffer), "%lf,", a[i].value);
+    for (uint64_t i = 0; i < tuple_count; i++) {
+        if (cd[i].unix_val >= query->start_date &&
+            cd[i].unix_val < query->end_date) {
+            struct row_t *row_i = malloc(sizeof(struct row_t));
+            row_i->unix_val = cd[i].unix_val;
+            row_i->value = cd[i].close;
+            insert_array(b, row_i);
         }
     }
-    sprintf(source_buffer + strlen(source_buffer), "]");
-    char target_buffer[4096];
-    sprintf(target_buffer, "[");
-    for (uint64_t i = 0; i < ssize; i++) {
-        if (i == ssize - 1) {
-            sprintf(target_buffer + strlen(target_buffer), "%lf", a[i].value);
-        } else {
-            sprintf(target_buffer + strlen(target_buffer), "%lf,", a[i].value);
-        }
-    }
-    sprintf(target_buffer + strlen(target_buffer), "]");
-    sprintf(
-        buffer,
-        "{\"ssize\": %lld, \"slide\": %lld, \"distance\": %lf, \"x\": %lld, \"y\": %lld, \"similarity\": %lf, \"source\": %s, \"target\": %s}\n",
-        ssize, slide, distance, x, y, sim, source_buffer, target_buffer);
-    int status = produce(buffer);
-    printf("%s\n", buffer);
-    printf("[status: %d]\n", status);
+    return 0;
 }
 
 double vec_similarity(struct row_t *a, struct row_t *b, uint64_t end)
@@ -83,19 +58,6 @@ int vec_merge(struct row_t *source, struct row_t *target, uint64_t length)
     return 0;
 }
 
-int vec_fill(struct crypto_t *cd, struct query_t *query, int tuple_count, struct array_t *b) {
-    for (uint64_t i = 0; i < tuple_count; i++) {
-        if (cd[i].unix_val >= query->start_date &&
-            cd[i].unix_val < query->end_date) {
-            struct row_t *row_i = malloc(sizeof(struct row_t));
-            row_i->unix_val=cd[i].unix_val;
-            row_i->value = cd[i].close;
-            insert_array(b, row_i);
-        }
-    }
-    return 0;
-}
-
 int search_similarity(struct query_t *query)
 {
     // generate request_id
@@ -112,7 +74,7 @@ int search_similarity(struct query_t *query)
     // initialize parameters
     uint64_t day_unix = 86400; // one day in unix format: constant
     uint64_t interval = query->end_date - query->start_date; // get interval
-    uint64_t ssize = interval / day_unix; // size of array
+    uint64_t sz = interval / day_unix; // size of array
 
     // initialize arrays
     struct array_t b;
@@ -123,8 +85,8 @@ int search_similarity(struct query_t *query)
     uint64_t resolution = 10;
     double thresh = 0.995;
     uint64_t x = 0;
-    uint64_t slide = ssize;
-    double source_distance = vec_distance(b.rows, ssize);
+    uint64_t sl = sz;
+    double source_distance = vec_distance(b.rows, sz);
     double sim;
     while (x < tuple_count) {
         struct array_t a;
@@ -133,23 +95,23 @@ int search_similarity(struct query_t *query)
             uint64_t y = x;
             while (y < tuple_count) {
                 struct row_t *row_y = malloc(sizeof(struct row_t));
-                row_y->unix_val=cd[y].unix_val;
+                row_y->unix_val = cd[y].unix_val;
                 row_y->value = cd[y].close;
                 insert_array(&a, row_y);
-                if (y % slide == 0) {
-                    sim = vec_similarity(a.rows, b.rows, ssize);
+                if (y % sl == 0) {
+                    sim = vec_similarity(a.rows, b.rows, sz);
                     if (sim > thresh) {
-                        double distance;
-                        double target_distance = vec_distance(a.rows, ssize);
+                        double dis;
+                        double target_distance = vec_distance(a.rows, sz);
                         if (source_distance > target_distance) {
-                            distance = source_distance / target_distance;
-                            vec_stabilization(a.rows, ssize, distance);
+                            dis = source_distance / target_distance;
+                            vec_stabilization(a.rows, sz, dis);
                         } else {
-                            distance = target_distance / source_distance;
-                            vec_stabilization(b.rows, ssize, distance);
+                            dis = target_distance / source_distance;
+                            vec_stabilization(b.rows, sz, dis);
                         }
-                        //vec_merge(a.array, b.array, ssize);
-                        debug_iteration(ssize, slide, distance, x, y, sim, a.rows, b.rows);
+                        //vec_merge(a.array, b.array, sz);
+                        debug_iteration(sz, sl, dis, x, y, sim, a.rows, b.rows);
                         //insert_result(query, &a, request_id);
                     }
                     free_array(&a);
@@ -157,7 +119,7 @@ int search_similarity(struct query_t *query)
                 }
                 y++;
             }
-            slide += resolution;
+            sl += resolution;
             x += resolution;
         }
         //if (sim > thresh) {}
@@ -167,4 +129,47 @@ int search_similarity(struct query_t *query)
     free_array(&b);
     free(cd);
     return 0;
+}
+
+void debug_iteration(uint64_t ssize, uint64_t slide, double distance,
+                     uint64_t x, uint64_t y, double sim, struct row_t *a,
+                     struct row_t *b)
+{
+    char buffer[4096 * 3];
+    char source_buffer[4096];
+    sprintf(source_buffer, "[ ");
+    for (uint64_t i = 0; i < ssize; i++) {
+        if (i == ssize - 1) {
+            sprintf(source_buffer + strlen(source_buffer), "%lf", a[i].value);
+        } else {
+            sprintf(source_buffer + strlen(source_buffer), "%lf,", a[i].value);
+        }
+    }
+    sprintf(source_buffer + strlen(source_buffer), "]");
+    char target_buffer[4096];
+    sprintf(target_buffer, "[");
+    for (uint64_t i = 0; i < ssize; i++) {
+        if (i == ssize - 1) {
+            sprintf(target_buffer + strlen(target_buffer), "%lf", a[i].value);
+        } else {
+            sprintf(target_buffer + strlen(target_buffer), "%lf,", a[i].value);
+        }
+    }
+    sprintf(target_buffer + strlen(target_buffer), "]");
+    sprintf(
+        buffer,
+        "{\"ssize\": %lld, \"slide\": %lld, \"distance\": %lf, \"x\": %lld, \"y\": %lld, \"similarity\": %lf, \"source\": %s, \"target\": %s}\n",
+        ssize, slide, distance, x, y, sim, source_buffer, target_buffer);
+    int status = produce(buffer);
+    printf("%s\n", buffer);
+    printf("[status: %d]\n", status);
+}
+
+void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date,
+                uint64_t end_date, uint64_t user_id)
+{
+    query->searchio = searchio;
+    query->start_date = start_date;
+    query->end_date = end_date;
+    query->user_id = user_id;
 }
