@@ -10,7 +10,7 @@ void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date, u
     query->user_id = user_id;
 }
 
-void debug_iteration(struct row_t *a, struct row_t *b, double sim, uint64_t ssize, uint64_t slide, double distance, uint64_t x, uint64_t y)
+void debug_iteration(uint64_t ssize, uint64_t slide, double distance, uint64_t x, uint64_t y, double sim, struct row_t *a, struct row_t *b)
 {
     char buffer[4096 * 3];
     char source_buffer[4096];
@@ -85,6 +85,8 @@ int vec_merge(struct row_t *source, struct row_t *target, uint64_t length)
 
 int search_similarity(struct query_t *query)
 {
+    // generate request_id
+    uint64_t request_id = (unsigned long)time(NULL);
     // extract all
     struct crypto_t *cd = malloc(sizeof(struct crypto_t) * 4096);
     int tuple_count = select_crypto(query, cd);
@@ -138,8 +140,8 @@ int search_similarity(struct query_t *query)
                             vec_stabilization(b.rows, ssize, distance);
                         }
                         //vec_merge(a.array, b.array, ssize);
-                        debug_iteration(a.rows, b.rows, sim, ssize, slide, distance, x, y);
-                        //insert_result(&a);
+                        debug_iteration(ssize, slide, distance, x, y, sim, a.rows, b.rows);
+                        insert_result(query, &a, request_id);
                     }
                     free_array(&a);
                     init_array(&a, tuple_count);

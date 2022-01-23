@@ -57,7 +57,7 @@ struct result_t {
 };
 
 // insert data into tarantool
-int insert_result(struct query_t *query, struct array_t *array);
+int insert_result(struct query_t *query, struct array_t *array, uint64_t request_id);
 // select data from tarantool
 int select_crypto(struct query_t *query, struct crypto_t *cd);
 // 0mq
@@ -71,6 +71,5 @@ void insert_array(struct array_t *source, struct row_t *rows);
 void free_array(struct array_t *source);
 // logger
 int produce(char *buf);
-void debug_iteration(struct row_t *a, struct row_t *b, double sim, uint64_t ssize, uint64_t slide, double distance, uint64_t x, uint64_t y);
 
 #endif

@@ -1,4 +1,5 @@
 #include "vision.h"
+#include <stdint.h>
 #include <stdlib.h>
 
 #define MP_SOURCE 1
@@ -6,7 +7,7 @@
 static int CRYPTO_SPACE = 513;
 static int RESULT_SPACE = 514;
 
-int insert_result(struct query_t *query, struct array_t *array)
+int insert_result(struct query_t *query, struct array_t *array, uint64_t request_id)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
