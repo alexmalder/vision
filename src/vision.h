@@ -60,6 +60,7 @@ struct result_t {
 int insert_result(struct query_t *query, struct array_t *array, uint64_t request_id);
 // select data from tarantool
 int select_crypto(struct query_t *query, struct crypto_t *cd);
+int delete_result(struct query_t *query);
 // 0mq
 int zmq_listen();
 // search engine
@@ -69,6 +70,8 @@ int search_similarity(struct query_t *query);
 void init_array(struct array_t *source, size_t initial_size);
 void insert_array(struct array_t *source, struct row_t *rows);
 void free_array(struct array_t *source);
+void debug_query(struct query_t *query);
+void debug_iteration(uint64_t ssize, uint64_t slide, double distance, uint64_t x, uint64_t y, double sim, struct row_t *a, struct row_t *b);
 // logger
 int produce(char *buf);
 

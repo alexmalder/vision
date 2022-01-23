@@ -40,11 +40,7 @@ int zmq_listen()
         query->user_id = mp_decode_uint(&r);
         //printf("iter: %d, val: %lld\n", i, val);
         //}
-        printf("received message with tuple_count <%d>\n", tuple_count);
-        printf("symbol: %lld ", query->searchio);
-        printf("start_date: %lld ", query->start_date);
-        printf("end_date: %lld ", query->end_date);
-        printf("user_id: %lld\n", query->user_id);
+
         search_similarity(query);
         char buf[128];
         char *w = buf;

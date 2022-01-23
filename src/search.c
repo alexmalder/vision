@@ -83,14 +83,29 @@ int vec_merge(struct row_t *source, struct row_t *target, uint64_t length)
     return 0;
 }
 
+int vec_fill(struct crypto_t *cd, struct query_t *query, int tuple_count, struct array_t *b) {
+    for (uint64_t i = 0; i < tuple_count; i++) {
+        if (cd[i].unix_val >= query->start_date &&
+            cd[i].unix_val < query->end_date) {
+            struct row_t *row_i = malloc(sizeof(struct row_t));
+            row_i->unix_val=cd[i].unix_val;
+            row_i->value = cd[i].close;
+            insert_array(b, row_i);
+        }
+    }
+    return 0;
+}
+
 int search_similarity(struct query_t *query)
 {
     // generate request_id
     uint64_t request_id = (unsigned long)time(NULL);
+
     // extract all
     struct crypto_t *cd = malloc(sizeof(struct crypto_t) * 4096);
     int tuple_count = select_crypto(query, cd);
     printf("select_crypto tuple_count: %d\n", tuple_count);
+
     // initialize result
     //struct result_t *result = malloc(sizeof(struct result_t));
 
@@ -98,21 +113,15 @@ int search_similarity(struct query_t *query)
     uint64_t day_unix = 86400; // one day in unix format: constant
     uint64_t interval = query->end_date - query->start_date; // get interval
     uint64_t ssize = interval / day_unix; // size of array
+
     // initialize arrays
     struct array_t b;
     init_array(&b, tuple_count);
+    vec_fill(cd, query, tuple_count, &b);
+
     // extract by range, extract by currency type
-    for (uint64_t i = 0; i < tuple_count; i++) {
-        if (cd[i].unix_val >= query->start_date &&
-            cd[i].unix_val < query->end_date) {
-            struct row_t *row_i = malloc(sizeof(struct row_t));
-            row_i->unix_val=cd[i].unix_val;
-            row_i->value = cd[i].close;
-            insert_array(&b, row_i);
-        }
-    }
     uint64_t resolution = 10;
-    double thresh = 0.998;
+    double thresh = 0.995;
     uint64_t x = 0;
     uint64_t slide = ssize;
     double source_distance = vec_distance(b.rows, ssize);
@@ -141,7 +150,7 @@ int search_similarity(struct query_t *query)
                         }
                         //vec_merge(a.array, b.array, ssize);
                         debug_iteration(ssize, slide, distance, x, y, sim, a.rows, b.rows);
-                        insert_result(query, &a, request_id);
+                        //insert_result(query, &a, request_id);
                     }
                     free_array(&a);
                     init_array(&a, tuple_count);

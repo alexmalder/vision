@@ -138,6 +138,7 @@ console.connect('tnt_user:tnt_password@127.0.0.1:3301')
 
 ## Functions
 
+- `vec_fill`
 - `vec_similarity`
 - `vec_distance`
 - `vec_stabilization`

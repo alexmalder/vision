@@ -7,7 +7,8 @@
 static int CRYPTO_SPACE = 513;
 static int RESULT_SPACE = 514;
 
-int insert_result(struct query_t *query, struct array_t *array, uint64_t request_id)
+int insert_result(struct query_t *query, struct array_t *array,
+                  uint64_t request_id)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
@@ -38,6 +39,36 @@ int insert_result(struct query_t *query, struct array_t *array, uint64_t request
     printf("Tuple inserted with code %llu.\n", reply.code);
     fflush(stdout);
     tnt_close(tnt);
+    tnt_stream_free(tnt);
+    return 0;
+}
+
+int delete_result(struct query_t *query)
+{
+    struct tnt_stream *tnt = tnt_net(NULL);
+    char conn_string[128];
+    sprintf(conn_string, "%s:%s@%s:%s", getenv("TNT_USER"),
+            getenv("TNT_PASSWORD"), getenv("TNT_HOST"), getenv("TNT_PORT"));
+    tnt_set(tnt, TNT_OPT_URI, conn_string);
+    if (tnt_connect(tnt) < 0) {
+        printf("Connection refused \n");
+        return -1;
+    }
+    const char *format = "[%d]";
+    struct tnt_stream *tuple = tnt_object(NULL);
+    tnt_object_format(tuple, format, query->user_id);
+    tnt_insert(tnt, RESULT_SPACE, tuple);
+    tnt_flush(tnt);
+    struct tnt_reply reply;
+    tnt_reply_init(&reply);
+    tnt->read_reply(tnt, &reply);
+    if (reply.code != 0) {
+        printf("Delete failed %llu.\n", reply.code);
+    }
+    printf("Tuple deleted with code %llu.\n", reply.code);
+    fflush(stdout);
+    tnt_close(tnt);
+    tnt_stream_free(tuple);
     tnt_stream_free(tnt);
     return 0;
 }
