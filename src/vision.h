@@ -14,7 +14,7 @@
 #include <msgpuck.h>
 
 struct row_t {
-    uint64_t unix;
+    uint64_t unix_val;
     double value;
 };
 

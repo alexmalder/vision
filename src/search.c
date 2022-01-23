@@ -106,7 +106,7 @@ int search_similarity(struct query_t *query)
         if (cd[i].unix_val >= query->start_date &&
             cd[i].unix_val < query->end_date) {
             struct row_t *row_i = malloc(sizeof(struct row_t));
-            row_i->unix=cd[i].unix_val;
+            row_i->unix_val=cd[i].unix_val;
             row_i->value = cd[i].close;
             insert_array(&b, row_i);
         }
@@ -124,7 +124,7 @@ int search_similarity(struct query_t *query)
             uint64_t y = x;
             while (y < tuple_count) {
                 struct row_t *row_y = malloc(sizeof(struct row_t));
-                row_y->unix=cd[y].unix_val;
+                row_y->unix_val=cd[y].unix_val;
                 row_y->value = cd[y].close;
                 insert_array(&a, row_y);
                 if (y % slide == 0) {

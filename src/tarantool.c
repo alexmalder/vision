@@ -23,7 +23,7 @@ int insert_result(struct query_t *query, struct array_t *array, uint64_t request
     for (uint64_t i = 0; i < array->size; i++) {
         struct tnt_stream *tuple = tnt_object(NULL);
         tnt_object_format(tuple, format, query->user_id, request_id,
-                          array->rows[i].unix, query->searchio,
+                          array->rows[i].unix_val, query->searchio,
                           array->rows[i].value);
         tnt_insert(tnt, RESULT_SPACE, tuple);
     }
