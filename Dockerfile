@@ -14,7 +14,7 @@ COPY ./cmake_install /cmake_install
 RUN /cmake_install rtsisyk/msgpuck master
 RUN /cmake_install tarantool/tarantool-c master
 
-ENV LD_LIBRARY_PATH=/usr/local/lib
+ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
 WORKDIR /app
 COPY . .
 WORKDIR /app/build
