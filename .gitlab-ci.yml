@@ -3,13 +3,20 @@ variables:
   NAMESPACE: vision
 
 stages:
+  - build_docker
   - deploy_docker
   - deploy_helm
+
+build_docker:
+  stage: build_docker
+  script:
+    - docker build . -t $HARBOR_URI/library/vision:$TAG
+  tags:
+    - worker
 
 deploy_docker:
   stage: deploy_docker
   script:
-    - docker build . -t $HARBOR_URI/library/vision:$TAG
     - docker push $HARBOR_URI/library/vision:$TAG
   only:
     - main
@@ -21,14 +28,14 @@ deploy_helm:
   script:
     - helm repo add template https://$HARBOR_URI/chartrepo/library
     - helm upgrade vision template/template
-      --install 
+      --install
       --atomic
-      --namespace $NAMESPACE 
-      --create-namespace 
-      --set image.tag=$TAG 
-      --set env.TNT_USER=$TNT_USER 
-      --set env.TNT_PASSWORD=$TNT_PASSWORD 
-      --set env.TNT_HOST=$TNT_HOST 
+      --namespace $NAMESPACE
+      --create-namespace
+      --set image.tag=$TAG
+      --set env.TNT_USER=$TNT_USER
+      --set env.TNT_PASSWORD=$TNT_PASSWORD
+      --set env.TNT_HOST=$TNT_HOST
       --set env.TNT_PORT=$TNT_PORT
       -f .ci/values.yaml
   only:

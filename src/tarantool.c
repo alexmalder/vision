@@ -21,7 +21,7 @@ int insert_result(struct array_t *arr)
     const char *format = "[%d%d%d%d%lf]";
     for (uint64_t i = 0; i < arr->size; i++) {
         struct tnt_stream *tuple = tnt_object(NULL);
-        tnt_object_format(tuple, format, i, i, i, i, arr->array[i]);
+        tnt_object_format(tuple, format, i, i, i, i, arr->rows[i].value);
         tnt_insert(tnt, RESULT_SPACE, tuple);
     }
     tnt_flush(tnt);

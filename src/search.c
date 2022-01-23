@@ -10,43 +10,75 @@ void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date, u
     query->user_id = user_id;
 }
 
-double vec_similarity(double *a, double *b, uint64_t end)
+void debug_iteration(struct row_t *a, struct row_t *b, double sim, uint64_t ssize, uint64_t slide, double distance, uint64_t x, uint64_t y)
+{
+    char buffer[4096 * 3];
+    char source_buffer[4096];
+    sprintf(source_buffer, "[ ");
+    for (uint64_t i = 0; i < ssize; i++) {
+        if (i == ssize - 1) {
+            sprintf(source_buffer + strlen(source_buffer), "%lf", a[i].value);
+        } else {
+            sprintf(source_buffer + strlen(source_buffer), "%lf,", a[i].value);
+        }
+    }
+    sprintf(source_buffer + strlen(source_buffer), "]");
+    char target_buffer[4096];
+    sprintf(target_buffer, "[");
+    for (uint64_t i = 0; i < ssize; i++) {
+        if (i == ssize - 1) {
+            sprintf(target_buffer + strlen(target_buffer), "%lf", a[i].value);
+        } else {
+            sprintf(target_buffer + strlen(target_buffer), "%lf,", a[i].value);
+        }
+    }
+    sprintf(target_buffer + strlen(target_buffer), "]");
+    sprintf(
+        buffer,
+        "{\"ssize\": %lld, \"slide\": %lld, \"distance\": %lf, \"x\": %lld, \"y\": %lld, \"similarity\": %lf, \"source\": %s, \"target\": %s}\n",
+        ssize, slide, distance, x, y, sim, source_buffer, target_buffer);
+    //int status = produce(buffer);
+    printf("%s\n", buffer);
+    //printf("[status: %d]\n", status);
+}
+
+double vec_similarity(struct row_t *a, struct row_t *b, uint64_t end)
 {
     double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
     for (uint64_t i = 0; i < end; i++) {
-        dot += a[i] * b[i];
-        denom_a += a[i] * a[i];
-        denom_b += b[i] * b[i];
+        dot += a[i].value * b[i].value;
+        denom_a += a[i].value * a[i].value;
+        denom_b += b[i].value * b[i].value;
     }
     return dot / (sqrt(denom_a) * sqrt(denom_b));
 }
 
-double vec_distance(double *target, uint64_t length)
+double vec_distance(struct row_t *target, uint64_t length)
 {
     double distance;
     uint64_t i;
     for (i = 0; i < length; i++) {
-        distance += target[i];
+        distance += target[i].value;
     }
     return (distance / length);
 }
 
-int vec_stabilization(double *source, uint64_t length, double distance)
+int vec_stabilization(struct row_t *source, uint64_t length, double distance)
 {
     uint64_t i;
     for (i = 0; i < length; i++) {
-        source[i] *= distance;
+        source[i].value *= distance;
     }
     return 0;
 }
 
-int vec_merge(double *source, double *target, uint64_t length)
+int vec_merge(struct row_t *source, struct row_t *target, uint64_t length)
 {
     double sum;
     uint64_t i;
     for (i = 0; i < length; i++) {
-        sum = source[i] + target[i];
-        source[i] = sum / 2;
+        sum = source[i].value + target[i].value;
+        source[i].value = sum / 2;
     }
     return 0;
 }
@@ -71,14 +103,17 @@ int search_similarity(struct query_t *query)
     for (uint64_t i = 0; i < tuple_count; i++) {
         if (cd[i].unix_val >= query->start_date &&
             cd[i].unix_val < query->end_date) {
-            insert_array(&b, cd[i].close);
+            struct row_t *row_i = malloc(sizeof(struct row_t));
+            row_i->unix=cd[i].unix_val;
+            row_i->value = cd[i].close;
+            insert_array(&b, row_i);
         }
     }
     uint64_t resolution = 10;
-    double thresh = 0.99;
+    double thresh = 0.995;
     uint64_t x = 0;
     uint64_t slide = ssize;
-    double source_distance = vec_distance(b.array, ssize);
+    double source_distance = vec_distance(b.rows, ssize);
     double sim;
     while (x < tuple_count) {
         struct array_t a;
@@ -86,32 +121,25 @@ int search_similarity(struct query_t *query)
         if (x % resolution == 0) {
             uint64_t y = x;
             while (y < tuple_count) {
-                insert_array(&a, cd[y].close);
+                struct row_t *row_y = malloc(sizeof(struct row_t));
+                row_y->unix=cd[y].unix_val;
+                row_y->value = cd[y].close;
+                insert_array(&a, row_y);
                 if (y % slide == 0) {
-                    sim = vec_similarity(a.array, b.array, ssize);
+                    sim = vec_similarity(a.rows, b.rows, ssize);
                     if (sim > thresh) {
                         double distance;
-                        double target_distance = vec_distance(a.array, ssize);
+                        double target_distance = vec_distance(a.rows, ssize);
                         if (source_distance > target_distance) {
                             distance = source_distance / target_distance;
-                            vec_stabilization(a.array, ssize, distance);
+                            vec_stabilization(a.rows, ssize, distance);
                         } else {
                             distance = target_distance / source_distance;
-                            vec_stabilization(b.array, ssize, distance);
-                            // return value from stabilization or nothing
+                            vec_stabilization(b.rows, ssize, distance);
                         }
-                        //result->distance = distance;
-                        //result->x = x;
-                        //result->y = y;
-                        //result->similarity = sim;
-                        //result->slide = slide;
-                        //result->ssize = ssize;
-                        //result->unix_val = unix_val; // will be extracted from iteration frame
-                        //result->request_id = request_id; // will be autogenerated
                         //vec_merge(a.array, b.array, ssize);
-                        debug_iteration(a.array, b.array, sim, ssize, slide, distance, x, y);
+                        debug_iteration(a.rows, b.rows, sim, ssize, slide, distance, x, y);
                         //insert_result(&a);
-                        //break;
                     }
                     free_array(&a);
                     init_array(&a, tuple_count);
@@ -121,9 +149,7 @@ int search_similarity(struct query_t *query)
             slide += resolution;
             x += resolution;
         }
-        if (sim > thresh) {
-            //break;
-        }
+        //if (sim > thresh) {}
         x++;
         free_array(&a);
     }
