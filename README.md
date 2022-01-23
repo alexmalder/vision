@@ -129,13 +129,21 @@ console.connect('tnt_user:tnt_password@127.0.0.1:3301')
 --
 ```
 
+## Functions
+
+- `vec_similarity`
+- `vec_distance`
+- `vec_stabilization`
+- `vec_merge`: not implemented
+- `vec_slide`: not implemented
+
 ## Workflow
 
 -   [x] user sign up and user sign in
 -   [x] show similarity by latest items with range
 -   [x] client-side configuration of search parameters
 -   [x] similar vector stabilization
--   [ ] service result callback !!!
+-   [ ] service result callback
 -   [ ] double-line chart
 -   [ ] virtual contribution
 -   [ ] debug visioner algorithm

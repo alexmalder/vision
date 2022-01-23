@@ -37,9 +37,9 @@ void debug_iteration(uint64_t ssize, uint64_t slide, double distance, uint64_t x
         buffer,
         "{\"ssize\": %lld, \"slide\": %lld, \"distance\": %lf, \"x\": %lld, \"y\": %lld, \"similarity\": %lf, \"source\": %s, \"target\": %s}\n",
         ssize, slide, distance, x, y, sim, source_buffer, target_buffer);
-    //int status = produce(buffer);
+    int status = produce(buffer);
     printf("%s\n", buffer);
-    //printf("[status: %d]\n", status);
+    printf("[status: %d]\n", status);
 }
 
 double vec_similarity(struct row_t *a, struct row_t *b, uint64_t end)
