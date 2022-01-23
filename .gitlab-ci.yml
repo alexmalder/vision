@@ -11,8 +11,8 @@ deploy_docker:
   script:
     - docker build . -t $HARBOR_URI/library/vision:$TAG
     - docker push $HARBOR_URI/library/vision:$TAG
-  only:
-    - main
+  #only:
+  #  - main
   tags:
     - worker
 
