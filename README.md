@@ -129,6 +129,13 @@ console.connect('tnt_user:tnt_password@127.0.0.1:3301')
 --
 ```
 
+## TODO
+
+- [ ] request_id in high level
+- [ ] result_t initialization
+- [ ] result_t in search engine
+- [ ] result_t callback
+
 ## Functions
 
 - `vec_similarity`
