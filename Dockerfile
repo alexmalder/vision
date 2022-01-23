@@ -25,7 +25,7 @@ RUN make install
 
 FROM alpine:3.14
 RUN apk update
-RUN apk add zeromq librdkafka
+RUN apk add zeromq librdkafka-dev
 #openssl
 COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /usr/lib /usr/lib
