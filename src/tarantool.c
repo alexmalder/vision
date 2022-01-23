@@ -6,7 +6,7 @@
 static int CRYPTO_SPACE = 513;
 static int RESULT_SPACE = 514;
 
-int insert_result(struct array_t *arr)
+int insert_result(struct query_t *query, struct array_t *array)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
@@ -19,9 +19,11 @@ int insert_result(struct array_t *arr)
         return -1;
     }
     const char *format = "[%d%d%d%d%lf]";
-    for (uint64_t i = 0; i < arr->size; i++) {
+    for (uint64_t i = 0; i < array->size; i++) {
         struct tnt_stream *tuple = tnt_object(NULL);
-        tnt_object_format(tuple, format, i, i, i, i, arr->rows[i].value);
+        tnt_object_format(tuple, format, query->user_id, request_id,
+                          array->rows[i].unix, query->searchio,
+                          array->rows[i].value);
         tnt_insert(tnt, RESULT_SPACE, tuple);
     }
     tnt_flush(tnt);

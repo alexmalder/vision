@@ -57,7 +57,7 @@ struct result_t {
 };
 
 // insert data into tarantool
-int insert_result(struct array_t *arr);
+int insert_result(struct query_t *query, struct array_t *array);
 // select data from tarantool
 int select_crypto(struct query_t *query, struct crypto_t *cd);
 // 0mq
