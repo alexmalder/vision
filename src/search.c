@@ -32,11 +32,10 @@ int vec_fill(struct crypto_t *cd, struct query_t *query, int tuple_count, struct
  * Model of operation
  * 1. Increment unix_val range by step size
  * 2. Find real data with incremented unix_val range
- * 3. Extract distance from vector
- * 4. Make vector stabilization
- * 5. Write vector to a database
- * 6. Fill start_date and end_date values in result
- * 7. Return result
+ * 3. Make vector stabilization with founded distance
+ * 4. Write vector to a database
+ * 5. Fill start_date and end_date values in result
+ * 6. Return result
  *  
  * @param cd crypto data array pointer
  * @param result output example data structure
@@ -122,7 +121,6 @@ int vec_merge(struct row_t *source, struct row_t *target, uint64_t end)
     }
     return 0;
 }
-
 
 int search_similarity(struct query_t *query, struct query_t *result)
 {
