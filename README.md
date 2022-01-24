@@ -1,3 +1,6 @@
+Main Page {#mainpage}
+=========
+
 # VISION
 
 ## Motivation
