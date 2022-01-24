@@ -1,5 +1,4 @@
-Main Page {#mainpage}
-=========
+# Main Page {#mainpage}
 
 # VISION
 
@@ -80,11 +79,11 @@ Get tranparency of trading platform with computer vision technologies now!
 
 ## Implementation specific cases
 
-- array_t
-    - array: array with `double` type like `open` or `close` or etc...
-    - unix: array with `uint64_t` type, unix timestamp: not implemented
-    - used: actual memory usage
-    - size: allocated memory
+-   array_t
+    -   array: array with `double` type like `open` or `close` or etc...
+    -   unix: array with `uint64_t` type, unix timestamp: not implemented
+    -   used: actual memory usage
+    -   size: allocated memory
 
 ## Note
 
@@ -102,9 +101,6 @@ Get tranparency of trading platform with computer vision technologies now!
 ## How to build
 
 ```bash
-#/bin/bash
-set -eo pipefail
-
 mkdir -p build
 cd build
 cmake ..
@@ -112,45 +108,30 @@ make
 make install #optional
 ```
 
-## How to connect to tarantool
+## Result
 
-> interactive
-
-```bash
-tarantool
-```
-
-```lua
---
-console = require('console')
-console.connect('tnt_user:tnt_password@127.0.0.1:3301')
---
-```
-
-## TODO
-
-- [ ] request_id in high level
-- [ ] result_t initialization
-- [ ] result_t in search engine
-- [ ] result_t callback
+-   request_id in high level
+-   result_t initialization
+-   result_t in search engine
+-   result_t callback
 
 ## Functions
 
-- `vec_fill`
-- `vec_similarity`
-- `vec_distance`
-- `vec_stabilization`
-- `vec_merge`: not implemented
-- `vec_slide`: not implemented
+-   `vec_fill`
+-   `vec_similarity`
+-   `vec_distance`
+-   `vec_stabilization`
+-   `vec_merge`: not implemented
+-   `vec_slide`: not implemented
 
 ## Workflow
 
--   [x] user sign up and user sign in
--   [x] show similarity by latest items with range
--   [x] client-side configuration of search parameters
--   [x] similar vector stabilization
--   [ ] service result callback
--   [ ] double-line chart
--   [ ] virtual contribution
--   [ ] debug visioner algorithm
--   [ ] auto purchases and auto sales
+-   user sign up and user sign in
+-   show similarity by latest items with range
+-   client-side configuration of search parameters
+-   similar vector stabilization
+-   service result callback
+-   double-line chart
+-   virtual contribution
+-   debug visioner algorithm
+-   auto purchases and auto sales
