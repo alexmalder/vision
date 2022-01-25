@@ -9,10 +9,9 @@ stages:
 deploy_docker:
   stage: deploy_docker
   script:
-    - docker build . -t $HARBOR_URI/library/vision:$TAG
-    - docker push $HARBOR_URI/library/vision:$TAG
-  #only:
-  #  - main
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build . -t $CI_REGISTRY/provisioner/$CI_PROJECT_NAME:$TAG
+    - docker push $CI_REGISTRY/provisioner/$CI_PROJECT_NAME:$TAG
   tags:
     - worker
 
