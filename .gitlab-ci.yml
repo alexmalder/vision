@@ -9,9 +9,22 @@ stages:
 deploy_docker:
   stage: deploy_docker
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    #- docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build . -t $CI_REGISTRY/provisioner/$CI_PROJECT_NAME:$TAG
     - docker push $CI_REGISTRY/provisioner/$CI_PROJECT_NAME:$TAG
+  except:
+    - main
+  tags:
+    - worker
+
+deploy_ansible:
+  stage: deploy_ansible
+  script:
+    - ansible-playbook ./.ci/playbook.yml
+      -e "image=$CI_REGISTRY/provisioner/$CI_PROJECT_NAME:$TAG"
+      -e "network=vision"
+  except:
+    - main
   tags:
     - worker
 

@@ -1,0 +1,17 @@
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: create a network
+      community.docker.docker_network:
+        name: "{{ network }}"
+
+    - name: deploy vision in docker
+      docker_container:
+        name: vision
+        image: "{{ image }}"
+        state: started
+        restart: yes
+        ports:
+          - "5555:5555"
+        networks:
+          - name: "{{ network }}"

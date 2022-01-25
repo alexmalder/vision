@@ -29,7 +29,7 @@ void debug_iteration(struct query_t *query, uint64_t founded_start_date, uint64_
         buffer,
         "{\"symbol\": %lld, \"query_start_date\": %lld, \"query_end_date\": %lld, \"query_user_id\": %lld, \"founded_start_date\": %lld, \"founded_end_date\": %lld, \"ssize\": %lld, \"slide\": %lld, \"distance\": %lf, \"x\": %lld, \"y\": %lld, \"similarity\": %lf, \"source\": %s, \"target\": %s}\n",
         query->searchio, query->start_date, query->end_date, query->user_id, founded_start_date, founded_end_date, ssize, slide, distance, x, y, sim, source_buffer, target_buffer);
-    int status = produce(buffer);
+    //int status = produce(buffer);
     printf("%s\n", buffer);
-    printf("[status: %d]\n", status);
+    //printf("[status: %d]\n", status);
 }
