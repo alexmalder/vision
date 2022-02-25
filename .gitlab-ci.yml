@@ -4,8 +4,8 @@ variables:
 
 stages:
   - deploy_docker
-  - deploy_ansible
   - deploy_helm
+  #- deploy_ansible
 
 deploy_docker:
   stage: deploy_docker
@@ -18,16 +18,16 @@ deploy_docker:
   tags:
     - worker
 
-deploy_ansible:
-  stage: deploy_ansible
-  script:
-    - ansible-playbook ./.ci/playbook.yml
-      -e "image=$CI_REGISTRY/provisioner/$CI_PROJECT_NAME:$TAG"
-      -e "network=vision"
-  except:
-    - main
-  tags:
-    - worker
+#deploy_ansible:
+#  stage: deploy_ansible
+#  script:
+#    - ansible-playbook ./.ci/playbook.yml
+#      -e "image=$CI_REGISTRY/provisioner/$CI_PROJECT_NAME:$TAG"
+#      -e "network=vision"
+#  except:
+#    - main
+#  tags:
+#    - worker
 
 deploy_helm:
   stage: deploy_helm
