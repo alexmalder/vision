@@ -13,7 +13,8 @@
  * @param target array for operation result
  * @return int operation state
  */
-int vec_fill(struct crypto_t *cd, struct query_t *query, int tuple_count, struct array_t *target)
+int vec_fill(struct crypto_t *cd, struct query_t *query, int tuple_count,
+             struct array_t *target)
 {
     for (uint64_t i = 0; i < tuple_count; i++) {
         if (cd[i].unix_val >= query->start_date &&
@@ -43,7 +44,9 @@ int vec_fill(struct crypto_t *cd, struct query_t *query, int tuple_count, struct
  * @param target array for operation result
  * @return int operation state
  */
-int vec_slide(struct crypto_t *cd, struct query_t *result, int tuple_count, struct array_t *target) {
+int vec_slide(struct crypto_t *cd, struct query_t *result, int tuple_count,
+              struct array_t *target)
+{
     return 0;
 }
 
@@ -170,9 +173,12 @@ int search_similarity(struct query_t *query, struct query_t *result)
                             vec_stabilization(source.rows, ssize, distance);
                         }
                         //vec_merge(target.rows, source.rows, ssize);
-                        debug_iteration(query, target.rows[0].unix_val, target.rows[ssize].unix_val, ssize, sl, distance, x, y, sim, source.rows, target.rows);
+                        debug_iteration(query, target.rows[0].unix_val,
+                                        target.rows[ssize].unix_val, ssize, sl,
+                                        distance, x, y, sim, source.rows,
+                                        target.rows);
 
-                        //insert_result(query, &target, request_id);
+                        insert_result(query, &target, request_id);
                         break;
                     }
                     free_array(&target);

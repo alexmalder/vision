@@ -40,7 +40,8 @@ int zmq_listen()
         //printf("iter: %d, val: %lld\n", i, val);
         //}
         struct query_t *result = malloc(sizeof(struct query_t));
-        uint64_t request_id = (unsigned long)time(NULL);
+        //uint64_t request_id = (unsigned long)time(NULL);
+        uint64_t request_id = 1;
         result->searchio = request_id;
         result->user_id = query->user_id;
         search_similarity(query, result);
