@@ -79,17 +79,18 @@ int vec_search(query_t *query, query_t *result)
     uint64_t ssize = calculate_size(query);
     // extract by range, extract by currency type
     uint64_t x = 0;
-    uint64_t sl = ssize;
+    uint64_t ssize_fork = ssize;
     double sim;
     while (x < tuple_count) {
         // src
         array_t source;
         init_array(&source, tuple_count);
         vec_fill(cd, query, tuple_count, &source);
-        double source_distance = vec_distance(source.rows, ssize);
+        double src_dist = vec_distance(source.rows, ssize);
         // dest
         array_t target;
         init_array(&target, tuple_count);
+        // iter
         if (x % resolution == 0) {
             uint64_t y = x;
             while (y < tuple_count) {
@@ -97,32 +98,30 @@ int vec_search(query_t *query, query_t *result)
                 row_y->unix_val = cd[y].unix_val;
                 row_y->value = cd[y].close;
                 insert_array(&target, row_y);
-                if (y % sl == 0) {
+                if (y % ssize_fork == 0) {
                     sim = vec_similarity(target.rows, source.rows, ssize);
                     if (sim > thresh) {
                         double distance;
-                        double target_distance = vec_distance(target.rows, ssize);
-                        if (source_distance > target_distance) {
-                            printf("SOURCE[%lf] > TARGET[%lf]\n", source_distance, target_distance);
+                        double dest_dis = vec_distance(target.rows, ssize);
+                        if (src_dist > dest_dis) {
+                            distance = src_dist / dest_dis;
+                            vec_stabilization(target.rows, ssize, distance);
                         } else {
-                            printf("TARGET[%lf] < SOURCE[%lf]\n", target_distance, source_distance);
+                            distance = dest_dis / src_dist;
+                            vec_stabilization(source.rows, ssize, distance);
                         }
-                        if (source_distance > target_distance) { distance = source_distance / target_distance; vec_stabilization(target.rows, ssize, distance); }
-                        else { distance = target_distance / source_distance; vec_stabilization(source.rows, ssize, distance); }
                         //vec_merge(target.rows, source.rows, ssize);
-                        debug_iteration(query, target.rows[0].unix_val, target.rows[ssize].unix_val, ssize, sl, distance, x, y, sim, source.rows, target.rows);
+                        debug_iteration(query, target.rows[0].unix_val, target.rows[ssize].unix_val, ssize, ssize_fork, distance, x, y, sim, source.rows, target.rows);
 
                         //insert_result(query, &target, request_id);
                         //break;
                     }
-                    free_array(&source);
-                    init_array(&source, tuple_count);
-                    free_array(&target);
-                    init_array(&target, tuple_count);
+                    free_array(&source), init_array(&source, tuple_count);
+                    free_array(&target), init_array(&target, tuple_count);
                 }
                 y++;
             }
-            sl += resolution;
+            ssize_fork += resolution;
             x += resolution;
         }
         //if (sim > thresh) { break; }
