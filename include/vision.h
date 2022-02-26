@@ -127,8 +127,14 @@ int vec_stabilization(row_t *source, uint64_t end, double distance);
 int vec_merge(row_t *source, row_t *target, uint64_t end);
 /**
  * @brief vec_search
- * this is high-level function
- * used by zeromq or run manually for tests
+ * 
+ * Description:
+ * - this is high-level function
+ * - used by zeromq or run manually for tests
+ *
+ * @param query by user request
+ * @param result by system response
+ * @return int operation state
  */
 int vec_search(query_t *query, query_t *result);
 

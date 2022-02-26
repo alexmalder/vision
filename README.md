@@ -81,7 +81,7 @@ Get tranparency of trading platform with computer vision technologies now!
 
 > `resolution`: step for increment size of read head
 
-## Implementation specific cases
+## Implementation specific data structures
 
 -   array_t
     -   array: array with `double` type like `open` or `close` or etc...
@@ -100,33 +100,14 @@ Get tranparency of trading platform with computer vision technologies now!
 
 ## Environment
 
--   tarantool
+-   gateway[high_level]
+-   tarantool[low_level]
 
-## How to build
+## Result preparation
 
-```bash
-mkdir -p build
-cd build
-cmake ..
-make
-make install #optional
-```
-
-## Result
-
--   request_id in high level
--   result_t initialization
--   result_t in search engine
--   result_t callback
-
-## Functions
-
--   `vec_fill`
--   `vec_similarity`
--   `vec_distance`
--   `vec_stabilization`
--   `vec_merge`: not implemented
--   `vec_slide`: not implemented
+-   find similarities
+-   vec slide
+-   write
 
 ## Workflow
 
