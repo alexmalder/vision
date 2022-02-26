@@ -13,13 +13,12 @@
  * @param target array for operation result
  * @return int operation state
  */
-int vec_fill(struct crypto_t *cd, struct query_t *query, int tuple_count,
-             struct array_t *target)
+int vec_fill(crypto_t *cd, query_t *query, int tuple_count, array_t *target)
 {
     for (uint64_t i = 0; i < tuple_count; i++) {
         if (cd[i].unix_val >= query->start_date &&
             cd[i].unix_val < query->end_date) {
-            struct row_t *row_i = malloc(sizeof(struct row_t));
+            row_t *row_i = malloc(sizeof(row_t));
             row_i->unix_val = cd[i].unix_val;
             row_i->value = cd[i].close;
             insert_array(target, row_i);
@@ -44,8 +43,7 @@ int vec_fill(struct crypto_t *cd, struct query_t *query, int tuple_count,
  * @param target array for operation result
  * @return int operation state
  */
-int vec_slide(struct crypto_t *cd, struct query_t *result, int tuple_count,
-              struct array_t *target)
+int vec_slide(crypto_t *cd, query_t *result, int tuple_count, array_t *target)
 {
     return 0;
 }
@@ -58,7 +56,7 @@ int vec_slide(struct crypto_t *cd, struct query_t *result, int tuple_count,
  * @param end length of array
  * @return double similarity
  */
-double vec_similarity(struct row_t *a, struct row_t *b, uint64_t end)
+double vec_similarity(row_t *a, row_t *b, uint64_t end)
 {
     double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
     for (uint64_t i = 0; i < end; i++) {
@@ -76,7 +74,7 @@ double vec_similarity(struct row_t *a, struct row_t *b, uint64_t end)
  * @param end length of array
  * @return double 
  */
-double vec_distance(struct row_t *target, uint64_t end)
+double vec_distance(row_t *target, uint64_t end)
 {
     double distance;
     uint64_t i;
@@ -94,7 +92,7 @@ double vec_distance(struct row_t *target, uint64_t end)
  * @param distance is factor
  * @return int operation state
  */
-int vec_stabilization(struct row_t *source, uint64_t end, double distance)
+int vec_stabilization(row_t *source, uint64_t end, double distance)
 {
     uint64_t i;
     for (i = 0; i < end; i++) {
@@ -114,7 +112,7 @@ int vec_stabilization(struct row_t *source, uint64_t end, double distance)
  * @param end length of array
  * @return int operation state
  */
-int vec_merge(struct row_t *source, struct row_t *target, uint64_t end)
+int vec_merge(row_t *source, row_t *target, uint64_t end)
 {
     double sum;
     uint64_t i;
@@ -125,10 +123,10 @@ int vec_merge(struct row_t *source, struct row_t *target, uint64_t end)
     return 0;
 }
 
-int search_similarity(struct query_t *query, struct query_t *result)
+int vec_search(query_t *query, query_t *result)
 {
     // extract all
-    struct crypto_t *cd = malloc(sizeof(struct crypto_t) * 4096);
+    crypto_t *cd = malloc(sizeof(crypto_t) * 4096);
     int tuple_count = select_crypto(query, cd);
     printf("select_crypto tuple_count: %d\n", tuple_count);
 
@@ -138,7 +136,7 @@ int search_similarity(struct query_t *query, struct query_t *result)
     uint64_t ssize = interval / day_unix; // size of array
 
     // initialize arrays
-    struct array_t source;
+    array_t source;
     init_array(&source, tuple_count);
     vec_fill(cd, query, tuple_count, &source);
 
@@ -150,12 +148,12 @@ int search_similarity(struct query_t *query, struct query_t *result)
     double source_distance = vec_distance(source.rows, ssize);
     double sim;
     while (x < tuple_count) {
-        struct array_t target;
+        array_t target;
         init_array(&target, tuple_count);
         if (x % resolution == 0) {
             uint64_t y = x;
             while (y < tuple_count) {
-                struct row_t *row_y = malloc(sizeof(struct row_t));
+                row_t *row_y = malloc(sizeof(row_t));
                 row_y->unix_val = cd[y].unix_val;
                 row_y->value = cd[y].close;
                 insert_array(&target, row_y);
@@ -200,7 +198,7 @@ int search_similarity(struct query_t *query, struct query_t *result)
     return 0;
 }
 
-void query_init(struct query_t *query, uint64_t searchio, uint64_t start_date,
+void query_init(query_t *query, uint64_t searchio, uint64_t start_date,
                 uint64_t end_date, uint64_t user_id)
 {
     query->searchio = searchio;

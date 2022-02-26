@@ -1,0 +1,17 @@
+[Unit]
+Description=Tarantool instance
+After=network.target
+Documentation=man:tarantool(1)
+
+[Service]
+Type=simple
+User=tarantool
+WorkingDirectory=/home/tarantool
+
+ExecStart=/usr/bin/tarantool init.lua
+ExecReload=/bin/kill -HUP $MAINPID
+
+TimeoutSec=300
+
+[Install]
+WantedBy=multi-user.target

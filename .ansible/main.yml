@@ -1,0 +1,55 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  tasks:
+    - name: create tarantool user
+      user:
+        name: tarantool
+        shell: /bin/bash
+        create_home: yes
+        home: /home/tarantool
+
+    - name: check tarantool installation
+      stat:
+        path: /usr/bin/tarantool
+      register: tarantool
+
+    - name: get script
+      get_url:
+        url: "https://tarantool.io/release/2.8/installer.sh"
+        dest: "{{ ansible_env.HOME }}/installer.sh"
+        mode: "0644"
+      when: not tarantool.stat.exists
+
+    - name: execute script
+      command: chdir={{ ansible_env.HOME }} bash installer.sh
+      when: not tarantool.stat.exists
+
+    - name: install tarantool packages
+      yum:
+        name:
+          - unzip
+          - lua
+          - tarantool
+          - cartridge-cli
+      when: not tarantool.stat.exists
+
+    - name: copy init.lua
+      copy:
+        src: init.lua
+        dest: /home/tarantool/init.lua
+        mode: 0644
+
+    - name: copy tarantool.service
+      copy:
+        src: tarantool.service
+        dest: /etc/systemd/system/tarantool.service
+        mode: 0644
+
+    - name: enable and restart tarantool.service
+      systemd:
+        name: tarantool.service
+        enabled: yes
+        daemon_reload: yes
+        state: restarted
