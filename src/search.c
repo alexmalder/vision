@@ -178,7 +178,7 @@ int search_similarity(struct query_t *query, struct query_t *result)
                                         distance, x, y, sim, source.rows,
                                         target.rows);
 
-                        insert_result(query, &target, request_id);
+                        //insert_result(query, &target, request_id);
                         break;
                     }
                     free_array(&target);

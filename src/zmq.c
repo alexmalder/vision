@@ -24,6 +24,7 @@ int zmq_listen()
     void *context = zmq_ctx_new();
     void *responder = zmq_socket(context, ZMQ_REP);
     int rc = zmq_bind(responder, "tcp://*:5555");
+    printf("consumer_active=1\n");
     while (consumer_active) {
         char buffer[128];
         zmq_recv(responder, buffer, 128, 0);
