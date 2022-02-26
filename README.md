@@ -103,7 +103,7 @@ Get tranparency of trading platform with computer vision technologies now!
 -   gateway[high_level]
 -   tarantool[low_level]
 
-## Result preparation
+## Response ctx
 
 -   find similarities
 -   vec slide

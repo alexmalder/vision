@@ -62,13 +62,14 @@ void query_init(query_t *query, uint64_t searchio, uint64_t start_date,
  * 1. Find tuples by unix_val range
  * 2. Insert founded values to a target array
  * 
- * @param cd crypto data array pointer
+ * @param source crypto data array pointer
  * @param query real user input
  * @param tuple_count tarantool tuple count
  * @param target array for operation result
  * @return int operation state
  */
-int vec_fill(crypto_t *cd, query_t *query, int tuple_count, array_t *target);
+int vec_fill(crypto_t *source, query_t *query, int tuple_count,
+             array_t *target);
 /**
  * @brief vec_slide
  *

@@ -1,13 +1,16 @@
 #include "../include/vision.h"
 
-int vec_fill(crypto_t *cd, query_t *query, int tuple_count, array_t *target)
+static uint64_t resolution = 10;
+static double thresh = 0.995;
+
+int vec_fill(crypto_t *source, query_t *query, int tuple_count, array_t *target)
 {
     for (uint64_t i = 0; i < tuple_count; i++) {
-        if (cd[i].unix_val >= query->start_date &&
-            cd[i].unix_val < query->end_date) {
+        if (source[i].unix_val >= query->start_date &&
+            source[i].unix_val < query->end_date) {
             row_t *row_i = malloc(sizeof(row_t));
-            row_i->unix_val = cd[i].unix_val;
-            row_i->value = cd[i].close;
+            row_i->unix_val = source[i].unix_val;
+            row_i->value = source[i].close;
             insert_array(target, row_i);
         }
     }
@@ -60,31 +63,31 @@ int vec_merge(row_t *source, row_t *target, uint64_t end)
     return 0;
 }
 
+uint64_t calculate_size(query_t *query)
+{
+    uint64_t day_unix = 86400; // one day in unix format: constant
+    uint64_t interval = query->end_date - query->start_date; // get interval
+    uint64_t ssize = interval / day_unix; // size of array
+    return ssize;
+}
+
 int vec_search(query_t *query, query_t *result)
 {
     // extract all
     crypto_t *cd = malloc(sizeof(crypto_t) * 4096);
     int tuple_count = select_crypto(query, cd);
-    printf("select_crypto tuple_count: %d\n", tuple_count);
-
-    // initialize parameters
-    uint64_t day_unix = 86400; // one day in unix format: constant
-    uint64_t interval = query->end_date - query->start_date; // get interval
-    uint64_t ssize = interval / day_unix; // size of array
-
-    // initialize arrays
-    array_t source;
-    init_array(&source, tuple_count);
-    vec_fill(cd, query, tuple_count, &source);
-
+    uint64_t ssize = calculate_size(query);
     // extract by range, extract by currency type
-    uint64_t resolution = 10;
-    double thresh = 0.995;
     uint64_t x = 0;
     uint64_t sl = ssize;
-    double source_distance = vec_distance(source.rows, ssize);
     double sim;
     while (x < tuple_count) {
+        // src
+        array_t source;
+        init_array(&source, tuple_count);
+        vec_fill(cd, query, tuple_count, &source);
+        double source_distance = vec_distance(source.rows, ssize);
+        // dest
         array_t target;
         init_array(&target, tuple_count);
         if (x % resolution == 0) {
@@ -98,24 +101,22 @@ int vec_search(query_t *query, query_t *result)
                     sim = vec_similarity(target.rows, source.rows, ssize);
                     if (sim > thresh) {
                         double distance;
-                        double target_distance =
-                            vec_distance(target.rows, ssize);
+                        double target_distance = vec_distance(target.rows, ssize);
                         if (source_distance > target_distance) {
-                            distance = source_distance / target_distance;
-                            vec_stabilization(target.rows, ssize, distance);
+                            printf("SOURCE[%lf] > TARGET[%lf]\n", source_distance, target_distance);
                         } else {
-                            distance = target_distance / source_distance;
-                            vec_stabilization(source.rows, ssize, distance);
+                            printf("TARGET[%lf] < SOURCE[%lf]\n", target_distance, source_distance);
                         }
+                        if (source_distance > target_distance) { distance = source_distance / target_distance; vec_stabilization(target.rows, ssize, distance); }
+                        else { distance = target_distance / source_distance; vec_stabilization(source.rows, ssize, distance); }
                         //vec_merge(target.rows, source.rows, ssize);
-                        debug_iteration(query, target.rows[0].unix_val,
-                                        target.rows[ssize].unix_val, ssize, sl,
-                                        distance, x, y, sim, source.rows,
-                                        target.rows);
+                        debug_iteration(query, target.rows[0].unix_val, target.rows[ssize].unix_val, ssize, sl, distance, x, y, sim, source.rows, target.rows);
 
                         //insert_result(query, &target, request_id);
-                        break;
+                        //break;
                     }
+                    free_array(&source);
+                    init_array(&source, tuple_count);
                     free_array(&target);
                     init_array(&target, tuple_count);
                 }
@@ -124,13 +125,11 @@ int vec_search(query_t *query, query_t *result)
             sl += resolution;
             x += resolution;
         }
-        if (sim > thresh) {
-            break;
-        }
+        //if (sim > thresh) { break; }
         x++;
+        free_array(&source);
         free_array(&target);
     }
-    free_array(&source);
     free(cd);
     return 0;
 }

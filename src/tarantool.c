@@ -31,9 +31,9 @@ int insert_result(query_t *query, array_t *array, uint64_t request_id)
     tnt_reply_init(&reply);
     tnt->read_reply(tnt, &reply);
     if (reply.code != 0) {
-        printf("Insert failed %llu.\n", reply.code);
+        printf("Insert failed %lu.\n", reply.code);
     }
-    printf("Tuple inserted with code %llu.\n", reply.code);
+    printf("Tuple inserted with code %lu.\n", reply.code);
     fflush(stdout);
     tnt_close(tnt);
     tnt_stream_free(tnt);
@@ -51,18 +51,18 @@ int delete_result(query_t *query)
         printf("Connection refused \n");
         return -1;
     }
-    const char *format = "[%d]";
+    const char *format = "[%d%d]";
     struct tnt_stream *tuple = tnt_object(NULL);
-    tnt_object_format(tuple, format, query->user_id);
+    tnt_object_format(tuple, format, query->user_id, query->searchio);
     tnt_insert(tnt, RESULT_SPACE, tuple);
     tnt_flush(tnt);
     struct tnt_reply reply;
     tnt_reply_init(&reply);
     tnt->read_reply(tnt, &reply);
     if (reply.code != 0) {
-        printf("Delete failed %llu.\n", reply.code);
+        printf("Delete failed %lu.\n", reply.code);
     }
-    printf("Tuple deleted with code %llu.\n", reply.code);
+    printf("Tuple deleted with code %lu.\n", reply.code);
     fflush(stdout);
     tnt_close(tnt);
     tnt_stream_free(tuple);
@@ -89,7 +89,7 @@ int select_crypto(query_t *query, crypto_t *cd)
     tnt_reply_init(&reply);
     tnt->read_reply(tnt, &reply);
     if (reply.code != 0) {
-        printf("Select failed with status code %lld.\n", reply.code);
+        printf("Select failed with status code %ld.\n", reply.code);
         exit(1);
     }
     char field_type;
@@ -122,7 +122,6 @@ int select_crypto(query_t *query, crypto_t *cd)
 
         double open = mp_decode_double(&reply.data);
         cd[i].open = open;
-        printf("%lf\n", open);
 
         double high = mp_decode_double(&reply.data);
         cd[i].high = high;
