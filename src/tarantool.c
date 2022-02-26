@@ -1,4 +1,4 @@
-#include "vision.h"
+#include "../include/vision.h"
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -7,8 +7,7 @@
 static int CRYPTO_SPACE = 513;
 static int RESULT_SPACE = 514;
 
-int insert_result(struct query_t *query, struct array_t *array,
-                  uint64_t request_id)
+int insert_result(query_t *query, array_t *array, uint64_t request_id)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
@@ -23,9 +22,7 @@ int insert_result(struct query_t *query, struct array_t *array,
     const char *format = "[%d%d%d%d%lf]";
     for (uint64_t i = 0; i < array->size; i++) {
         struct tnt_stream *tuple = tnt_object(NULL);
-        tnt_object_format(tuple, format, query->user_id, request_id,
-                          array->rows[i].unix_val, query->searchio,
-                          array->rows[i].value);
+        tnt_object_format(tuple, format, query->user_id, request_id, array->rows[i].unix_val, query->searchio, array->rows[i].value);
         tnt_insert(tnt, RESULT_SPACE, tuple);
     }
     tnt_flush(tnt);
@@ -43,7 +40,7 @@ int insert_result(struct query_t *query, struct array_t *array,
     return 0;
 }
 
-int delete_result(struct query_t *query)
+int delete_result(query_t *query)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
@@ -73,7 +70,7 @@ int delete_result(struct query_t *query)
     return 0;
 }
 
-int select_crypto(struct query_t *query, struct crypto_t *cd)
+int select_crypto(query_t *query, crypto_t *cd)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];

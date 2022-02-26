@@ -2,6 +2,10 @@
 
 # VISION
 
+## Doxygen[only_self_hosted]
+
+[Documentation](/vision_8h.html)
+
 ## Motivation
 
 We have a lot of cryptocurrency services, but this is stupidly. No linear conditions in you'r trading strategies...

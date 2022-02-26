@@ -1,8 +1,8 @@
-#include "vision.h"
+#include "../include/vision.h"
 #include <stdint.h>
 
-void debug_iteration(struct query_t *query, uint64_t founded_start_date, uint64_t founded_end_date, uint64_t ssize, uint64_t slide, double distance,
-                     uint64_t x, uint64_t y, double sim, struct row_t *source, struct row_t *target)
+void debug_iteration(query_t *query, uint64_t founded_start_date, uint64_t founded_end_date, uint64_t ssize, uint64_t slide, double distance,
+                     uint64_t x, uint64_t y, double sim, row_t *source, row_t *target)
 {
     char buffer[4096 * 3];
     char source_buffer[4096];

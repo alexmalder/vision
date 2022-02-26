@@ -1,18 +1,5 @@
-#include "vision.h"
+#include "../include/vision.h"
 
-/**
- * @brief vec_fill
- *
- * Model of operation
- * 1. Find tuples by unix_val range
- * 2. Insert founded values to a target array
- * 
- * @param cd crypto data array pointer
- * @param query real user input
- * @param tuple_count tarantool tuple count
- * @param target array for operation result
- * @return int operation state
- */
 int vec_fill(crypto_t *cd, query_t *query, int tuple_count, array_t *target)
 {
     for (uint64_t i = 0; i < tuple_count; i++) {
@@ -26,36 +13,12 @@ int vec_fill(crypto_t *cd, query_t *query, int tuple_count, array_t *target)
     }
     return 0;
 }
-/**
- * @brief vec_slide
- *
- * Model of operation
- * 1. Increment unix_val range by step size
- * 2. Find real data with incremented unix_val range
- * 3. Make vector stabilization with founded distance
- * 4. Write vector to a database
- * 5. Fill start_date and end_date values in result
- * 6. Return result
- *  
- * @param cd crypto data array pointer
- * @param result output example data structure
- * @param tuple_count tarantool tuple count 
- * @param target array for operation result
- * @return int operation state
- */
+
 int vec_slide(crypto_t *cd, query_t *result, int tuple_count, array_t *target)
 {
     return 0;
 }
 
-/**
- * @brief vec_similarity
- * 
- * @param a source array
- * @param b target array
- * @param end length of array
- * @return double similarity
- */
 double vec_similarity(row_t *a, row_t *b, uint64_t end)
 {
     double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
@@ -67,13 +30,6 @@ double vec_similarity(row_t *a, row_t *b, uint64_t end)
     return dot / (sqrt(denom_a) * sqrt(denom_b));
 }
 
-/**
- * @brief vec_distance
- * 
- * @param target array for distance extraction
- * @param end length of array
- * @return double 
- */
 double vec_distance(row_t *target, uint64_t end)
 {
     double distance;
@@ -84,14 +40,6 @@ double vec_distance(row_t *target, uint64_t end)
     return (distance / end);
 }
 
-/**
- * @brief vec_stabilization
- * 
- * @param source array for stabilization by distance
- * @param end length of array
- * @param distance is factor
- * @return int operation state
- */
 int vec_stabilization(row_t *source, uint64_t end, double distance)
 {
     uint64_t i;
@@ -101,17 +49,6 @@ int vec_stabilization(row_t *source, uint64_t end, double distance)
     return 0;
 }
 
-/**
- * @brief vec_merge
- * 
- * Model of operation:
- * - this is not default vector merge
- * 
- * @param source array is read only
- * @param target array is mutable
- * @param end length of array
- * @return int operation state
- */
 int vec_merge(row_t *source, row_t *target, uint64_t end)
 {
     double sum;

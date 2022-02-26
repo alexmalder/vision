@@ -1,4 +1,4 @@
-#include "vision.h"
+#include "../include/vision.h"
 #include <stdlib.h>
 
 static bool consumer_active = 1;
@@ -32,7 +32,7 @@ int zmq_listen()
         const char *r = buffer;
         uint32_t tuple_count;
         tuple_count = mp_decode_array(&r);
-        struct query_t *query = malloc(sizeof(struct query_t));
+        query_t *query = malloc(sizeof(query_t));
         //for (int i = 0; i < tuple_count; i++) {
         query->searchio = mp_decode_uint(&r);
         query->start_date = mp_decode_uint(&r);
@@ -40,12 +40,12 @@ int zmq_listen()
         query->user_id = mp_decode_uint(&r);
         //printf("iter: %d, val: %lld\n", i, val);
         //}
-        struct query_t *result = malloc(sizeof(struct query_t));
+        query_t *result = malloc(sizeof(query_t));
         //uint64_t request_id = (unsigned long)time(NULL);
         uint64_t request_id = 1;
         result->searchio = request_id;
         result->user_id = query->user_id;
-        search_similarity(query, result);
+        vec_search(query, result);
         char buf[128];
         char *w = buf;
         w = mp_encode_array(w, 3);
