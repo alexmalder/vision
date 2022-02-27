@@ -1,4 +1,0 @@
-#!/bin/bash
-ansible-playbook .ansible/main.yml \
-    -e "TNT_USER=${TNT_USER}" \
-    -e "TNT_PASSWORD=${TNT_PASSWORD}"
