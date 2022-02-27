@@ -1,7 +1,8 @@
+-- listen all
 box.cfg {
     listen = "0.0.0.0:3301"
 }
---test str
+
 box.once("bootstrap", function()
     box.schema.space.create('account')
     box.space.account:format({
@@ -71,6 +72,6 @@ box.once("bootstrap", function()
             }
         })
 
-    box.schema.user.create('tnt_user', {password = 'dG50X3Bhc3N3b3JkCg'})
-    box.schema.user.grant('tnt_user','read,write,execute,create,drop','universe')
+    box.schema.user.create('{{ TNT_USER }}', {password = '{{ TNT_PASSWORD }}'})
+    box.schema.user.grant('{{ TNT_USER }}','read,write,execute,create,drop','universe')
 end)
