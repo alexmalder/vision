@@ -13,6 +13,7 @@
 #include <tarantool/tnt_opt.h>
 #include <zmq.h>
 #include <msgpuck.h>
+#include <librdkafka/rdkafka.h>
 
 typedef struct {
     uint64_t unix_val;
