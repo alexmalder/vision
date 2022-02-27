@@ -16,11 +16,13 @@
     url: "https://tarantool.io/release/2.8/installer.sh"
     dest: "{{ ansible_env.HOME }}/installer.sh"
     mode: "0644"
-  when: not tarantool.stat.exists
+  when:
+    - not tarantool.stat.exists
 
 - name: execute script
   command: chdir={{ ansible_env.HOME }} bash installer.sh
-  when: not tarantool.stat.exists
+  when:
+    - not tarantool.stat.exists
 
 - name: install tarantool packages
   yum:
@@ -29,4 +31,14 @@
       - lua
       - tarantool
       - cartridge-cli
-  when: not tarantool.stat.exists
+  when:
+    - not tarantool.stat.exists
+    - ansible_distribution == "CentOS"
+
+- name: install tarantool packages
+  apt:
+    name:
+      - tarantool
+  when:
+    - not tarantool.stat.exists
+    - ansible_distribution == "Debian"
