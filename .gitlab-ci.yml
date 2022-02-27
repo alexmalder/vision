@@ -19,6 +19,7 @@ deploy_docker:
 
 deploy_helm:
   stage: deploy_helm
+  image: dtzar/helm-kubectl
   script:
     - helm repo add chartmuseum $CHARTMUSEUM
     - helm upgrade vision chartmuseum/template
