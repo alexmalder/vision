@@ -5,12 +5,11 @@ variables:
 stages:
   - deploy_docker
   - deploy_helm
-  #- deploy_ansible
 
 deploy_docker:
   stage: deploy_docker
   script:
-    #- docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build . -t $CI_REGISTRY/provisioner/$CI_PROJECT_NAME:$TAG
     - docker push $CI_REGISTRY/provisioner/$CI_PROJECT_NAME:$TAG
   except:
@@ -18,22 +17,11 @@ deploy_docker:
   tags:
     - worker
 
-#deploy_ansible:
-#  stage: deploy_ansible
-#  script:
-#    - ansible-playbook ./.ci/playbook.yml
-#      -e "image=$CI_REGISTRY/provisioner/$CI_PROJECT_NAME:$TAG"
-#      -e "network=vision"
-#  except:
-#    - main
-#  tags:
-#    - worker
-
 deploy_helm:
   stage: deploy_helm
   script:
-    - helm repo add template https://$HARBOR_URI/chartrepo/library
-    - helm upgrade vision template/template
+    - helm repo add chartmuseum $CHARTMUSEUM
+    - helm upgrade vision chartmuseum/template
       --install 
       --atomic
       --namespace $NAMESPACE 
