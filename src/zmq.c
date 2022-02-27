@@ -19,7 +19,7 @@ int zmq_publish()
     return 0;
 }
 
-int zmq_listen()
+int zmq_listen(char *conn_str)
 {
     void *context = zmq_ctx_new();
     void *responder = zmq_socket(context, ZMQ_REP);
@@ -45,7 +45,7 @@ int zmq_listen()
         uint64_t request_id = 1;
         result->searchio = request_id;
         result->user_id = query->user_id;
-        vec_search(query, result);
+        vec_search(conn_str, query);
         char buf[128];
         char *w = buf;
         w = mp_encode_array(w, 3);

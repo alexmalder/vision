@@ -6,7 +6,7 @@ apps:
       cd build
       cmake ..
       make -j4
-      make install
+      sudo make install
       cd ../
       vision
     max_memory_restart: 1024M

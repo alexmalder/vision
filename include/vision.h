@@ -45,12 +45,13 @@ typedef struct {
 } query_t;
 
 // tarantool
-int insert_result(query_t *query, array_t *array, uint64_t request_id);
-int select_crypto(query_t *query, crypto_t *cd);
-int delete_result(query_t *query);
+int insert_result(char *conn_str, query_t *query, array_t *array,
+                  uint64_t request_id);
+int select_crypto(char *conn_str, query_t *query, crypto_t *cd);
+int delete_result(char *conn_str, query_t *query);
 
 // 0mq
-int zmq_listen();
+int zmq_listen(char *conn_str);
 
 // search engine
 void query_init(query_t *query, uint64_t searchio, uint64_t start_date,
@@ -137,7 +138,7 @@ int vec_merge(row_t *source, row_t *target, uint64_t end);
  * @param result by system response
  * @return int operation state
  */
-int vec_search(query_t *query, query_t *result);
+int vec_search(char *conn_str, query_t *query);
 
 // array
 void init_array(array_t *source, size_t initial_size);

@@ -71,11 +71,11 @@ uint64_t calculate_size(query_t *query)
     return ssize;
 }
 
-int vec_search(query_t *query, query_t *result)
+int vec_search(char *conn_str, query_t *query)
 {
     // extract all
     crypto_t *cd = malloc(sizeof(crypto_t) * 4096);
-    int tuple_count = select_crypto(query, cd);
+    int tuple_count = select_crypto(conn_str, query, cd);
     uint64_t ssize = calculate_size(query);
     // extract by range, extract by currency type
     uint64_t x = 0;
@@ -90,6 +90,9 @@ int vec_search(query_t *query, query_t *result)
         // dest
         array_t target;
         init_array(&target, tuple_count);
+        // result
+        array_t result;
+        init_array(&result, tuple_count);
         // iter
         if (x % resolution == 0) {
             uint64_t y = x;
@@ -111,7 +114,10 @@ int vec_search(query_t *query, query_t *result)
                             vec_stabilization(source.rows, ssize, distance);
                         }
                         //vec_merge(target.rows, source.rows, ssize);
-                        debug_iteration(query, target.rows[0].unix_val, target.rows[ssize].unix_val, ssize, ssize_fork, distance, x, y, sim, source.rows, target.rows);
+                        debug_iteration(query, target.rows[0].unix_val,
+                                        target.rows[ssize].unix_val, ssize,
+                                        ssize_fork, distance, x, y, sim,
+                                        source.rows, target.rows);
 
                         //insert_result(query, &target, request_id);
                         //break;
