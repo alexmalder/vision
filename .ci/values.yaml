@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: harbor.vnmntn.com/library/vision
+  repository: ""
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
