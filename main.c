@@ -1,10 +1,11 @@
-#include "src/vision.h"
+#include "include/vision.h"
 
 int main()
 {
-    struct query_t *q = malloc(sizeof(struct query_t));
-    query_init(q, 2, 1630454400, 1638316800, 1);
-    search_similarity(q);
+    query_t *query = malloc(sizeof(query_t));
+    query_t *result = malloc(sizeof(query_t));
+    query_init(query, 2, 1630454400, 1638316800, 1);
+    vec_search(query, result);
     zmq_listen();
     return 0;
 }

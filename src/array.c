@@ -1,26 +1,26 @@
-#include "vision.h"
+#include "../include/vision.h"
 
-void init_array(struct array_t *a, size_t initial_size)
+void init_array(array_t *a, size_t initial_size)
 {
-    a->array = malloc(initial_size * sizeof(double));
+    a->rows = malloc(initial_size * sizeof(row_t));
     a->used = 0;
     a->size = initial_size;
 }
 
-void insert_array(struct array_t *a, double element)
+void insert_array(array_t *a, row_t *row)
 {
     // a->used is the number of used entries, because a->array[a->used++] updates a->used only *after* the array has been accessed.
     // Therefore a->used can go up to a->size
     if (a->used == a->size) {
         a->size *= 2;
-        a->array = realloc(a->array, a->size * sizeof(double));
+        a->rows = realloc(a->rows, a->size * sizeof(row_t));
     }
-    a->array[a->used++] = element;
+    a->rows[a->used++] = *row;
 }
 
-void free_array(struct array_t *a)
+void free_array(array_t *a)
 {
-    free(a->array);
-    a->array = NULL;
+    free(a->rows);
+    a->rows = NULL;
     a->used = a->size = 0;
 }

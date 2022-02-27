@@ -1,4 +1,5 @@
-#include "vision.h"
+#include "../include/vision.h"
+#include <stdint.h>
 #include <stdlib.h>
 
 #define MP_SOURCE 1
@@ -6,7 +7,7 @@
 static int CRYPTO_SPACE = 513;
 static int RESULT_SPACE = 514;
 
-int insert_result(struct array_t *arr)
+int insert_result(query_t *query, array_t *array, uint64_t request_id)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
@@ -19,9 +20,9 @@ int insert_result(struct array_t *arr)
         return -1;
     }
     const char *format = "[%d%d%d%d%lf]";
-    for (uint64_t i = 0; i < arr->size; i++) {
+    for (uint64_t i = 0; i < array->size; i++) {
         struct tnt_stream *tuple = tnt_object(NULL);
-        tnt_object_format(tuple, format, i, i, i, i, arr->array[i]);
+        tnt_object_format(tuple, format, query->user_id, request_id, array->rows[i].unix_val, query->searchio, array->rows[i].value);
         tnt_insert(tnt, RESULT_SPACE, tuple);
     }
     tnt_flush(tnt);
@@ -30,16 +31,46 @@ int insert_result(struct array_t *arr)
     tnt_reply_init(&reply);
     tnt->read_reply(tnt, &reply);
     if (reply.code != 0) {
-        printf("Insert failed %llu.\n", reply.code);
+        printf("Insert failed %lu.\n", reply.code);
     }
-    printf("Tuple inserted with code %llu.\n", reply.code);
+    printf("Tuple inserted with code %lu.\n", reply.code);
     fflush(stdout);
     tnt_close(tnt);
     tnt_stream_free(tnt);
     return 0;
 }
 
-int select_crypto(struct query_t *query, struct crypto_t *cd)
+int delete_result(query_t *query)
+{
+    struct tnt_stream *tnt = tnt_net(NULL);
+    char conn_string[128];
+    sprintf(conn_string, "%s:%s@%s:%s", getenv("TNT_USER"),
+            getenv("TNT_PASSWORD"), getenv("TNT_HOST"), getenv("TNT_PORT"));
+    tnt_set(tnt, TNT_OPT_URI, conn_string);
+    if (tnt_connect(tnt) < 0) {
+        printf("Connection refused \n");
+        return -1;
+    }
+    const char *format = "[%d%d]";
+    struct tnt_stream *tuple = tnt_object(NULL);
+    tnt_object_format(tuple, format, query->user_id, query->searchio);
+    tnt_insert(tnt, RESULT_SPACE, tuple);
+    tnt_flush(tnt);
+    struct tnt_reply reply;
+    tnt_reply_init(&reply);
+    tnt->read_reply(tnt, &reply);
+    if (reply.code != 0) {
+        printf("Delete failed %lu.\n", reply.code);
+    }
+    printf("Tuple deleted with code %lu.\n", reply.code);
+    fflush(stdout);
+    tnt_close(tnt);
+    tnt_stream_free(tuple);
+    tnt_stream_free(tnt);
+    return 0;
+}
+
+int select_crypto(query_t *query, crypto_t *cd)
 {
     struct tnt_stream *tnt = tnt_net(NULL);
     char conn_string[128];
@@ -58,7 +89,7 @@ int select_crypto(struct query_t *query, struct crypto_t *cd)
     tnt_reply_init(&reply);
     tnt->read_reply(tnt, &reply);
     if (reply.code != 0) {
-        printf("Select failed with status code %lld.\n", reply.code);
+        printf("Select failed with status code %ld.\n", reply.code);
         exit(1);
     }
     char field_type;
@@ -91,7 +122,6 @@ int select_crypto(struct query_t *query, struct crypto_t *cd)
 
         double open = mp_decode_double(&reply.data);
         cd[i].open = open;
-        printf("%lf\n", open);
 
         double high = mp_decode_double(&reply.data);
         cd[i].high = high;

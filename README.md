@@ -1,4 +1,10 @@
+# Main Page {#mainpage}
+
 # VISION
+
+## Doxygen[only_self_hosted]
+
+[Documentation](/vision_8h.html)
 
 ## Motivation
 
@@ -36,13 +42,14 @@ Get tranparency of trading platform with computer vision technologies now!
     - human readable fields
         - `start_date`: start date unix format
         - `end_date`: end day unix format, completed interval
-        - `searchio`: symbol of cryptocurrency type
+        - `searchio`: symbol in request or request_id in callback
         - `user_id`: user unique identifier in database
 
 4. write data to tarantool
 
--   RAM
+-   RAM & QUEUE
 
+    -   `symbol`: uint64_t
     -   `ssize`: uint64_t
     -   `slide`: uint64_t
     -   `distance`: double
@@ -52,18 +59,12 @@ Get tranparency of trading platform with computer vision technologies now!
     -   `source`: double[]
     -   `target`: double[]
 
--   TNT
+-   DB
 
     -   `user_id`: uint64_t
     -   `request_id`: uint64_t
     -   `unix`: uint64_t
     -   `symbol`: uint64_t
-    -   `ssize`: uint64_t
-    -   `slide`: uint64_t
-    -   `distance`: double
-    -   `x`: uint64_t
-    -   `y`: uint64_t
-    -   `similarity`: double
     -   `value`: double
 
 5. zmq sending callback for a gateway...
@@ -80,13 +81,13 @@ Get tranparency of trading platform with computer vision technologies now!
 
 > `resolution`: step for increment size of read head
 
-## Implementation specific cases
+## Implementation specific data structures
 
-- array_t
-    - array: array with `double` type like `open` or `close` or etc...
-    - unix: array with `uint64_t` type, unix timestamp: not implemented
-    - used: actual memory usage
-    - size: allocated memory
+-   array_t
+    -   array: array with `double` type like `open` or `close` or etc...
+    -   unix: array with `uint64_t` type, unix timestamp: not implemented
+    -   used: actual memory usage
+    -   size: allocated memory
 
 ## Note
 
@@ -99,44 +100,23 @@ Get tranparency of trading platform with computer vision technologies now!
 
 ## Environment
 
--   tarantool
+-   gateway[high_level]
+-   tarantool[low_level]
 
-## How to build
+## Response ctx
 
-```bash
-#/bin/bash
-set -eo pipefail
-
-mkdir -p build
-cd build
-cmake ..
-make
-make install #optional
-```
-
-## How to connect to tarantool
-
-> interactive
-
-```bash
-tarantool
-```
-
-```lua
---
-console = require('console')
-console.connect('tnt_user:tnt_password@127.0.0.1:3301')
---
-```
+-   find similarities
+-   vec slide
+-   write
 
 ## Workflow
 
--   [x] user sign up and user sign in
--   [x] show similarity by latest items with range
--   [x] client-side configuration of search parameters
--   [x] similar vector stabilization
--   [ ] service result callback !!!
--   [ ] double-line chart
--   [ ] virtual contribution
--   [ ] debug visioner algorithm
--   [ ] auto purchases and auto sales
+-   user sign up and user sign in
+-   show similarity by latest items with range
+-   client-side configuration of search parameters
+-   similar vector stabilization
+-   service result callback
+-   double-line chart
+-   virtual contribution
+-   debug visioner algorithm
+-   auto purchases and auto sales

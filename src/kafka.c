@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <rdkafka.h>
+#include <librdkafka/rdkafka.h>
 
 static volatile sig_atomic_t run = 1;
 
