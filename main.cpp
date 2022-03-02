@@ -1,12 +1,10 @@
 #include <clickhouse/client.h>
 #include <iostream>
+#include <opencv2/core/mat.hpp>
 #include <vector>
-//
-#include <string>
-#include <iterator>
-#include <algorithm>
-#include <functional>
-#include <numeric>
+#include <opencv2/opencv.hpp>
+
+using namespace cv;
 
 static uint64_t resolution = 10;
 static double thresh = 0.995;
@@ -103,32 +101,6 @@ double vec_similarity(std::vector<double> a, std::vector<double> b,
     return dot / (sqrt(denom_a) * sqrt(denom_b));
 }
 
-uint64_t calculate_size(query_t *query)
-{
-    uint64_t day_unix = 86400; // one day in unix format: constant
-    uint64_t interval = query->end_date - query->start_date; // get interval
-    uint64_t ssize = interval / day_unix; // size of array
-    return ssize;
-}
-
-double calculate_distance(std::vector<double> &v1, std::vector<double> &v2)
-{
-    double distance;
-    std::vector<double> distances;
-    for (int x = 0; x < v1.size(); x++) {
-        for (int y = 0; y < v2.size(); y++) {
-            double diffY = v1[y] - v2[y];
-            double diffX = v1[x] - v2[x];
-            distances.push_back(sqrt((diffY * diffY) + (diffX * diffX)));
-        }
-    }
-
-    for (int i = 0; i < distances.size(); i++) {
-        distance += distances[i];
-    }
-    return (distance / distances.size());
-}
-
 int select_crypto(clickhouse::Client &client,
                   std::vector<crypto_t> &crypto_data)
 {
@@ -154,8 +126,6 @@ int vec_search(query_t *query, std::vector<crypto_t> &crypto_data)
 {
     // extract by range, extract by currency type
     uint64_t x = 0;
-    uint64_t ssize = calculate_size(query);
-    uint64_t ssize_fork = ssize;
     double sim;
     // src
     std::vector<double> source;
@@ -165,26 +135,28 @@ int vec_search(query_t *query, std::vector<crypto_t> &crypto_data)
             source.push_back(crypto_data[i].close);
         }
     }
+    uint64_t ssize = source.size();
+    uint64_t ssize_fork = ssize;
     while (x < crypto_data.size()) {
         std::vector<double> target;
         std::vector<double> result;
         if (x % resolution == 0) {
             uint64_t y = x;
             while (y < crypto_data.size()) {
+                std::vector<double> items(ssize);
                 target.push_back(crypto_data[y].close);
                 result.push_back(crypto_data[y + ssize].close);
-
+                Mat m2(ssize, 1, CV_64FC1, new std::vector<double>(ssize));
                 if (y % ssize_fork == 0) {
-                    //std::cout << "source size: " << source.size() << " | target size: " << target.size() << std::endl;
                     sim = vec_similarity(target, source, ssize);
                     if (sim > thresh) {
-                        double vd = calculate_distance(source, target) / 200;
-                        std::cout << "similarity: " << sim
-                                  << " | distance: " << vd << std::endl;
+                        //double vd = calculate_distance(source, target);
+                        Mat m0(ssize, 1, CV_64FC1, source.data());
+                        Mat m1(ssize, 1, CV_64FC1, target.data());
+                        cv::absdiff(m0, m1, m2);
+                        std::cout << m2;
                         //vec_up(target, ssize, vd);
-                        debug_iteration(query, result[0], result[ssize], ssize,
-                                        ssize_fork, vd, x, y, sim, source,
-                                        target);
+                        //debug_iteration(query, result[0], result[ssize], ssize, ssize_fork, 11, x, y, sim, source, target);
                     }
                     target.clear();
                 }
