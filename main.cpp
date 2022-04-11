@@ -1,194 +1,80 @@
-#include <clickhouse/client.h>
+#include "src/lib.hpp"
+
+#include <cstdio>
+#include <cstdlib>
+#include <iterator>
 #include <iostream>
-#include <opencv2/core/mat.hpp>
+#include <fstream>
+#include <sstream>
 #include <vector>
-#include <opencv2/opencv.hpp>
+#include <string>
 
-using namespace cv;
+class CSVRow {
+public:
+    std::string_view operator[](std::size_t index) const
+    {
+        return std::string_view(&m_line[m_data[index] + 1],
+                                m_data[index + 1] - (m_data[index] + 1));
+    }
+    std::size_t size() const
+    {
+        return m_data.size() - 1;
+    }
+    void readNextRow(std::istream &str)
+    {
+        std::getline(str, m_line);
 
-static uint64_t resolution = 10;
-static double thresh = 0.995;
+        m_data.clear();
+        m_data.emplace_back(-1);
+        std::string::size_type pos = 0;
+        while ((pos = m_line.find(',', pos)) != std::string::npos) {
+            m_data.emplace_back(pos);
+            ++pos;
+        }
+        // This checks for a trailing comma with no data after it.
+        pos = m_line.size();
+        m_data.emplace_back(pos);
+    }
 
-struct row_t {
-    uint64_t unix_val;
-    double value;
+private:
+    std::string m_line;
+    std::vector<int> m_data;
 };
 
-struct crypto_t {
-    uint64_t unix_val;
-    std::string datetime;
-    uint64_t symbol;
-    double open;
-    double high;
-    double low;
-    double close;
-    double volume_original;
-    double volume_usd;
-};
-
-struct query_t {
-    uint64_t searchio;
-    uint64_t start_date;
-    uint64_t end_date;
-    uint64_t user_id;
-};
-
-void debug_iteration(query_t *query, uint64_t founded_start_date,
-                     uint64_t founded_end_date, uint64_t ssize, uint64_t slide,
-                     double distance, uint64_t x, uint64_t y, double sim,
-                     std::vector<double> source, std::vector<double> target)
+std::istream &operator>>(std::istream &str, CSVRow &data)
 {
-    char buffer[4096 * 3];
-    char source_buffer[4096];
-    sprintf(source_buffer, "[ ");
-    for (uint64_t i = 0; i < ssize; i++) {
-        if (i == ssize - 1) {
-            sprintf(source_buffer + strlen(source_buffer), "%lf", source[i]);
-        } else {
-            sprintf(source_buffer + strlen(source_buffer), "%lf,", source[i]);
-        }
-    }
-    sprintf(source_buffer + strlen(source_buffer), "]");
-    char target_buffer[4096];
-    sprintf(target_buffer, "[");
-    for (uint64_t i = 0; i < ssize; i++) {
-        if (i == ssize - 1) {
-            sprintf(target_buffer + strlen(target_buffer), "%lf", target[i]);
-        } else {
-            sprintf(target_buffer + strlen(target_buffer), "%lf,", target[i]);
-        }
-    }
-    sprintf(target_buffer + strlen(target_buffer), "]");
-    sprintf(
-        buffer,
-        R"({"symbol": %ld, "query_start_date": %ld, "query_end_date": %ld, "query_user_id": %ld, "founded_start_date": %ld, "founded_end_date": %ld, "ssize": %ld, "slide": %ld, "distance": %lf, "x": %ld, "y": %ld, "similarity": %lf, "source": %s, "target": %s}
-)",
-        query->searchio, query->start_date, query->end_date, query->user_id,
-        founded_start_date, founded_end_date, ssize, slide, distance, x, y, sim,
-        source_buffer, target_buffer);
-    //int status = produce(buffer);
-    printf("%s\n", buffer);
-    //printf("[status: %d]\n", status);
-}
-
-int vec_up(std::vector<double> &source, uint64_t end, double distance)
-{
-    uint64_t i;
-    for (i = 0; i < end; i++) {
-        source[i] *= distance;
-    }
-    return 0;
-}
-
-int vec_down(row_t *source, uint64_t end, double distance)
-{
-    uint64_t i;
-    for (i = 0; i < end; i++) {
-        source[i].value /= distance;
-    }
-    return 0;
-}
-
-double vec_similarity(std::vector<double> a, std::vector<double> b,
-                      uint64_t end)
-{
-    double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
-    for (uint64_t i = 0; i < end; i++) {
-        dot += a[i] * b[i];
-        denom_a += a[i] * a[i];
-        denom_b += b[i] * b[i];
-    }
-    return dot / (sqrt(denom_a) * sqrt(denom_b));
-}
-
-int select_crypto(clickhouse::Client &client,
-                  std::vector<crypto_t> &crypto_data)
-{
-    std::string select("select * from crypto where Symbol = 3");
-    /// Select values inserted in the previous step.
-    client.Select(select, [&crypto_data](const clickhouse::Block &block) {
-        for (size_t i = 0; i < block.GetRowCount(); ++i) {
-            crypto_t cr;
-            cr.unix_val = block[0]->As<clickhouse::ColumnUInt64>()->At(i);
-            cr.datetime = block[1]->As<clickhouse::ColumnString>()->At(i);
-            cr.symbol = block[2]->As<clickhouse::ColumnUInt64>()->At(i);
-            cr.open = block[3]->As<clickhouse::ColumnFloat64>()->At(i);
-            cr.high = block[4]->As<clickhouse::ColumnFloat64>()->At(i);
-            cr.low = block[5]->As<clickhouse::ColumnFloat64>()->At(i);
-            cr.close = block[6]->As<clickhouse::ColumnFloat64>()->At(i);
-            crypto_data.push_back(cr);
-        }
-    });
-    return 0;
-}
-
-int vec_search(query_t *query, std::vector<crypto_t> &crypto_data)
-{
-    // extract by range, extract by currency type
-    uint64_t x = 0;
-    double sim;
-    // src
-    std::vector<double> source;
-    for (uint64_t i = 0; i < crypto_data.size(); i++) {
-        if (crypto_data[i].unix_val > query->start_date &&
-            crypto_data[i].unix_val < query->end_date) {
-            source.push_back(crypto_data[i].close);
-        }
-    }
-    uint64_t ssize = source.size();
-    uint64_t ssize_fork = ssize;
-    while (x < crypto_data.size()) {
-        std::vector<double> target;
-        std::vector<double> result;
-        if (x % resolution == 0) {
-            uint64_t y = x;
-            while (y < crypto_data.size()) {
-                std::vector<double> items(ssize);
-                target.push_back(crypto_data[y].close);
-                result.push_back(crypto_data[y + ssize].close);
-                Mat m2(ssize, 1, CV_64FC1, new std::vector<double>(ssize));
-                if (y % ssize_fork == 0) {
-                    sim = vec_similarity(target, source, ssize);
-                    if (sim > thresh) {
-                        //double vd = calculate_distance(source, target);
-                        Mat m0(ssize, 1, CV_64FC1, source.data());
-                        Mat m1(ssize, 1, CV_64FC1, target.data());
-                        cv::absdiff(m0, m1, m2);
-                        std::cout << m2;
-                        //vec_up(target, ssize, vd);
-                        //debug_iteration(query, result[0], result[ssize], ssize, ssize_fork, 11, x, y, sim, source, target);
-                    }
-                    target.clear();
-                }
-                y++;
-            }
-            ssize_fork += resolution;
-            x += resolution;
-        }
-        x++;
-        target.clear();
-        result.clear();
-    }
-    // clear crypto_data
-    crypto_data.clear();
-    return 0;
+    data.readNextRow(str);
+    return str;
 }
 
 int main()
 {
-    /// Initialize client connection.
-    clickhouse::Client client(clickhouse::ClientOptions()
-                                  .SetHost(std::getenv("CH_HOST"))
-                                  .SetUser(std::getenv("CH_USER"))
-                                  .SetPassword(std::getenv("CH_PASSWORD"))
-                                  .SetDefaultDatabase(std::getenv("CH_DB")));
-    std::vector<crypto_t> crypto_data;
-    select_crypto(client, crypto_data);
+    std::ifstream file("../data/Bitstamp_BTCUSD_1h.csv");
+
+    CSVRow row;
+    std::vector<crypto_t> crypto;
+    while (file >> row) {
+        crypto_t c;
+        c.unix_val = std::stoi(std::string(row[0]));
+        c.datetime = row[1];
+        c.symbol = row[2];
+        c.open = std::stof(std::string(row[3]));
+        c.high = std::stof(std::string(row[4]));
+        c.low = std::stof(std::string(row[5]));
+        c.close = std::stof(std::string(row[6]));
+        c.volume_original = std::stof(std::string(row[7]));
+        c.volume_usd = std::stof(std::string(row[8]));
+        crypto.push_back(c);
+    }
+    for (auto item : crypto) {
+        printf("%ld %s %s %lf %lf %lf %lf %lf %lf\n", item.unix_val,
+               item.datetime.data(), item.symbol.data(), item.open, item.high,
+               item.low, item.close, item.volume_original, item.volume_usd);
+    }
     query_t *query = new query_t();
     query->searchio = 3;
     query->start_date = 1577883661;
-    query->end_date = 1585746061;
+    query->end_date = 1578003661;
     query->user_id = 1;
-    vec_search(query, crypto_data);
-    return 0;
+    vec_search(query, crypto);
 }

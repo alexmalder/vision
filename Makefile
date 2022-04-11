@@ -1,6 +1,7 @@
 run:
 	mkdir -p build
 	cd build && cmake .. && make && ./vision
+	./build/vision
 
 tarantool:
 	cd .ansible && \
