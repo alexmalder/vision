@@ -4,6 +4,7 @@
 #include <math.h>
 #include "csv.hpp"
 #include "structs.hpp"
+#include <limits>
 
 class crypto {
     std::vector<crypto_t> crypto_data;
@@ -51,8 +52,8 @@ public:
         // make filter
         vec_filter(query);
         // static values
-        const int resolution = 10;
-        const double thresh = 0.8;
+        const int resolution = 1;
+        const double thresh = 0.95;
         const int ssize = crypto_data.size();
         // debug values
         std::cout << "data size: " << crypto_data.size() << std::endl;
@@ -60,14 +61,14 @@ public:
         // iteration values
         int x = 0;
         int y = b.size();
-        double sim;
+        float sim = std::numeric_limits<float>::max();
         while (x < ssize) {
             while (y < ssize) {
                 y += resolution, x += resolution;
                 std::vector<double> dest;
                 vec_iteration(b, dest, x, y);
                 sim = vec_similarity(dest, dest.size());
-                if (sim > thresh) {
+                if (sim > thresh && sim < 1) {
                     std::cout << "X: " << x << " Y: " << y
                               << " interval: " << (y - x)
                               << " similarity: " << sim << std::endl;

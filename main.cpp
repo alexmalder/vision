@@ -11,38 +11,40 @@
 
 #include <msgpack.hpp>
 
-void serialize(std::vector<crypto_t> &crypto)
+using tup = std::tuple<int, std::string, double, double, double, double>;
+using vec = std::vector<tup>;
+
+void serialize(std::vector<crypto_t> &crypto_data)
 {
-    std::vector<std::tuple<int, double> > unix;
+    vec unix;
     std::stringstream ss;
-    for (auto item : crypto) {
-        std::tuple<int, double> val = { item.unix_val, item.close };
+    for (auto item : crypto_data) {
+        tup val = { item.unix_val, item.datetime, item.open,
+                    item.high,     item.low,      item.close };
         unix.push_back(val);
     }
     msgpack::pack(ss, unix);
+    std::ofstream outfile("saved.msgpack");
+    outfile << ss.str() << std::endl;
 }
 
-void deserialize(std::stringstream ss)
+void deserialize()
 {
-    std::vector<std::tuple<int, double> > unix;
-    auto const &str = ss.str();
+    std::ifstream t("saved.msgpack");
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+    vec unix;
+    auto const &str = buffer.str();
     auto oh = msgpack::unpack(str.data(), str.size());
     auto obj = oh.get();
-    std::size_t offset = 0;
-    std::cout << "offset: " << offset << std::endl;
-    {
-        auto const &str = ss.str();
-        auto oh = msgpack::unpack(str.data(), str.size(), offset);
-        auto obj = oh.get();
-        std::cout << obj << std::endl;
-        assert(obj.as<decltype(unix)>() == unix);
+    std::cout << obj << std::endl;
+    //assert(obj.as<decltype(unix)>() == unix);
 
-        std::vector<std::tuple<int, double> > dst;
-        obj.convert(dst);
-        for (int i = 0; i < dst.size(); i++) {
-            //std::get<int>();
-            std::cout << std::get<0>(dst[i]) << std::endl;
-        }
+    vec dst;
+    obj.convert(dst);
+    for (int i = 0; i < dst.size(); i++) {
+        //std::get<int>();
+        std::cout << std::get<0>(dst[i]) << " " << std::get<1>(dst[i]) << "\n";
     }
 }
 
@@ -64,16 +66,21 @@ int main()
         c.volume_usd = std::stof(std::string(row[8]));
         crypto_data.push_back(c);
     }
+    /*
     for (auto item : crypto_data) {
         printf("%ld %s %s %lf %lf %lf %lf %lf %lf\n", item.unix_val,
                item.datetime.data(), item.symbol.data(), item.open, item.high,
                item.low, item.close, item.volume_original, item.volume_usd);
     }
+    */
     query_t *query = new query_t();
     query->searchio = 3;
     query->start_date = 1641987866;
     query->end_date = 1644666266;
     query->user_id = 1;
-    crypto newcrypto(crypto_data);
-    newcrypto.vec_search(query);
+    //crypto newcrypto(crypto_data);
+    //newcrypto.vec_search(query);
+    //serialize(crypto_data);
+
+    deserialize();
 }
