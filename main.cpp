@@ -9,6 +9,8 @@
 #include <vector>
 #include <string>
 
+#include <msgpack.hpp>
+
 class CSVRow {
 public:
     std::string_view operator[](std::size_t index) const
@@ -47,12 +49,10 @@ std::istream &operator>>(std::istream &str, CSVRow &data)
     return str;
 }
 
-int main()
+void fill_data(std::vector<crypto_t> &crypto)
 {
-    std::ifstream file("../data/Bitstamp_BTCUSD_1h.csv");
-
+    std::ifstream file("../data/Bitstamp_BTCUSD_d.csv");
     CSVRow row;
-    std::vector<crypto_t> crypto;
     while (file >> row) {
         crypto_t c;
         c.unix_val = std::stoi(std::string(row[0]));
@@ -71,10 +71,51 @@ int main()
                item.datetime.data(), item.symbol.data(), item.open, item.high,
                item.low, item.close, item.volume_original, item.volume_usd);
     }
+}
+
+void serialize(std::vector<crypto_t> &crypto)
+{
+    std::vector<std::tuple<int, double> > unix;
+    std::stringstream ss;
+    for (auto item : crypto) {
+        std::tuple<int, double> val = { item.unix_val, item.close };
+        unix.push_back(val);
+    }
+    msgpack::pack(ss, unix);
+}
+
+void deserialize(std::stringstream ss)
+{
+    std::vector<std::tuple<int, double> > unix;
+    auto const &str = ss.str();
+    auto oh = msgpack::unpack(str.data(), str.size());
+    auto obj = oh.get();
+    std::size_t offset = 0;
+    std::cout << "offset: " << offset << std::endl;
+    {
+        auto const &str = ss.str();
+        auto oh = msgpack::unpack(str.data(), str.size(), offset);
+        auto obj = oh.get();
+        std::cout << obj << std::endl;
+        assert(obj.as<decltype(unix)>() == unix);
+
+        std::vector<std::tuple<int, double> > dst;
+        obj.convert(dst);
+        for (int i = 0; i < dst.size(); i++) {
+            //std::get<int>();
+            std::cout << std::get<0>(dst[i]) << std::endl;
+        }
+    }
+}
+
+int main()
+{
+    std::vector<crypto_t> crypto;
+    fill_data(crypto);
     query_t *query = new query_t();
     query->searchio = 3;
-    query->start_date = 1577883661;
-    query->end_date = 1578003661;
+    query->start_date = 1641987866;
+    query->end_date = 1644666266;
     query->user_id = 1;
     vec_search(query, crypto);
 }

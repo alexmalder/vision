@@ -66,7 +66,9 @@ int vec_search(query_t *query, std::vector<crypto_t> &crypto_data)
                     if (sim > thresh) {
                         //double vd = calculate_distance(source, target);
                         //debug_iteration(query, result[0], result[ssize], ssize, ssize_fork, 11, x, y, sim, source, target);
-                        std::cout << "X: " << x << " Y: " << y << " interval: " << (y - x) << " similarity: " << sim << std::endl;
+                        std::cout << "X: " << x << " Y: " << y
+                                  << " interval: " << (y - x)
+                                  << " similarity: " << sim << std::endl;
                     }
                     target.clear();
                 }
