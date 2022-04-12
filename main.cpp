@@ -11,7 +11,8 @@
 
 #include <msgpack.hpp>
 
-using tup = std::tuple<int, std::string, std::string, double, double, double, double, double, double>;
+using tup = std::tuple<int, std::string, std::string, double, double, double,
+                       double, double, double>;
 using vec = std::vector<tup>;
 
 void serialize(std::vector<crypto_t> &crypto_data)
@@ -81,9 +82,7 @@ int main()
     query->start_date = 1641987866;
     query->end_date = 1644666266;
     query->user_id = 1;
-    //crypto newcrypto(crypto_data);
-    //newcrypto.vec_search(query);
-    serialize(crypto_data);
-
-    deserialize();
+    vec_search(crypto_data, query);
+    //serialize(crypto_data);
+    //deserialize();
 }
