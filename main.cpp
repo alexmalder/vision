@@ -11,8 +11,7 @@
 
 #include <msgpack.hpp>
 
-using tup = std::tuple<int, std::string, std::string, double, double, double,
-                       double, double, double>;
+using tup = std::tuple<int, double, double, double, double, double, double>;
 using vec = std::vector<tup>;
 
 void serialize(std::vector<crypto_t> &crypto_data)
@@ -20,10 +19,8 @@ void serialize(std::vector<crypto_t> &crypto_data)
     vec unix;
     std::stringstream ss;
     for (auto item : crypto_data) {
-        tup val = { item.unix_val,  item.datetime,
-                    item.symbol,    item.open,
-                    item.high,      item.low,
-                    item.close,     item.volume_original,
+        tup val = { item.unix_val,  item.open,  item.high,
+                    item.low,       item.close, item.volume_original,
                     item.volume_usd };
         unix.push_back(val);
     }

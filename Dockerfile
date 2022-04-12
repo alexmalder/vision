@@ -3,16 +3,18 @@ FROM alpine:3.14 as builder
 RUN apk update
 RUN apk add \
     g++ \
-    git \
+    #git \
     make \
     cmake \
-    zeromq-dev \
+    nlohmann-json \
+    msgpack-c-dev \
+    #zeromq-dev \
     bash \
     librdkafka-dev
     #openssl-dev 
 COPY ./cmake_install /cmake_install
-RUN /cmake_install rtsisyk/msgpuck master
-RUN /cmake_install tarantool/tarantool-c master
+#RUN /cmake_install rtsisyk/msgpuck master
+#RUN /cmake_install tarantool/tarantool-c master
 
 ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
 WORKDIR /app
@@ -25,7 +27,11 @@ RUN make install
 
 FROM alpine:3.14
 RUN apk update
-RUN apk add zeromq librdkafka-dev
+RUN apk add \
+    #zeromq \
+    librdkafka-dev \
+    msgpack-c \
+    nlohmann-json
 #openssl
 COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /usr/lib /usr/lib
