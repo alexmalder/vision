@@ -68,11 +68,7 @@ int main()
         crypto_data.push_back(c);
     }
 
-    std::string brokers = "192.168.15.5:9092";
-    std::string topic = "data";
-
-    Kafka kafka = Kafka(brokers, topic);
-
+    Kafka *kafka = new Kafka("192.168.15.5:9092", "data");
     for (auto item : crypto_data) {
         nlohmann::json j;
         j["unix_val"] = item.unix_val;
@@ -85,9 +81,10 @@ int main()
         j["volume_original"] = item.volume_original;
         j["volume_usd"] = item.volume_usd;
         std::string message = j.dump();
-        kafka.produce(message);
+        kafka->produce(message);
     }
-    kafka.flush_and_destroy();
+    kafka->flush_and_destroy();
+    delete kafka;
 
     /*
     for (auto item : crypto_data) {
