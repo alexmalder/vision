@@ -3,19 +3,10 @@
 #include <librdkafka/rdkafkacpp.h>
 #include <iostream>
 
-int produce(std::string message)
-{
-    std::string brokers = "127.0.0.1:9092";
-    std::string topic = "log";
-
-    // Create configuration object
-    RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
-
-    std::string errstr;
-
-    // Set bootstrap broker(s).
-    conf->set("bootstrap.servers", brokers, errstr);
-
+class Kafka {
+    std::string brokers;
+    std::string topic;
+    RdKafka::Producer *producer;
     // Set the delivery report callback.
     // The callback is only triggered from ::poll() and ::flush().
     struct ExampleDeliveryReportCb : public RdKafka::DeliveryReportCb {
@@ -32,61 +23,72 @@ int produce(std::string message)
         }
     } ex_dr_cb;
 
-    conf->set("dr_cb", &ex_dr_cb, errstr);
+public:
+    Kafka(std::string brokers, std::string topic)
+    {
+        // Create configuration object
+        this->brokers = brokers;
+        this->topic = topic;
 
-    // Create a producer instance.
-    RdKafka::Producer *producer = RdKafka::Producer::create(conf, errstr);
+        RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
+        std::string errstr;
 
-    delete conf;
+        // Set bootstrap broker(s).
+        conf->set("bootstrap.servers", brokers, errstr);
 
-    // Read messages from stdin and produce to the broker.
-    std::cout
-        << "% Type message value and hit enter to produce message. (empty message to quit)"
-        << std::endl;
+        conf->set("dr_cb", &ex_dr_cb, errstr);
 
-    // Send/Produce message. This is an asynchronous call,
-    // on success it will only enqueue the message on the internal producer queue.
-retry:
-    RdKafka::ErrorCode err = producer->produce(
-        /* Topic name */
-        topic,
-        /* Any Partition */
-        RdKafka::Topic::PARTITION_UA,
-        /* Make a copy of the value */
-        RdKafka::Producer::RK_MSG_COPY /* Copy payload */,
-        /* Value */
-        const_cast<char *>(message.c_str()), message.size(),
-        /* Key */
-        NULL, 0,
-        /* Timestamp (defaults to current time) */
-        0,
-        /* Message headers, if any */
-        NULL,
-        /* Per-message opaque value passed to delivery report */
-        NULL);
+        // Create a producer instance.
+        producer = RdKafka::Producer::create(conf, errstr);
 
-    if (err != RdKafka::ERR_NO_ERROR) {
-        std::cerr << "% Failed to produce to topic " << topic << ": "
-                  << RdKafka::err2str(err) << std::endl;
+        delete conf;
+    }
 
-        if (err == RdKafka::ERR__QUEUE_FULL) {
-            // If the internal queue is full, wait for messages to be delivered and then retry.
-            producer->poll(1000 /*block for max 1000ms*/);
-            goto retry;
-        }
-    } else {
-        std::cout << "% Enqueued message (" << message.size() << " bytes) "
-                  << "for topic " << topic << std::endl;
-    } // A producer application should continually serve the delivery report queue // by calling poll() at frequent intervals. producer->poll(0);
+    int produce(std::string message)
+    {
+        RdKafka::ErrorCode err = producer->produce(
+            /* Topic name */
+            topic,
+            /* Any Partition */
+            RdKafka::Topic::PARTITION_UA,
+            /* Make a copy of the value */
+            RdKafka::Producer::RK_MSG_COPY /* Copy payload */,
+            /* Value */
+            const_cast<char *>(message.c_str()), message.size(),
+            /* Key */
+            NULL, 0,
+            /* Timestamp (defaults to current time) */
+            0,
+            /* Message headers, if any */
+            NULL,
+            /* Per-message opaque value passed to delivery report */
+            NULL);
 
-    /* Wait for final messages to be delivered or fail. */
-    std::cout << "% Flushing final messages..." << std::endl;
-    producer->flush(10 * 1000 /* wait for max 10 seconds */);
+        if (err != RdKafka::ERR_NO_ERROR) {
+            std::cerr << "% Failed to produce to topic " << topic << ": "
+                      << RdKafka::err2str(err) << std::endl;
 
-    if (producer->outq_len() > 0)
-        std::cerr << "% " << producer->outq_len()
-                  << "message(s) were not delivered" << std::endl;
+            if (err == RdKafka::ERR__QUEUE_FULL) {
+                // If the internal queue is full, wait for messages to be delivered and then retry.
+                producer->poll(1000 /*block for max 1000ms*/);
+            }
+        } else {
+            std::cout << "% Enqueued message (" << message.size() << " bytes) "
+                      << "for topic " << topic << std::endl;
+        } // A producer application should continually serve the delivery report queue // by calling poll() at frequent intervals. producer->poll(0);
+        return err;
+    }
 
-    delete producer;
-    return 0;
-}
+    int flush_and_destroy()
+    {
+        /* Wait for final messages to be delivered or fail. */
+        std::cout << "% Flushing final messages..." << std::endl;
+        producer->flush(10 * 1000 /* wait for max 10 seconds */);
+
+        if (producer->outq_len() > 0)
+            std::cerr << "% " << producer->outq_len()
+                      << "message(s) were not delivered" << std::endl;
+
+        delete producer;
+    }
+};

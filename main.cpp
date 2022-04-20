@@ -67,6 +67,28 @@ int main()
         c.volume_usd = std::stof(std::string(row[8]));
         crypto_data.push_back(c);
     }
+
+    std::string brokers = "192.168.15.5:9092";
+    std::string topic = "data";
+
+    Kafka kafka = Kafka(brokers, topic);
+
+    for (auto item : crypto_data) {
+        nlohmann::json j;
+        j["unix_val"] = item.unix_val;
+        j["datetime"] = item.datetime;
+        j["symbol"] = item.symbol;
+        j["open"] = item.open;
+        j["high"] = item.high;
+        j["low"] = item.low;
+        j["close"] = item.close;
+        j["volume_original"] = item.volume_original;
+        j["volume_usd"] = item.volume_usd;
+        std::string message = j.dump();
+        kafka.produce(message);
+    }
+    kafka.flush_and_destroy();
+
     /*
     for (auto item : crypto_data) {
         printf("%ld %s %s %lf %lf %lf %lf %lf %lf\n", item.unix_val,
@@ -79,7 +101,7 @@ int main()
     query->start_date = 1641987866;
     query->end_date = 1644666266;
     query->user_id = 1;
-    vec_search(crypto_data, query);
+    //vec_search(crypto_data, query);
     //serialize(crypto_data);
     //deserialize();
 }

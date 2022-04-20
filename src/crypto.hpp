@@ -57,7 +57,7 @@ void debug_result(int x, int y, double sim, std::vector<crypto_t> &target)
     }
 
     result["obj"] = obj;
-    produce(result.dump());
+    //produce(result.dump());
 }
 
 int vec_search(std::vector<crypto_t> &src, query_t *query)
