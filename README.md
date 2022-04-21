@@ -2,52 +2,17 @@
 
 # VISION
 
-## Doxygen[only_self_hosted]
-
-[Documentation](/vision_8h.html)
-
 ## Motivation
 
 We have a lot of cryptocurrency services, but this is stupidly. No linear conditions in you'r trading strategies...
 
 Get tranparency of trading platform with computer vision technologies now!
 
-## Stack
-
--   msgpuck[serialization]
--   tarantool[database]
--   zmq[communication]
-
 ## Service result
 
 ### Workflow
 
-1. client request
-
-    - `symbol`
-    - `start_date`
-    - `end_date`
-
-2. gateway request
-
-    - `symbol`
-    - `start_date`
-    - `end_date`
-    - `user_id`: extracted from json web token
-
-3. zmq wait msgpack tuple forever
-
-    - example of tuple: `[1630454400, 1638316800, 2, 1]`
-
-    - human readable fields
-        - `start_date`: start date unix format
-        - `end_date`: end day unix format, completed interval
-        - `searchio`: symbol in request or request_id in callback
-        - `user_id`: user unique identifier in database
-
-4. write data to tarantool
-
--   RAM & QUEUE
+-   QUEUE
 
     -   `symbol`: uint64_t
     -   `ssize`: uint64_t
@@ -59,36 +24,6 @@ Get tranparency of trading platform with computer vision technologies now!
     -   `source`: double[]
     -   `target`: double[]
 
--   DB
-
-    -   `user_id`: uint64_t
-    -   `request_id`: uint64_t
-    -   `unix`: uint64_t
-    -   `symbol`: uint64_t
-    -   `value`: double
-
-5. zmq sending callback for a gateway...
-
--   example of tuple: `[1, 1]`
-
--   human readable fields
-    -   `user_id`: uint64_t
-    -   `request_id`: uint64_t
-
-> Hardcoded values in runtime
-
-> `thresh`: minimal of similarity
-
-> `resolution`: step for increment size of read head
-
-## Implementation specific data structures
-
--   array_t
-    -   array: array with `double` type like `open` or `close` or etc...
-    -   unix: array with `uint64_t` type, unix timestamp: not implemented
-    -   used: actual memory usage
-    -   size: allocated memory
-
 ## Note
 
 -   symbols map
@@ -97,17 +32,6 @@ Get tranparency of trading platform with computer vision technologies now!
     -   `ETH/USD`: 3
     -   `LTC/USD`: 4
     -   `XRP/USD`: 5
-
-## Environment
-
--   gateway[high_level]
--   tarantool[low_level]
-
-## Response ctx
-
--   find similarities
--   vec slide
--   write
 
 ## Workflow
 
