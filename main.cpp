@@ -8,7 +8,6 @@
 #include <sstream>
 #include <vector>
 #include <string>
-
 #include <msgpack.hpp>
 
 using tup = std::tuple<int, double, double, double, double, double, double>;

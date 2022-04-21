@@ -12,7 +12,7 @@ RUN apk add \
     bash \
     librdkafka-dev
     #openssl-dev 
-COPY ./cmake_install /cmake_install
+#COPY ./cmake_install /cmake_install
 #RUN /cmake_install rtsisyk/msgpuck master
 #RUN /cmake_install tarantool/tarantool-c master
 
