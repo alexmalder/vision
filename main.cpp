@@ -49,9 +49,8 @@ void deserialize()
     }
 }
 
-int main()
+void scan_data(std::vector<crypto_t> &crypto_data)
 {
-    std::vector<crypto_t> crypto_data;
     std::ifstream file("../data/Bitstamp_BTCUSD_d.csv");
     CSVRow row;
     while (file >> row) {
@@ -67,7 +66,10 @@ int main()
         c.volume_usd = std::stof(std::string(row[8]));
         crypto_data.push_back(c);
     }
+}
 
+void push_data(std::vector<crypto_t> &crypto_data)
+{
     Kafka *kafka = new Kafka("data");
     for (auto item : crypto_data) {
         nlohmann::json j;
@@ -85,7 +87,13 @@ int main()
     }
     kafka->flush_and_destroy();
     delete kafka;
+}
 
+int main()
+{
+    std::vector<crypto_t> crypto_data;
+    scan_data(crypto_data);
+    //push_data(crypto_data);
     /*
     for (auto item : crypto_data) {
         printf("%ld %s %s %lf %lf %lf %lf %lf %lf\n", item.unix_val,
@@ -99,7 +107,7 @@ int main()
     query->end_date = 1644666266;
     query->user_id = 1;
     query->resolution = 3;
-    query->thresh=0.998;
+    query->thresh = 0.998;
     vec_search(crypto_data, query);
     //serialize(crypto_data);
     //deserialize();

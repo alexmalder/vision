@@ -63,7 +63,7 @@ void debug_result(int x, int y, double sim, std::vector<crypto_t> &target)
 
 int vec_search(std::vector<crypto_t> &src, query_t *query)
 {
-    // declave new vector
+    // declare new vector
     std::vector<crypto_t> dest;
     // make filter
     vec_filter(src, dest, query);
