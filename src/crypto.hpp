@@ -57,6 +57,7 @@ void debug_result(int x, int y, double sim, std::vector<crypto_t> &target)
     }
 
     result["obj"] = obj;
+    std::cout << result.dump() << std::endl;
     //produce(result.dump());
 }
 
@@ -67,8 +68,6 @@ int vec_search(std::vector<crypto_t> &src, query_t *query)
     // make filter
     vec_filter(src, dest, query);
     // static values
-    const int resolution = 3;
-    const double thresh = 0.998;
     const int ssize = src.size();
     // debug values
     std::cout << "src size: " << src.size() << std::endl;
@@ -82,10 +81,10 @@ int vec_search(std::vector<crypto_t> &src, query_t *query)
             std::vector<crypto_t> target;
             vec_iteration(src, target, x, y);
             sim = vec_similarity(dest, target, dest.size());
-            if (sim > thresh && sim < 1) {
+            if (sim > query->thresh && sim < 1) {
                 debug_result(x, y, sim, target);
             }
-            y += resolution, x += resolution;
+            y += query->resolution, x += query->resolution;
         }
         x++;
     }

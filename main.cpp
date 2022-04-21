@@ -68,7 +68,7 @@ int main()
         crypto_data.push_back(c);
     }
 
-    Kafka *kafka = new Kafka("192.168.15.5:9092", "data");
+    Kafka *kafka = new Kafka("data");
     for (auto item : crypto_data) {
         nlohmann::json j;
         j["unix_val"] = item.unix_val;
@@ -98,7 +98,9 @@ int main()
     query->start_date = 1641987866;
     query->end_date = 1644666266;
     query->user_id = 1;
-    //vec_search(crypto_data, query);
+    query->resolution = 3;
+    query->thresh=0.998;
+    vec_search(crypto_data, query);
     //serialize(crypto_data);
     //deserialize();
 }

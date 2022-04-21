@@ -4,7 +4,6 @@
 #include <iostream>
 
 class Kafka {
-    std::string brokers;
     std::string topic;
     RdKafka::Producer *producer;
     // Set the delivery report callback.
@@ -24,12 +23,12 @@ class Kafka {
     } ex_dr_cb;
 
 public:
-    Kafka(std::string brokers, std::string topic)
+    Kafka(std::string topic)
     {
-        // Create configuration object
-        this->brokers = brokers;
+        std::string brokers = std::getenv("KAFKA_BROKERS");
         this->topic = topic;
 
+        // Create configuration object
         RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
         std::string errstr;
 
@@ -90,5 +89,7 @@ public:
                       << "message(s) were not delivered" << std::endl;
 
         delete producer;
+        return 0;
+        //return producer->outq_len();
     }
 };
