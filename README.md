@@ -46,7 +46,7 @@ Get tranparency of trading platform with computer vision technologies now!
 
 ## Clickhouse and kafka
 
-## Create table data queue
+### Create table data queue
 
 ```sql
 CREATE TABLE data_queue (
@@ -59,10 +59,14 @@ CREATE TABLE data_queue (
     close Float64,
     volume_original Float64,
     volume_usd Float64
-) ENGINE = Kafka('192.168.15.5:9092', 'data', 'consumer0', 'JSONEachRow');
+) ENGINE = Kafka SETTINGS kafka_broker_list = '192.168.15.5:9092',
+                            kafka_topic_list = 'data',
+                            kafka_group_name = 'clickhouse_consumer_0',
+                            kafka_format = 'JSONEachRow',
+                            kafka_num_consumers = 1;
 ```
 
-## Create table data daily
+### Create table data daily
 
 ```sql
 CREATE TABLE data_daily (
@@ -78,7 +82,7 @@ CREATE TABLE data_daily (
 ) ENGINE = MergeTree() ORDER BY unix_val;
 ```
 
-## Create materialized view data consumer
+### Create materialized view data consumer
 
 ```sql
 CREATE MATERIALIZED VIEW
@@ -97,4 +101,10 @@ GROUP BY
 	close,
 	volume_original, 
 	volume_usd;
+```
+
+### Check result
+
+```sql
+SELECT * FROM data_daily;
 ```
