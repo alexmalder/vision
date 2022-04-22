@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include <msgpack.hpp>
+#include "src/serdes.hpp"
 
 using tup = std::tuple<int, double, double, double, double, double, double>;
 using vec = std::vector<tup>;
@@ -67,39 +68,34 @@ void scan_data(std::vector<crypto_t> &crypto_data)
     }
 }
 
-void push_data(std::vector<crypto_t> &crypto_data)
+void push_data(std::vector<std::string> &messages,
+               std::vector<crypto_t> &crypto_data)
 {
+    vec_construct_origin(messages, crypto_data);
     Kafka *kafka = new Kafka("data");
-    for (auto item : crypto_data) {
-        nlohmann::json j;
-        j["unix_val"] = item.unix_val;
-        j["datetime"] = item.datetime;
-        j["symbol"] = item.symbol;
-        j["open"] = item.open;
-        j["high"] = item.high;
-        j["low"] = item.low;
-        j["close"] = item.close;
-        j["volume_original"] = item.volume_original;
-        j["volume_usd"] = item.volume_usd;
-        std::string message = j.dump();
+    for (std::string message : messages) {
         kafka->produce(message);
     }
     kafka->flush_and_destroy();
     delete kafka;
 }
 
+void print_data(std::vector<crypto_t> &crypto_data)
+{
+    for (auto item : crypto_data) {
+        printf("%d %s %s %lf %lf %lf %lf %lf %lf\n", item.unix_val,
+               item.datetime.data(), item.symbol.data(), item.open, item.high,
+               item.low, item.close, item.volume_original, item.volume_usd);
+    }
+}
+
 int main()
 {
     std::vector<crypto_t> crypto_data;
     scan_data(crypto_data);
-    //push_data(crypto_data);
-    /*
-    for (auto item : crypto_data) {
-        printf("%ld %s %s %lf %lf %lf %lf %lf %lf\n", item.unix_val,
-               item.datetime.data(), item.symbol.data(), item.open, item.high,
-               item.low, item.close, item.volume_original, item.volume_usd);
-    }
-    */
+    std::vector<std::string> messages;
+    vec_construct_origin(messages, crypto_data);
+    //push_data(messages, crypto_data);
     query_t *query = new query_t();
     query->searchio = 3;
     query->start_date = 1641987866;

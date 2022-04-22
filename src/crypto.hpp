@@ -8,6 +8,7 @@
 #include "csv.hpp"
 #include "structs.hpp"
 #include "kafka.hpp"
+#include "serdes.hpp"
 
 double vec_similarity(std::vector<crypto_t> a, std::vector<crypto_t> b,
                       uint64_t end)
@@ -42,23 +43,12 @@ std::vector<crypto_t> vec_iteration(std::vector<crypto_t> &src,
     return dest;
 }
 
-void debug_result(int x, int y, double sim, std::vector<crypto_t> &target)
+void vec_up_to_date(std::vector<crypto_t> &dest, std::vector<crypto_t> &target)
 {
-    nlohmann::json result;
-    result["x"] = x;
-    result["y"] = y;
-    result["sim"] = sim;
-    nlohmann::json obj;
-    for (auto item : target) {
-        nlohmann::json j;
-        j["open"] = item.open;
-        j["close"] = item.close;
-        obj.push_back(j);
+    for (int i = 0; i < target.size(); i++) {
+        target[i].unix_val = dest[i].unix_val;
+        target[i].open = target[i].open += dest[i].open;
     }
-
-    result["obj"] = obj;
-    std::cout << result.dump() << std::endl;
-    //produce(result.dump());
 }
 
 int vec_search(std::vector<crypto_t> &src, query_t *query)
@@ -69,24 +59,32 @@ int vec_search(std::vector<crypto_t> &src, query_t *query)
     vec_filter(src, dest, query);
     // static values
     const int ssize = src.size();
+    const int dsize = dest.size();
     // debug values
-    std::cout << "src size: " << src.size() << std::endl;
-    std::cout << "dest size: " << dest.size() << std::endl;
+    // std::cout << "src size: " << ssize << " and dest size: " << dsize << std::endl;
     // iteration values
     int x = 0;
     int y = dest.size();
     double sim;
+    std::vector<std::string> messages;
     while (x < ssize) {
         while (y < ssize) {
             std::vector<crypto_t> target;
             vec_iteration(src, target, x, y);
             sim = vec_similarity(dest, target, dest.size());
-            if (sim > query->thresh && sim < 1) {
-                debug_result(x, y, sim, target);
+            if (sim > query->thresh && sim < 0.999) {
+                vec_up_to_date(dest, target);
+                vec_construct_result(messages, target, x, y, sim);
             }
             y += query->resolution, x += query->resolution;
         }
         x++;
     }
+    Kafka *kafka = new Kafka("result");
+    for (std::string message : messages) {
+        kafka->produce(message);
+    }
+    kafka->flush_and_destroy();
+    delete kafka;
     return 0;
 }
