@@ -1,5 +1,3 @@
-#include "src/crypto.hpp"
-
 #include <cstdio>
 #include <cstdlib>
 #include <iterator>
@@ -8,93 +6,13 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include <msgpack.hpp>
+#include <httplib.h>
+
 #include "src/serdes.hpp"
+#include "src/crypto.hpp"
 
-using tup = std::tuple<int, double, double, double, double, double, double>;
-using vec = std::vector<tup>;
 
-void serialize(std::vector<crypto_t> &crypto_data)
-{
-    vec unix;
-    std::stringstream ss;
-    for (auto item : crypto_data) {
-        tup val = { item.unix_val, item.open, item.high, item.low, item.close, item.volume_original, item.volume_usd };
-        unix.push_back(val);
-    }
-    msgpack::pack(ss, unix);
-    std::ofstream outfile("saved.msgpack");
-    outfile << ss.str() << std::endl;
-}
-
-void deserialize()
-{
-    std::ifstream t("saved.msgpack");
-    std::stringstream buffer;
-    buffer << t.rdbuf();
-    vec unix;
-    auto const &str = buffer.str();
-    auto oh = msgpack::unpack(str.data(), str.size());
-    auto obj = oh.get();
-    std::cout << obj << std::endl;
-    //assert(obj.as<decltype(unix)>() == unix);
-
-    vec dst;
-    obj.convert(dst);
-    for (int i = 0; i < dst.size(); i++) {
-        //std::get<int>();
-        //std::cout << std::get<0>(dst[i]) << " " << std::get<1>(dst[i]) << "\n";
-    }
-}
-
-void scan_data(std::vector<crypto_t> &crypto_data)
-{
-    std::ifstream file("../data/Bitstamp_BTCUSD_d.csv");
-    CSVRow row;
-    while (file >> row) {
-        crypto_t c;
-        c.unix_val = std::stoi(std::string(row[0]));
-        c.datetime = row[1];
-        c.symbol = row[2];
-        c.open = std::stof(std::string(row[3]));
-        c.high = std::stof(std::string(row[4]));
-        c.low = std::stof(std::string(row[5]));
-        c.close = std::stof(std::string(row[6]));
-        c.volume_original = std::stof(std::string(row[7]));
-        c.volume_usd = std::stof(std::string(row[8]));
-        crypto_data.push_back(c);
-    }
-}
-
-void push_data(std::vector<std::string> &messages, std::vector<crypto_t> &crypto_data)
-{
-    vec_construct_origin(messages, crypto_data);
-    Kafka *kafka = new Kafka("data");
-    for (std::string message : messages) {
-        kafka->produce(message);
-    }
-    kafka->flush_and_destroy();
-    delete kafka;
-}
-
-void print_data(std::vector<crypto_t> &crypto_data)
-{
-    for (auto item : crypto_data) {
-        printf("%d %s %s %lf %lf %lf %lf %lf %lf\n",
-               item.unix_val,
-               item.datetime.data(),
-               item.symbol.data(),
-               item.open,
-               item.high,
-               item.low,
-               item.close,
-               item.volume_original,
-               item.volume_usd);
-    }
-}
-
-int main()
-{
+void test_query() {
     std::vector<crypto_t> crypto_data;
     scan_data(crypto_data);
     std::vector<std::string> messages;
@@ -108,6 +26,25 @@ int main()
     query->resolution = 3;
     query->thresh = 0.998;
     vec_search(crypto_data, query);
-    //serialize(crypto_data);
-    //deserialize();
+}
+
+int main()
+{
+    httplib::Server svr;
+    std::vector<crypto_t> crypto_data;
+    scan_data(crypto_data);
+    svr.Post("/api/crypto", [&crypto_data](const httplib::Request &req, httplib::Response &res) {
+        nlohmann::json data = nlohmann::json::parse(req.body);
+        query_t *query = new query_t();
+        query->searchio = data["searchio"].get<int>();
+        query->start_date = data["start_date"].get<int>();
+        query->end_date = data["end_date"].get<int>();
+        query->user_id = data["user_id"].get<int>();
+        query->resolution = data["resolution"].get<int>();
+        query->thresh = data["thresh"].get<double>();
+        vec_search(crypto_data, query);
+        res.set_content("ok", "text/plain");
+    });
+    std::cout << "httplib server listening on port 9000" << std::endl;
+    svr.listen("0.0.0.0", 9000);
 }

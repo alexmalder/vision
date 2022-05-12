@@ -4,7 +4,7 @@
 #include <math.h>
 #include <limits>
 #include <nlohmann/json.hpp>
-
+#include <fstream>
 #include "csv.hpp"
 #include "structs.hpp"
 #include "kafka.hpp"
@@ -22,7 +22,8 @@ vec_similarity(std::vector<crypto_t> a, std::vector<crypto_t> b, uint64_t end)
     return dot / (sqrt(denom_a) * sqrt(denom_b));
 }
 
-void vec_filter(std::vector<crypto_t> &src,
+void
+vec_filter(std::vector<crypto_t> &src,
                 std::vector<crypto_t> &dest,
                 query_t *query)
 {
@@ -34,7 +35,8 @@ void vec_filter(std::vector<crypto_t> &src,
     }
 }
 
-std::vector<crypto_t> vec_iteration(std::vector<crypto_t> &src,
+std::vector<crypto_t>
+vec_iteration(std::vector<crypto_t> &src,
                                     std::vector<crypto_t> &dest,
                                     int start,
                                     int end)
@@ -45,7 +47,8 @@ std::vector<crypto_t> vec_iteration(std::vector<crypto_t> &src,
     return dest;
 }
 
-void vec_up_to_date(std::vector<crypto_t> &dest, std::vector<crypto_t> &target)
+void
+vec_up_to_date(std::vector<crypto_t> &dest, std::vector<crypto_t> &target)
 {
     for (int i = 0; i < target.size(); i++) {
         target[i].unix_val = dest[i].unix_val;
@@ -53,7 +56,8 @@ void vec_up_to_date(std::vector<crypto_t> &dest, std::vector<crypto_t> &target)
     }
 }
 
-void vec_debug(std::vector<crypto_t> &dest,
+void
+vec_debug(std::vector<crypto_t> &dest,
                std::vector<crypto_t> &target,
                double sim)
 {
@@ -112,4 +116,50 @@ int vec_search(std::vector<crypto_t> &src, query_t *query)
     //kafka->flush_and_destroy();
     //delete kafka;
     return 0;
+}
+
+void scan_data(std::vector<crypto_t> &crypto_data)
+{
+    std::ifstream file("/data/Bitstamp_BTCUSD_1h.csv");
+    CSVRow row;
+    while (file >> row) {
+        crypto_t c;
+        c.unix_val = std::stoi(std::string(row[0]));
+        c.datetime = row[1];
+        c.symbol = row[2];
+        c.open = std::stof(std::string(row[3]));
+        c.high = std::stof(std::string(row[4]));
+        c.low = std::stof(std::string(row[5]));
+        c.close = std::stof(std::string(row[6]));
+        c.volume_original = std::stof(std::string(row[7]));
+        c.volume_usd = std::stof(std::string(row[8]));
+        crypto_data.push_back(c);
+    }
+}
+
+void push_data(std::vector<std::string> &messages, std::vector<crypto_t> &crypto_data)
+{
+    vec_construct_origin(messages, crypto_data);
+    Kafka *kafka = new Kafka("data");
+    for (std::string message : messages) {
+        kafka->produce(message);
+    }
+    kafka->flush_and_destroy();
+    delete kafka;
+}
+
+void print_data(std::vector<crypto_t> &crypto_data)
+{
+    for (auto item : crypto_data) {
+        printf("%d %s %s %lf %lf %lf %lf %lf %lf\n",
+               item.unix_val,
+               item.datetime.data(),
+               item.symbol.data(),
+               item.open,
+               item.high,
+               item.low,
+               item.close,
+               item.volume_original,
+               item.volume_usd);
+    }
 }
