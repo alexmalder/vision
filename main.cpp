@@ -19,9 +19,7 @@ void serialize(std::vector<crypto_t> &crypto_data)
     vec unix;
     std::stringstream ss;
     for (auto item : crypto_data) {
-        tup val = { item.unix_val,  item.open,  item.high,
-                    item.low,       item.close, item.volume_original,
-                    item.volume_usd };
+        tup val = { item.unix_val, item.open, item.high, item.low, item.close, item.volume_original, item.volume_usd };
         unix.push_back(val);
     }
     msgpack::pack(ss, unix);
@@ -68,8 +66,7 @@ void scan_data(std::vector<crypto_t> &crypto_data)
     }
 }
 
-void push_data(std::vector<std::string> &messages,
-               std::vector<crypto_t> &crypto_data)
+void push_data(std::vector<std::string> &messages, std::vector<crypto_t> &crypto_data)
 {
     vec_construct_origin(messages, crypto_data);
     Kafka *kafka = new Kafka("data");
@@ -83,9 +80,16 @@ void push_data(std::vector<std::string> &messages,
 void print_data(std::vector<crypto_t> &crypto_data)
 {
     for (auto item : crypto_data) {
-        printf("%d %s %s %lf %lf %lf %lf %lf %lf\n", item.unix_val,
-               item.datetime.data(), item.symbol.data(), item.open, item.high,
-               item.low, item.close, item.volume_original, item.volume_usd);
+        printf("%d %s %s %lf %lf %lf %lf %lf %lf\n",
+               item.unix_val,
+               item.datetime.data(),
+               item.symbol.data(),
+               item.open,
+               item.high,
+               item.low,
+               item.close,
+               item.volume_original,
+               item.volume_usd);
     }
 }
 
