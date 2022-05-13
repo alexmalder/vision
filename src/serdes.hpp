@@ -7,8 +7,7 @@
 using tup = std::tuple<int, double, double, double, double, double, double>;
 using vec = std::vector<tup>;
 
-void vec_construct_origin(std::vector<std::string> &messages,
-                          std::vector<crypto_t> &crypto_data)
+void vec_construct_origin(std::vector<std::string> &messages, std::vector<crypto_t> &crypto_data)
 {
     for (auto item : crypto_data) {
         nlohmann::json j;
@@ -25,9 +24,7 @@ void vec_construct_origin(std::vector<std::string> &messages,
     }
 }
 
-void vec_construct_result(std::vector<std::string> &messages,
-                          std::vector<crypto_t> &result, int x, int y,
-                          double sim)
+void vec_construct_result(std::vector<std::string> &messages, std::vector<crypto_t> &result, int x, int y, double sim)
 {
     for (auto item : result) {
         nlohmann::json j;

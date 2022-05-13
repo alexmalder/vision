@@ -5,7 +5,7 @@
 -- Create table data queue
 CREATE TABLE data_queue (
     unix_val UInt64,
-    datetime String,
+    datetime Date,
     symbol String,
     open Float64,
     high Float64,
@@ -21,7 +21,7 @@ CREATE TABLE data_queue (
 -- Create table result daily
 CREATE TABLE data_daily (
     unix_val UInt64,
-    datetime String,
+    datetime Date,
     symbol String,
     open Float64,
     high Float64,

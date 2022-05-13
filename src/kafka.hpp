@@ -13,11 +13,9 @@ class Kafka {
         {
             /* If message.err() is non-zero the message delivery failed permanently for the message. */
             if (message.err())
-                std::cerr << "% Message delivery failed: " << message.errstr()
-                          << std::endl;
+                std::cerr << "% Message delivery failed: " << message.errstr() << std::endl;
             else
-                std::cerr << "% Message delivered to topic "
-                          << message.topic_name() << " [" << message.partition()
+                std::cerr << "% Message delivered to topic " << message.topic_name() << " [" << message.partition()
                           << "] at offset " << message.offset() << std::endl;
         }
     } ex_dr_cb;
@@ -53,9 +51,11 @@ public:
             /* Make a copy of the value */
             RdKafka::Producer::RK_MSG_COPY /* Copy payload */,
             /* Value */
-            const_cast<char *>(message.c_str()), message.size(),
+            const_cast<char *>(message.c_str()),
+            message.size(),
             /* Key */
-            NULL, 0,
+            NULL,
+            0,
             /* Timestamp (defaults to current time) */
             0,
             /* Message headers, if any */
@@ -64,8 +64,7 @@ public:
             NULL);
 
         if (err != RdKafka::ERR_NO_ERROR) {
-            std::cerr << "% Failed to produce to topic " << topic << ": "
-                      << RdKafka::err2str(err) << std::endl;
+            std::cerr << "% Failed to produce to topic " << topic << ": " << RdKafka::err2str(err) << std::endl;
 
             if (err == RdKafka::ERR__QUEUE_FULL) {
                 // If the internal queue is full, wait for messages to be delivered and then retry.
@@ -85,8 +84,7 @@ public:
         producer->flush(10 * 1000 /* wait for max 10 seconds */);
 
         if (producer->outq_len() > 0)
-            std::cerr << "% " << producer->outq_len()
-                      << "message(s) were not delivered" << std::endl;
+            std::cerr << "% " << producer->outq_len() << "message(s) were not delivered" << std::endl;
 
         delete producer;
         return 0;

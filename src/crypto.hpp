@@ -1,3 +1,4 @@
+#include <NumCpp/Functions/dot.hpp>
 #include <cstdint>
 #include <iostream>
 #include <vector>
@@ -9,46 +10,34 @@
 #include "structs.hpp"
 #include "kafka.hpp"
 #include "serdes.hpp"
+#include <NumCpp.hpp>
 
-double
-vec_similarity(std::vector<crypto_t> a, std::vector<crypto_t> b, uint64_t end)
+double vec_similarity(std::vector<double> a, std::vector<double> b, uint64_t end)
 {
-    double dot = 0.0, denom_a = 0.0, denom_b = 0.0;
-    for (uint64_t i = 0; i < end; i++) {
-        dot += a[i].open * b[i].open;
-        denom_a += a[i].open * a[i].open;
-        denom_b += b[i].open * b[i].open;
-    }
-    return dot / (sqrt(denom_a) * sqrt(denom_b));
+    const nc::NdArray<double> a_nc = a;
+    const nc::NdArray<double> b_nc = b;
+    nc::NdArray<double> comp = nc::dot(a_nc, b_nc) / (nc::norm(a_nc) * nc::norm(b_nc));
+    return comp[0];
 }
 
-void
-vec_filter(std::vector<crypto_t> &src,
-                std::vector<crypto_t> &dest,
-                query_t *query)
+void vec_filter(std::vector<crypto_t> &src, std::vector<crypto_t> &dest, query_t *query)
 {
     for (uint64_t i = 0; i < src.size(); i++) {
-        if (src[i].unix_val > query->start_date &&
-            src[i].unix_val < query->end_date) {
+        if (src[i].unix_val > query->start_date && src[i].unix_val < query->end_date) {
             dest.push_back(src[i]);
         }
     }
 }
 
-std::vector<crypto_t>
-vec_iteration(std::vector<crypto_t> &src,
-                                    std::vector<crypto_t> &dest,
-                                    int start,
-                                    int end)
+std::vector<double> vec_iteration(std::vector<crypto_t> &src, std::vector<double> &dest, int start, int end)
 {
     for (int i = start; i < end; i++) {
-        dest.push_back(src[i]);
+        dest.push_back(src[i].close);
     }
     return dest;
 }
 
-void
-vec_up_to_date(std::vector<crypto_t> &dest, std::vector<crypto_t> &target)
+void vec_up_to_date(std::vector<crypto_t> &dest, std::vector<crypto_t> &target)
 {
     for (int i = 0; i < target.size(); i++) {
         target[i].unix_val = dest[i].unix_val;
@@ -56,10 +45,7 @@ vec_up_to_date(std::vector<crypto_t> &dest, std::vector<crypto_t> &target)
     }
 }
 
-void
-vec_debug(std::vector<crypto_t> &dest,
-               std::vector<crypto_t> &target,
-               double sim)
+void vec_debug(std::vector<crypto_t> &dest, std::vector<crypto_t> &target, double sim)
 {
     nlohmann::json j0;
     std::vector<double> i0;
@@ -97,9 +83,9 @@ int vec_search(std::vector<crypto_t> &src, query_t *query)
     std::vector<std::string> messages;
     while (x < ssize) {
         while (y < ssize) {
-            std::vector<crypto_t> target;
+            std::vector<double> target;
             vec_iteration(src, target, x, y);
-            sim = vec_similarity(dest, target, dsize);
+            vec_iteration(dest, target) sim = vec_similarity(dest, target, dsize);
             if (sim > query->thresh && sim < 1) {
                 //vec_up_to_date(dest, target);
                 //vec_construct_result(messages, target, x, y, sim);
