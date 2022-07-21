@@ -16,7 +16,7 @@ deploy_docker:
   only:
     - main
   tags:
-    - docker
+    - worker
 
 deploy_helm:
   stage: deploy_helm
@@ -38,4 +38,4 @@ deploy_helm:
   except:
     - main
   tags:
-    - docker
+    - worker
