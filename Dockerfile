@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 
 RUN git clone https://github.com/dpilger26/NumCpp /app/NumCpp
-RUN cp -rv /app/NumCpp/include/* /usr/include/
+RUN cp -r /app/NumCpp/include/* /usr/include/
 
 WORKDIR /app/build
 RUN cmake ..
