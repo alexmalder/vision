@@ -66,7 +66,9 @@ Description
 
 ### `vec_stabilization`
 Model of operation
-1. It's simple! Get median and up (or down) source vector by median
+1. It's simple! Get median and up (or down) source vector by distance
+2. Need return a new vector, now is a mutable function
+
 Description
 - `@param` source array for stabilization by distance
 - `@param` end length of array
