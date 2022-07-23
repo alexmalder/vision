@@ -4,7 +4,6 @@ RUN apk add g++ git make cmake nlohmann-json msgpack-c-dev bash librdkafka-dev
 ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
 WORKDIR /app
 COPY . .
-WORKDIR /app/build
 
 RUN git clone https://github.com/dpilger26/NumCpp
 WORKDIR /app/NumCpp/build
