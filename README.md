@@ -75,7 +75,8 @@ Description
 
 ### `vec_merge`
 Model of operation
-1. This is not default vector merge. Need for multiple stabilization
+1. This is not default vector merge. 
+2. Need for multiple stabilization for high resolution of the potential result 
 
 Description:
 - `@param` source array is read only
@@ -85,8 +86,8 @@ Description:
 
 ### `vec_search`
 Model of operation
-- this is high-level function
-- used by zeromq or run manually for tests
+1. This is high-level function
+2. Used by zeromq or run manually for tests
 
 Description
 - `@param` query by user request
