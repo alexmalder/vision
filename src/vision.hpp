@@ -26,9 +26,13 @@ struct query_t {
 };
 
 class vision {
-    public:
-	void vec_construct_origin(std::vector<std::string> &messages,
-				  std::vector<crypto_t> &crypto_data)
+private:
+	std::vector<crypto_t> crypto_data;
+public:
+	vision()
+	{
+	}
+	void vec_construct_origin(std::vector<std::string> &messages)
 	{
 		for (auto item : crypto_data) {
 			nlohmann::json j;
@@ -138,7 +142,7 @@ class vision {
 		return 0;
 	}
 
-	void scan_data(std::vector<crypto_t> &crypto_data)
+	void scan_data()
 	{
 		std::ifstream jsonfile("/etc/data/data.json");
 		nlohmann::json data = nlohmann::json::parse(jsonfile);
@@ -151,7 +155,6 @@ class vision {
 			c.low = row["low"].get<double>();
 			c.close = row["close"].get<double>();
 			c.volume = row["volume"].get<double>();
-			std::cout << c.unix_val << " | " << c.open << std::endl;
 			crypto_data.push_back(c);
 		}
 	}
@@ -177,9 +180,9 @@ class vision {
 		}
 	}
 
-	void push_data_queue(std::vector<std::string> &messages, std::vector<crypto_t> &crypto_data)
+	void push_data_queue(std::vector<std::string> &messages)
 	{
-		vec_construct_origin(messages, crypto_data);
+		vec_construct_origin(messages);
 		Kafka *kafka = new Kafka("data");
 		for (std::string message : messages) {
 			kafka->produce(message);
@@ -188,7 +191,7 @@ class vision {
 		delete kafka;
 	}
 
-	void print_data_std(std::vector<crypto_t> &crypto_data)
+	void print_data_std()
 	{
 		for (auto item : crypto_data) {
 			printf("%d %s %lf %lf %lf %lf %lf\n", item.unix_val, item.symbol.data(),

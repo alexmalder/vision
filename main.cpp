@@ -10,10 +10,9 @@
 
 int main(void)
 {
-	std::vector<crypto_t> crypto_data;
-	scan_data(crypto_data);
-	std::vector<std::string> messages;
-	vec_construct_origin(messages, crypto_data);
+    vision *v = new vision();
+	v->scan_data();
+	v->print_data_std();
 	//push_data(messages, crypto_data);
 	query_t *query = new query_t();
 	query->searchio = 3;
@@ -22,6 +21,5 @@ int main(void)
 	query->user_id = 1;
 	query->resolution = 3;
 	query->thresh = 0.998;
-	vec_search(crypto_data, query);
 	return 0;
 }

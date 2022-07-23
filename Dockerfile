@@ -8,7 +8,7 @@ COPY . .
 RUN git clone https://github.com/dpilger26/NumCpp /app/NumCpp
 RUN cp -rv /app/NumCpp/include/* /usr/include/
 
-WORKDIR /app
+WORKDIR /app/build
 RUN cmake ..
 RUN make
 RUN make install
