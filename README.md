@@ -20,11 +20,11 @@ Model of operation
 1. Find tuples by unix_val range
 2. Insert founded values to a target array
 
-@param source crypto data array pointer
-@param query real user input
-@param tuple_count tarantool tuple count
-@param target array for operation result
-@return int operation state
+- `@param` source crypto data array pointer
+- `@param` query real user input
+- `@param` tuple_count tarantool tuple count
+- `@param` target array for operation result
+- `@return` int operation state
 
 ### vec_slide
 Model of operation
@@ -35,42 +35,43 @@ Model of operation
 5. Fill start_date and end_date values in result
 6. Return result
  
-@param cd crypto data array pointer
-@param result output example data structure
-@param tuple_count tarantool tuple count 
-@param target array for operation result
-@return int operation state
+- `@param` cd crypto data array pointer
+- `@param` result output example data structure
+- `@param` tuple_count tarantool tuple count 
+- `@param` target array for operation result
+- `@return` int operation state
 
 ### vec_similarity
-@param a source array
-@param b target array
-@param end length of array
-@return double similarity
+- `@param` a source array
+- `@param` b target array
+- `@param` end length of array
+- `@return` double similarity
 
 ### vec_distance
-@param target array for distance extraction
-@param end length of array
-@return double 
+- `@param` target array for distance extraction
+- `@param` end length of array
+- `@return` double 
 
 ### vec_stabilization
-@param source array for stabilization by distance
-@param end length of array
-@param distance is factor
-@return int operation state
+- `@param` source array for stabilization by distance
+- `@param` end length of array
+- `@param` distance is factor
+- `@return` int operation state
 
 ### vec_merge
 Model of operation:
 - this is not default vector merge
 
-@param source array is read only
-@param target array is mutable
-@param end length of array
-@return int operation state
+- `@param` source array is read only
+- `@param` target array is mutable
+- `@param` end length of array
+- `@return` int operation state
 
 ### vec_search
 Description:
 - this is high-level function
 - used by zeromq or run manually for tests
-@param query by user request
-@param result by system response
-@return int operation state
+
+- `@param` query by user request
+- `@param` result by system response
+- `@return` int operation state
