@@ -93,17 +93,16 @@ Model of operation
 
 Description
 - `@param` query by user request
-
-```c
-struct query_t {
-    int searchio;
-    int start_date;
-    int end_date;
-    int user_id;
-    int resolution;
-    double thresh;
-};
-```
+    ```c
+    struct query_t {
+        int searchio;
+        int start_date;
+        int end_date;
+        int user_id;
+        int resolution;
+        double thresh;
+    };
+    ```
 
 - `@param` result by system response
 - `@return` int operation state
