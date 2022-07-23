@@ -32,6 +32,7 @@ public:
 	vision()
 	{
 	}
+
 	void vec_construct_origin(std::vector<std::string> &messages)
 	{
 		for (auto item : crypto_data) {
@@ -156,27 +157,6 @@ public:
 			c.close = row["close"].get<double>();
 			c.volume = row["volume"].get<double>();
 			crypto_data.push_back(c);
-		}
-	}
-
-	void vec_construct_result(std::vector<std::string> &messages, std::vector<crypto_t> &result,
-				  int x, int y, double sim)
-	{
-		for (auto item : result) {
-			nlohmann::json j;
-			// custom
-			j["x"] = x;
-			j["y"] = y;
-			j["sim"] = sim;
-			// basic
-			j["unix_val"] = item.unix_val;
-			j["symbol"] = item.symbol;
-			j["open"] = item.open;
-			j["high"] = item.high;
-			j["low"] = item.low;
-			j["close"] = item.close;
-			j["volume"] = item.volume;
-			messages.push_back(j.dump());
 		}
 	}
 
