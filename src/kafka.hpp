@@ -1,5 +1,7 @@
 // https://github.com/edenhill/librdkafka/blob/master/examples/producer.cpp
 
+#pragma once
+
 #include <librdkafka/rdkafkacpp.h>
 #include <iostream>
 

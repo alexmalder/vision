@@ -5,11 +5,8 @@ ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
 WORKDIR /app
 COPY . .
 
-RUN git clone https://github.com/dpilger26/NumCpp
-WORKDIR /app/NumCpp/build
-RUN cmake .. -DBUILD_TESTS=ON -DBUILD_MULTIPLE_TEST=ON -DBUILD_EXAMPLE_GAUSS_NEWTON_NLLS=ON -DBUILD_EXAMPLE_README=ON
-RUN cmake --build . --config Release 
-RUN cmake --build . --config Release --target install
+RUN git clone https://github.com/dpilger26/NumCpp /app/NumCpp
+RUN cp -rv /app/NumCpp/include/* /usr/include/
 
 WORKDIR /app
 RUN cmake ..
