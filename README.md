@@ -15,6 +15,8 @@ Get tranparency of trading platform with computer vision technologies now!
 -   debug visioner algorithm
 -   auto purchases and auto sales//@file vision.h
 
+## Functions
+
 ### `vec_fill`
 Model of operation
 1. Find tuples by unix_val range
