@@ -1,6 +1,6 @@
 FROM alpine:3.16 as builder
 RUN apk update
-RUN apk add g++ git make cmake nlohmann-json msgpack-c-dev bash librdkafka-dev
+RUN apk add g++ git make cmake nlohmann-json msgpack-c-dev bash librdkafka-dev boost-dev
 ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
 WORKDIR /app
 COPY . .
