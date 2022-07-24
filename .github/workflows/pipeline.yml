@@ -35,7 +35,7 @@ jobs:
             #    tag: 0.0.2
 
       - name: Run playbook
-        uses: dawidd6/action-ansible-playbook@v1
+        uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: playbook.yml
           directory: ./
