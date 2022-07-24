@@ -30,7 +30,7 @@ jobs:
             #  env:
             #    tag: 0.0.2
       - name: Install ansible
-        run: find / | grep yml
+        run: find / | grep playbook.yml
 
           #      - name: Run playbook
           #        uses: dawidd6/action-ansible-playbook@v1
