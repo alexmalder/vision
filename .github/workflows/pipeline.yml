@@ -30,18 +30,17 @@ jobs:
             #  env:
             #    tag: 0.0.2
       - name: Install ansible
-        run: sudo apt update && sudo apt install tree && tree . && pwd
+        run: sudo apt update && sudo apt install tree && tree . && pwd && cd ../ && pwd && tree .
 
-      - name: Run playbook
-        uses: dawidd6/action-ansible-playbook@v1
-        with:
-          playbook: playbook.yml
-          directory: ./
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: |
-            [all]
-            analytics ansible_host=${{ secrets.ANSIBLE_HOST }} ansible_user=root
-          options: |
-            --inventory .hosts
-            --extra-vars hello=there
-
+          #      - name: Run playbook
+          #        uses: dawidd6/action-ansible-playbook@v1
+          #        with:
+          #          playbook: playbook.yml
+          #          directory: ./
+          #          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          #          inventory: |
+          #            [all]
+          #            analytics ansible_host=${{ secrets.ANSIBLE_HOST }} ansible_user=root
+          #          options: |
+          #            --inventory .hosts
+          #            --extra-vars hello=there
