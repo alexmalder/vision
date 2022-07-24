@@ -1,5 +1,4 @@
 FROM archlinux as builder
-RUN apk update
 RUN pacman -Syyu --noconfirm
 RUN pacman -S g++ git make cmake nlohmann-json msgpack-c-dev bash librdkafka boost \
     --noconfirm
