@@ -1,7 +1,7 @@
 FROM archlinux as builder
 RUN pacman -Syyu --noconfirm
 RUN pacman -S \
-    g++ \
+    gcc \
     git \
     make \
     cmake \
