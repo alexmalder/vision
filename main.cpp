@@ -3,17 +3,19 @@
 #include <iterator>
 #include <iostream>
 #include <fstream>
+#include <src/scaner.hpp>
 #include <sstream>
 #include <vector>
 #include <string>
 #include "src/vision.hpp"
+#include <pqxx/pqxx>
 
 int main(void)
 {
-    vision *v = new vision();
-	v->scan_data();
-	v->print_data_std();
-	//push_data(messages, crypto_data);
+	scaner *s = new scaner();
+	s->scan_data();
+	s->print_data_std();
+    vision *v = new vision(s);
 	query_t *query = new query_t();
 	query->searchio = 3;
 	query->start_date = 1641987866;
@@ -21,5 +23,6 @@ int main(void)
 	query->user_id = 1;
 	query->resolution = 3;
 	query->thresh = 0.998;
+    v->vec_search(query);
 	return 0;
 }

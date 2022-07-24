@@ -1,6 +1,8 @@
-FROM alpine:3.16 as builder
+FROM archlinux as builder
 RUN apk update
-RUN apk add g++ git make cmake nlohmann-json msgpack-c-dev bash librdkafka-dev boost-dev
+RUN pacman -Syyu --noconfirm
+RUN pacman -S g++ git make cmake nlohmann-json msgpack-c-dev bash librdkafka boost \
+    --noconfirm
 ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
 WORKDIR /app
 COPY . .
@@ -13,9 +15,9 @@ RUN cmake ..
 RUN make
 RUN make install
 
-FROM alpine:3.14
-RUN apk update
-RUN apk add librdkafka-dev msgpack-c nlohmann-json
+FROM archlinux
+RUN pacman -Syyu --noconfirm
+RUN pacman -S librdkafka msgpack-c nlohmann-json --noconfirm
 COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /usr/lib /usr/lib
 COPY --from=builder /usr/local/bin/vision /usr/local/bin/vision

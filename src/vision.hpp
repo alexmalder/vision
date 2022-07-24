@@ -5,16 +5,7 @@
 #include <NumCpp.hpp>
 #include <nlohmann/json.hpp>
 #include "kafka.hpp"
-
-struct crypto_t {
-	int unix_val;
-	std::string symbol;
-	double open;
-	double high;
-	double low;
-	double close;
-	double volume;
-};
+#include "scaner.hpp"
 
 struct query_t {
 	int searchio;
@@ -26,29 +17,8 @@ struct query_t {
 };
 
 class vision {
-private:
-	std::vector<crypto_t> crypto_data;
 public:
-	vision()
-	{
-	}
-
-	void vec_construct_origin(std::vector<std::string> &messages)
-	{
-		for (auto item : crypto_data) {
-			nlohmann::json j;
-			j["unix_val"] = item.unix_val;
-			j["symbol"] = item.symbol;
-			j["open"] = item.open;
-			j["high"] = item.high;
-			j["low"] = item.low;
-			j["close"] = item.close;
-			j["volume"] = item.volume;
-			messages.push_back(j.dump());
-		}
-	}
-
-	double vec_similarity(std::vector<double> a, std::vector<double> b, uint64_t end)
+	double vec_similarity(std::vector<double> a, std::vector<double> b)
 	{
 		const nc::NdArray<double> a_nc = a;
 		const nc::NdArray<double> b_nc = b;
@@ -56,21 +26,21 @@ public:
 		return comp[0];
 	}
 
-	void vec_filter(std::vector<crypto_t> &src, std::vector<crypto_t> &dest, query_t *query)
+	void vec_filter(std::vector<crypto_t> &dest, query_t *query)
 	{
-		for (uint64_t i = 0; i < src.size(); i++) {
-			if (src[i].unix_val > query->start_date &&
-			    src[i].unix_val < query->end_date) {
-				dest.push_back(src[i]);
+		for (uint64_t i = 0; i < crypto_data.size(); i++) {
+			if (crypto_data[i].unix_val > query->start_date &&
+			    crypto_data[i].unix_val < query->end_date) {
+				dest.push_back(crypto_data[i]);
 			}
 		}
 	}
 
-	std::vector<double> vec_iteration(std::vector<crypto_t> &src, std::vector<double> &dest,
-					  int start, int end)
+	std::vector<double> vec_iteration(int start, int end)
 	{
+        std::vector<double> dest;
 		for (int i = start; i < end; i++) {
-			dest.push_back(src[i].close);
+			dest.push_back(crypto_data[i].open);
 		}
 		return dest;
 	}
@@ -83,18 +53,18 @@ public:
 		}
 	}
 
-	void vec_debug(std::vector<crypto_t> &dest, std::vector<crypto_t> &target, double sim)
+	void vec_debug(std::vector<double> &dest, std::vector<double> &target, double sim)
 	{
 		nlohmann::json j0;
 		std::vector<double> i0;
 		std::vector<double> i1;
 
 		for (auto item : dest) {
-			i0.push_back(item.open);
+			i0.push_back(item);
 		}
 
 		for (auto item : dest) {
-			i1.push_back(item.open);
+			i1.push_back(item);
 		}
 		j0["src"] = i0;
 		j0["dest"] = i1;
@@ -103,79 +73,40 @@ public:
 		std::cout << j0.dump() << std::endl;
 	}
 
-	int vec_search(std::vector<crypto_t> &src, query_t *query)
+	int vec_search(query_t *query)
 	{
-		// declare new vector
-		std::vector<crypto_t> dest;
-		// make filter
-		vec_filter(src, dest, query);
 		// static values
-		const int ssize = src.size();
-		const int dsize = dest.size();
-		// debug values
-		// std::cout << "src size: " << ssize << " and dest size: " << dsize << std::endl;
+		const int ssize = crypto_data.size();
+		std::cout << "crypto_data size: " << ssize << std::endl;
 		// iteration values
-		int x = 0;
-		int y = dest.size();
+		int x = 0 + 31;
+		int y = 31 + 31;
 		double sim;
-		std::vector<std::string> messages;
 		while (x < ssize) {
 			while (y < ssize) {
-				std::vector<double> target;
-				vec_iteration(src, target, x, y);
-				//vec_iteration(dest, target);
-				//sim = vec_similarity(dest, target, dsize);
+				std::vector<double> source = vec_iteration(x - 31, y - 31);
+				std::vector<double> target = vec_iteration(x, y);
+				sim = vec_similarity(source, target);
 				if (sim > query->thresh && sim < 1) {
 					//vec_up_to_date(dest, target);
 					//vec_construct_result(messages, target, x, y, sim);
-					//vec_debug(dest, target, sim);
+					vec_debug(source, target, sim);
 				}
 				y += query->resolution, x += query->resolution;
 			}
 			x++;
 		}
-		//Kafka *kafka = new Kafka("result");
-		//for (std::string message : messages) {
-		//    kafka->produce(message);
-		//}
-		//kafka->flush_and_destroy();
-		//delete kafka;
 		return 0;
 	}
 
-	void scan_data()
+	vision(scaner *s)
 	{
-		std::ifstream jsonfile("/etc/data/data.json");
-		nlohmann::json data = nlohmann::json::parse(jsonfile);
-		for (auto row : data) {
-			crypto_t c;
-			c.unix_val = row["unix_val"].get<int>();
-			c.symbol = row["symbol"].get<std::string>();
-			c.open = row["open"].get<double>();
-			c.high = row["high"].get<double>();
-			c.low = row["low"].get<double>();
-			c.close = row["close"].get<double>();
-			c.volume = row["volume"].get<double>();
-			crypto_data.push_back(c);
-		}
+		this->s = s;
+		this->crypto_data = s->crypto_data;
 	}
 
-	void push_data_queue(std::vector<std::string> &messages)
-	{
-		vec_construct_origin(messages);
-		Kafka *kafka = new Kafka("data");
-		for (std::string message : messages) {
-			kafka->produce(message);
-		}
-		kafka->flush_and_destroy();
-		delete kafka;
-	}
-
-	void print_data_std()
-	{
-		for (auto item : crypto_data) {
-			printf("%d %s %lf %lf %lf %lf %lf\n", item.unix_val, item.symbol.data(),
-			       item.open, item.high, item.low, item.close, item.volume);
-		}
-	}
+private:
+	scaner *s;
+	std::vector<crypto_t> crypto_data;
+	std::vector<double> destination;
 };
