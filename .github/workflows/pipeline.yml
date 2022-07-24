@@ -28,4 +28,4 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ env.tag }}
         env:
-          tag: 0.0.1
+          tag: 0.0.2
