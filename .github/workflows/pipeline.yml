@@ -43,6 +43,6 @@ jobs:
           inventory: |
             [all]
             analytics ansible_host=${{ secrets.ANSIBLE_HOST }} ansible_user=root
-          options: |
-            --inventory .hosts
-            --extra-vars hello=there
+          #options: |
+          #  --inventory .hosts
+          #  --extra-vars hello=there
