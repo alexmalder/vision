@@ -29,9 +29,11 @@ jobs:
             #    tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ env.tag }}
             #  env:
             #    tag: 0.0.2
+      - name: Install ansible
+        run: apt update && apt install ansible
 
       - name: Run playbook
-        uses: dawidd6/action-ansible-playbook@v2.5.0
+        uses: dawidd6/action-ansible-playbook@v1
         with:
           playbook: playbook.yml
           directory: ./
@@ -39,7 +41,7 @@ jobs:
           inventory: |
             [all]
             analytics ansible_host=${{ secrets.ANSIBLE_HOST }} ansible_user=root
-          #options: |
-          #  --inventory .hosts
-          #  --extra-vars hello=there
+          options: |
+            --inventory .hosts
+            --extra-vars hello=there
 
