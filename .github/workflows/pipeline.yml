@@ -22,10 +22,24 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v3
+            #- name: Build and push
+            #  uses: docker/build-push-action@v3
+            #  with:
+            #    push: false
+            #    tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ env.tag }}
+            #  env:
+            #    tag: 0.0.2
+
+      - name: Run playbook
+        uses: dawidd6/action-ansible-playbook@v2
         with:
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ env.tag }}
-        env:
-          tag: 0.0.2
+          playbook: .ansible/playbook.yml
+          directory: ./
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          inventory: |
+            [all]
+            analytics ansible_host=${{ secrets.ANSIBLE_HOST }} ansible_user=root
+          options: |
+            --inventory .hosts
+            --extra-vars hello=there
+

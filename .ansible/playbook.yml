@@ -1,0 +1,8 @@
+---
+- hosts: analytics
+  tasks:
+    - name: check ssh connection
+      command: cat /etc/os-release
+      register: output
+    - debug:
+        var: result
