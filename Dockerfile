@@ -1,22 +1,23 @@
-FROM alpine:3.16 as builder
-RUN apk update
-RUN apk add \
+FROM archlinux as builder
+RUN pacman -Syyu --noconfirm
+RUN pacman -S \
     g++ \
     git \
     make \
     cmake \
     nlohmann-json \
-    msgpack-c-dev \
+    msgpack-c \
     bash \
-    librdkafka-dev \
-    boost-dev \
-    postgresql-dev
+    librdkafka \
+    boost \
+    libpqxx \
+    --noconfirm
 ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
 WORKDIR /app
 RUN git clone https://github.com/dpilger26/NumCpp
 RUN cp -r /app/NumCpp/include/* /usr/include/
-RUN git clone https://github.com/jtv/libpqxx
-RUN cd libpqxx && mkdir build && cd build && cmake .. && make && make install clean
+#RUN git clone https://github.com/jtv/libpqxx
+#RUN cd libpqxx && mkdir build && cd build && cmake .. && make && make install clean
 
 COPY . .
 WORKDIR /app/build
@@ -24,9 +25,9 @@ RUN cmake ..
 RUN make
 RUN make install
 
-FROM alpine:3.14
-RUN apk update
-RUN apk add librdkafka-dev msgpack-c nlohmann-json
+FROM archlinux
+RUN pacman -Syyu --noconfirm
+RUN pacman -Syyu librdkafka-dev msgpack-c nlohmann-json --noconfirm
 COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /usr/lib /usr/lib
 COPY --from=builder /usr/local/bin/vision /usr/local/bin/vision
