@@ -30,7 +30,7 @@ jobs:
             #  env:
             #    tag: 0.0.2
       - name: Install ansible
-        run: apt update && apt install ansible
+        run: sudo apt update && sudo apt install ansible
 
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v1
