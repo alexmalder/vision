@@ -1,5 +1,6 @@
 ---
 - hosts: analytics
+  gather_facts: false
   tasks:
     - name: check ssh connection
       command: cat /etc/os-release
