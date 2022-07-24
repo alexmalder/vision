@@ -27,7 +27,7 @@ RUN make install
 
 FROM archlinux
 RUN pacman -Syyu --noconfirm
-RUN pacman -Syyu librdkafka-dev msgpack-c nlohmann-json --noconfirm
+RUN pacman -Syyu librdkafka msgpack-c nlohmann-json --noconfirm
 COPY --from=builder /usr/local/lib /usr/local/lib
 COPY --from=builder /usr/lib /usr/lib
 COPY --from=builder /usr/local/bin/vision /usr/local/bin/vision
