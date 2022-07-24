@@ -31,7 +31,7 @@ jobs:
             #    tag: 0.0.2
 
       - name: Run playbook
-        uses: dawidd6/action-ansible-playbook@v2
+        uses: dawidd6/action-ansible-playbook@v2.5.0
         with:
           playbook: playbook.yml
           directory: ./
@@ -39,7 +39,7 @@ jobs:
           inventory: |
             [all]
             analytics ansible_host=${{ secrets.ANSIBLE_HOST }} ansible_user=root
-          options: |
-            --inventory .hosts
-            --extra-vars hello=there
+          #options: |
+          #  --inventory .hosts
+          #  --extra-vars hello=there
 
