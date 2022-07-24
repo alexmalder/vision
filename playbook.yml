@@ -6,4 +6,4 @@
       command: cat /etc/os-release
       register: output
     - debug:
-        var: result
+        msg: "{{ output }}"
