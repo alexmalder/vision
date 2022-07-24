@@ -7,3 +7,7 @@
       register: output
     - debug:
         msg: "{{ output }}"
+
+    - name: print var
+      debug:
+        msg: "{{ hello }}"
