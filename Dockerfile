@@ -1,6 +1,6 @@
 FROM archlinux as builder
 RUN pacman -Syyu --noconfirm
-RUN pacman -S gcc git make cmake nlohmann-json msgpack-c-dev bash librdkafka boost libpqxx \
+RUN pacman -S gcc git make cmake nlohmann-json msgpack-c bash librdkafka boost libpqxx \
     --noconfirm
 ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
 WORKDIR /app
