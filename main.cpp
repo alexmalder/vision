@@ -15,7 +15,6 @@ int main(void)
 	scaner *s = new scaner();
 	s->scan_data();
 	s->print_data_std();
-    vision *v = new vision(s);
 	query_t *query = new query_t();
 	query->searchio = 3;
 	query->start_date = 1641987866;
@@ -23,6 +22,8 @@ int main(void)
 	query->user_id = 1;
 	query->resolution = 3;
 	query->thresh = 0.998;
-    v->vec_search(query);
+    query->step = 7;
+	vision *v = new vision(s, query);
+	v->vec_search(query);
 	return 0;
 }

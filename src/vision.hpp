@@ -14,6 +14,7 @@ struct query_t {
 	int user_id;
 	int resolution;
 	double thresh;
+	int step;
 };
 
 class vision {
@@ -29,20 +30,21 @@ public:
 	void vec_filter(std::vector<crypto_t> &dest, query_t *query)
 	{
 		for (uint64_t i = 0; i < crypto_data.size(); i++) {
-			if (crypto_data[i].unix_val > query->start_date &&
-			    crypto_data[i].unix_val < query->end_date) {
+			if (crypto_data[i].unix_val > query->start_date && crypto_data[i].unix_val < query->end_date) {
 				dest.push_back(crypto_data[i]);
 			}
 		}
 	}
 
-	std::vector<double> vec_iteration(int start, int end)
+	std::pair<std::vector<crypto_t>, std::vector<double> > vec_iter(int start, int end)
 	{
-        std::vector<double> dest;
+		std::vector<crypto_t> dest_full;
+		std::vector<double> dest_double;
 		for (int i = start; i < end; i++) {
-			dest.push_back(crypto_data[i].open);
+			dest_full.push_back(crypto_data[i]);
+			dest_double.push_back(crypto_data[i].open);
 		}
-		return dest;
+		return { dest_full, dest_double };
 	}
 
 	void vec_up_to_date(std::vector<crypto_t> &dest, std::vector<crypto_t> &target)
@@ -73,25 +75,30 @@ public:
 		std::cout << j0.dump() << std::endl;
 	}
 
+	void vec_processing(int x, int y)
+	{
+		int step = this->q->step;
+		std::pair<std::vector<crypto_t>, std::vector<double> > source = vec_iter(x - step, y - step);
+		std::pair<std::vector<crypto_t>, std::vector<double> > target = vec_iter(x, y);
+		double sim = vec_similarity(source.second, target.second);
+		if (sim > this->q->thresh && sim < 1) {
+			//vec_up_to_date(dest, target);
+			//vec_construct_result(messages, target, x, y, sim);
+			vec_debug(source.second, target.second, sim);
+		}
+	}
+
 	int vec_search(query_t *query)
 	{
 		// static values
 		const int ssize = crypto_data.size();
 		std::cout << "crypto_data size: " << ssize << std::endl;
 		// iteration values
-		int x = 0 + 31;
-		int y = 31 + 31;
-		double sim;
+		int x = 0 + this->q->step;
+		int y = this->q->step + this->q->step;
 		while (x < ssize) {
 			while (y < ssize) {
-				std::vector<double> source = vec_iteration(x - 31, y - 31);
-				std::vector<double> target = vec_iteration(x, y);
-				sim = vec_similarity(source, target);
-				if (sim > query->thresh && sim < 1) {
-					//vec_up_to_date(dest, target);
-					//vec_construct_result(messages, target, x, y, sim);
-					vec_debug(source, target, sim);
-				}
+				this->vec_processing(x, y);
 				y += query->resolution, x += query->resolution;
 			}
 			x++;
@@ -99,14 +106,16 @@ public:
 		return 0;
 	}
 
-	vision(scaner *s)
+	vision(scaner *s, query_t *q)
 	{
 		this->s = s;
+		this->q = q;
 		this->crypto_data = s->crypto_data;
 	}
 
 private:
 	scaner *s;
+	query_t *q;
 	std::vector<crypto_t> crypto_data;
 	std::vector<double> destination;
 };

@@ -25,7 +25,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          push: false
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/vision:${{ env.tag }}
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ env.tag }}
         env:
-          tag: 0.0.5
+          tag: 0.0.1
